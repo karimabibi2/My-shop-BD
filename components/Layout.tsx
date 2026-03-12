@@ -7,9 +7,9 @@ import {
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { CATEGORIES } from '../constants';
+import { useAuth } from '../context/AuthContext';
 import { useCategory } from '../context/CategoryContext';
 import { useTheme } from '../context/ThemeContext';
-import { useAuth } from '../context/AuthContext';
 
 interface LayoutProps {
   children: ReactNode;
@@ -27,7 +27,7 @@ interface Notification {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { totalItems } = useCart();
   const { isDarkMode, toggleTheme } = useTheme();
-  const { user } = useAuth();
+  const { user, categories } = useAuth();
   const { activeCategory, setActiveCategory, isDrawerOpen, setIsDrawerOpen } = useCategory();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -149,19 +149,24 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <span className={`text-[12px] font-bold ${activeCategory === 'All' ? 'text-[#e62e04]' : 'text-gray-700 dark:text-gray-300'}`}>All Categories</span>
               </button>
 
-              {CATEGORIES.map((cat) => (
+              {categories.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => handleCategorySelect(cat)}
                   className={`w-full flex items-center gap-3 px-4 py-3 transition-colors border-b border-gray-50 dark:border-slate-800 ${activeCategory === cat ? 'bg-red-50 dark:bg-red-950/20' : 'hover:bg-gray-50 dark:hover:bg-slate-800'}`}
                 >
-                  <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 flex-shrink-0">
-                    <img 
-                      src={`https://picsum.photos/seed/${cat.replace(/[^a-zA-Z]/g, '')}/100/100`} 
-                      alt={cat}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
+                    <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 flex-shrink-0">
+                      <img 
+                        src={`https://picsum.photos/seed/${cat.replace(/[^a-zA-Z]/g, '')}/100/100`} 
+                        alt={cat}
+                        referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=100&h=100&fit=crop';
+                        }}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
                   <span className={`text-[12px] font-bold text-left flex-1 ${activeCategory === cat ? 'text-[#e62e04]' : 'text-gray-700 dark:text-gray-300'}`}>
                     {cat}
                   </span>
@@ -194,8 +199,23 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </span>
               )}
             </button>
-            <NavLink to="/profile" className="p-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800 rounded-full transition-colors">
-              <User size={22} />
+            <NavLink to="/profile" className="p-1 hover:bg-gray-50 dark:hover:bg-slate-800 rounded-full transition-colors">
+              {user ? (
+                <img 
+                  src={user.avatar} 
+                  className="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-slate-700" 
+                  alt="Profile"
+                  referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`;
+                  }}
+                />
+              ) : (
+                <div className="p-1 text-gray-700 dark:text-gray-300">
+                  <User size={22} />
+                </div>
+              )}
             </NavLink>
           </div>
 

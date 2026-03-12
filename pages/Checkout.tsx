@@ -12,6 +12,7 @@ const Checkout: React.FC = () => {
   const { user, addOrder, addresses, shippingRates } = useAuth();
   const navigate = useNavigate();
   const [isOrdered, setIsOrdered] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'COD' | 'bKash' | 'Nagad'>('COD');
   const [useSavedAddress, setUseSavedAddress] = useState(addresses.length > 0);
   const [selectedAddressId, setSelectedAddressId] = useState(addresses[0]?.id || '');
   
@@ -61,7 +62,14 @@ const Checkout: React.FC = () => {
       total: totalPayable,
       status: 'Pending',
       date: new Date().toLocaleDateString(),
-      address: finalAddressString
+      address: finalAddressString,
+      customerName: useSavedAddress 
+        ? addresses.find(a => a.id === selectedAddressId)?.fullName 
+        : formData.fullName,
+      phone: useSavedAddress 
+        ? addresses.find(a => a.id === selectedAddressId)?.phone 
+        : formData.phone,
+      paymentMethod
     });
     
     setIsOrdered(true);
@@ -203,6 +211,43 @@ const Checkout: React.FC = () => {
                 />
               </div>
             </>
+          )}
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 flex flex-col gap-4">
+          <h3 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-wider">Payment Method</h3>
+          <div className="grid grid-cols-3 gap-2">
+            <button 
+              type="button"
+              onClick={() => setPaymentMethod('COD')}
+              className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all gap-1 ${paymentMethod === 'COD' ? 'border-[#e62e04] bg-red-50/30 dark:bg-red-950/10' : 'border-gray-50 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30'}`}
+            >
+              <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-slate-700 flex items-center justify-center text-[10px] font-black">COD</div>
+              <span className="text-[8px] font-black uppercase">Cash</span>
+            </button>
+            <button 
+              type="button"
+              onClick={() => setPaymentMethod('bKash')}
+              className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all gap-1 ${paymentMethod === 'bKash' ? 'border-[#e2136e] bg-pink-50/30 dark:bg-pink-950/10' : 'border-gray-50 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30'}`}
+            >
+              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6_X-6X7f6X7X7X7X7X7X7X7X7X7X7X7X7X7&s" alt="bKash" className="w-8 h-8 rounded-lg object-contain" referrerPolicy="no-referrer" onError={(e) => (e.currentTarget.src = 'https://picsum.photos/seed/bkash/32/32')} />
+              <span className="text-[8px] font-black uppercase">bKash</span>
+            </button>
+            <button 
+              type="button"
+              onClick={() => setPaymentMethod('Nagad')}
+              className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all gap-1 ${paymentMethod === 'Nagad' ? 'border-[#f7941d] bg-orange-50/30 dark:bg-orange-950/10' : 'border-gray-50 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30'}`}
+            >
+              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_X-6X7f6X7X7X7X7X7X7X7X7X7X7X7X7X7&s" alt="Nagad" className="w-8 h-8 rounded-lg object-contain" referrerPolicy="no-referrer" onError={(e) => (e.currentTarget.src = 'https://picsum.photos/seed/nagad/32/32')} />
+              <span className="text-[8px] font-black uppercase">Nagad</span>
+            </button>
+          </div>
+          {paymentMethod !== 'COD' && (
+            <div className="bg-amber-50 dark:bg-amber-950/20 p-3 rounded-xl border border-amber-100 dark:border-amber-900/30">
+              <p className="text-[9px] font-bold text-amber-700 dark:text-amber-500 leading-tight">
+                Please complete the payment to our official number after confirming the order. Our team will contact you for the transaction ID.
+              </p>
+            </div>
           )}
         </div>
 

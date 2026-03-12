@@ -56,8 +56,28 @@ const Orders: React.FC = () => {
               
               <div className="flex gap-2 overflow-x-auto no-scrollbar py-1">
                 {order.items.map(item => (
-                  <img key={item.id} src={item.image} className="w-10 h-10 rounded-lg object-contain bg-gray-50 dark:bg-white border border-gray-100 dark:border-slate-800 flex-shrink-0" alt={item.name} />
+                  <img 
+                    key={item.id} 
+                    src={item.image} 
+                    referrerPolicy="no-referrer" 
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=400&h=400&fit=crop';
+                    }}
+                    className="w-10 h-10 rounded-lg object-contain bg-gray-50 dark:bg-white border border-gray-100 dark:border-slate-800 flex-shrink-0" 
+                    alt={item.name} 
+                  />
                 ))}
+              </div>
+              
+              <div className="bg-gray-50 dark:bg-slate-800/50 p-3 rounded-xl border border-gray-100 dark:border-slate-800">
+                <div className="flex flex-col gap-1">
+                  <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Delivery Details</span>
+                  <p className="text-[10px] font-bold text-gray-800 dark:text-white uppercase">{order.customerName}</p>
+                  {order.phone && <p className="text-[10px] font-black text-[#e62e04]">{order.phone}</p>}
+                  <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">Method: {order.paymentMethod || 'COD'}</p>
+                  <p className="text-[10px] text-gray-500 dark:text-gray-400 italic mt-1 leading-tight">{order.address}</p>
+                </div>
               </div>
               
               <div className="flex justify-between items-center mt-1 pt-3 border-t border-gray-50 dark:border-slate-800">

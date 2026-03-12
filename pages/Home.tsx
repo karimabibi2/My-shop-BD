@@ -8,7 +8,7 @@ import { Search, X, SlidersHorizontal } from 'lucide-react';
 
 const Home: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const { allProducts } = useAuth();
+  const { allProducts, bannerImage } = useAuth();
   const { activeCategory, setActiveCategory, setIsDrawerOpen } = useCategory();
 
   const filteredProducts = useMemo(() => {
@@ -57,8 +57,9 @@ const Home: React.FC = () => {
         {activeCategory === 'All' && !searchQuery && (
           <div className="rounded-xl overflow-hidden relative shadow-md h-36 bg-gradient-to-r from-red-600 to-red-400 dark:from-red-900 dark:to-red-700">
             <img 
-              src="https://picsum.photos/seed/shop/800/400" 
+              src={bannerImage} 
               alt="Promo Banner" 
+              referrerPolicy="no-referrer"
               className="w-full h-full object-cover opacity-30"
             />
             <div className="absolute inset-0 flex flex-col justify-center px-6 text-white">

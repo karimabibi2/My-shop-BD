@@ -40,6 +40,8 @@ export interface Order {
   date: string;
   address: string;
   customerName?: string;
+  phone?: string;
+  paymentMethod?: 'COD' | 'bKash' | 'Nagad';
 }
 
 export type CategoryType = string;

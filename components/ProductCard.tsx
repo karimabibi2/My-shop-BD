@@ -51,6 +51,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           alt={product.name} 
           onError={handleImageError}
           loading="lazy"
+          referrerPolicy="no-referrer"
           className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
         />
       </div>

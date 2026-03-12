@@ -1,12 +1,13 @@
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { User, Order, Address, Product } from '../types';
-import { MOCK_PRODUCTS, DELIVERY_RATES } from '../constants';
+import { MOCK_PRODUCTS, DELIVERY_RATES, CATEGORIES } from '../constants';
 
 interface AuthContextType {
   user: User | null;
   orders: Order[];
   allProducts: Product[];
+  categories: string[];
   addresses: Address[];
   shippingRates: Record<string, number>;
   login: (email: string) => void;
@@ -17,9 +18,15 @@ interface AuthContextType {
   updateProduct: (product: Product) => void;
   deleteProduct: (productId: string) => void;
   addProduct: (product: Product) => void;
+  updateCategory: (oldName: string, newName: string) => void;
+  deleteCategory: (name: string) => void;
+  addCategory: (name: string) => void;
   addAddress: (address: Address) => void;
   removeAddress: (addressId: string) => void;
   updateShippingRates: (rates: Record<string, number>) => void;
+  updateUser: (name: string, avatar: string) => void;
+  bannerImage: string;
+  updateBannerImage: (image: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -35,7 +42,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   });
   const [allProducts, setAllProducts] = useState<Product[]>(() => {
     const savedProducts = localStorage.getItem('shopbd_products');
-    return savedProducts ? JSON.parse(savedProducts) : MOCK_PRODUCTS;
+    const products = savedProducts ? JSON.parse(savedProducts) : MOCK_PRODUCTS;
+    
+    // Migration: Fix broken Floral Summer Maxi Dress image for existing users
+    return products.map((p: Product) => {
+      if (p.id === 'w1' && (p.image.includes('photo-1572804013307-a9a111ddae26') || p.image.includes('photo-1515372039744-b8f02a3ae446'))) {
+        return { ...p, image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400&h=400&fit=crop' };
+      }
+      return p;
+    });
+  });
+  const [categories, setCategories] = useState<string[]>(() => {
+    const savedCategories = localStorage.getItem('shopbd_categories');
+    return savedCategories ? JSON.parse(savedCategories) : CATEGORIES;
   });
   const [addresses, setAddresses] = useState<Address[]>(() => {
     const savedAddresses = localStorage.getItem('shopbd_addresses');
@@ -44,6 +63,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [shippingRates, setShippingRates] = useState<Record<string, number>>(() => {
     const savedRates = localStorage.getItem('shopbd_rates');
     return savedRates ? JSON.parse(savedRates) : DELIVERY_RATES;
+  });
+  const [bannerImage, setBannerImage] = useState<string>(() => {
+    const savedBanner = localStorage.getItem('shopbd_banner');
+    return savedBanner || 'https://picsum.photos/seed/shop/800/400';
   });
 
   useEffect(() => {
@@ -59,12 +82,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, [allProducts]);
 
   useEffect(() => {
+    localStorage.setItem('shopbd_categories', JSON.stringify(categories));
+  }, [categories]);
+
+  useEffect(() => {
     localStorage.setItem('shopbd_addresses', JSON.stringify(addresses));
   }, [addresses]);
 
   useEffect(() => {
     localStorage.setItem('shopbd_rates', JSON.stringify(shippingRates));
   }, [shippingRates]);
+
+  useEffect(() => {
+    localStorage.setItem('shopbd_banner', bannerImage);
+  }, [bannerImage]);
 
   const login = (email: string) => {
     const isAdmin = email.toLowerCase() === 'admin@shopbd.com';
@@ -133,6 +164,39 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setAllProducts(prev => [product, ...prev]);
   };
 
+  const updateCategory = (oldName: string, newName: string) => {
+    if (!newName || oldName === newName) return;
+    
+    // Update categories list
+    setCategories(prev => prev.map(c => c === oldName ? newName : c));
+    
+    // Update all products with this category
+    setAllProducts(prev => prev.map(p => p.category === oldName ? { ...p, category: newName } : p));
+  };
+
+  const deleteCategory = (name: string) => {
+    if (!name) return;
+    
+    // 1. Move products to "Uncategorized"
+    setAllProducts(prev => prev.map(p => p.category === name ? { ...p, category: 'Uncategorized' } : p));
+    
+    // 2. Update categories list in one go
+    setCategories(prev => {
+      const filtered = prev.filter(c => c !== name);
+      
+      // Always ensure "Uncategorized" exists if we have products or just as a fallback
+      if (!filtered.includes('Uncategorized')) {
+        return [...filtered, 'Uncategorized'];
+      }
+      return filtered;
+    });
+  };
+
+  const addCategory = (name: string) => {
+    if (!name || categories.includes(name)) return;
+    setCategories(prev => [...prev, name]);
+  };
+
   const addAddress = (address: Address) => {
     setAddresses(prev => [address, ...prev]);
   };
@@ -145,11 +209,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setShippingRates(rates);
   };
 
+  const updateUser = (name: string, avatar: string) => {
+    if (user) {
+      setUser({ ...user, name, avatar });
+    }
+  };
+
+  const updateBannerImage = (image: string) => {
+    setBannerImage(image);
+  };
+
   return (
     <AuthContext.Provider value={{ 
-      user, orders, allProducts, addresses, shippingRates, login, adminLogin, logout, 
-      addOrder, updateOrderStatus, updateProduct, deleteProduct, addProduct,
-      addAddress, removeAddress, updateShippingRates 
+      user, orders, allProducts, categories, addresses, shippingRates, bannerImage, login, adminLogin, logout, 
+      addOrder, updateOrderStatus, updateProduct, deleteProduct, addProduct, updateCategory, deleteCategory, addCategory,
+      addAddress, removeAddress, updateShippingRates, updateUser, updateBannerImage 
     }}>
       {children}
     </AuthContext.Provider>

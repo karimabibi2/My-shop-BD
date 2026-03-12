@@ -102,11 +102,12 @@ export const MOCK_PRODUCTS: Product[] = [
   { id: 'b1', name: 'Luxury Leather Handbag Red', price: 4200, rating: 4.9, category: 'Bag', image: 'https://images.unsplash.com/photo-1594223274512-ad4803739b7c?w=400&h=400&fit=crop', description: 'Premium quality designer bag for special occasions.', isAvailable: true },
   // Jewelry
   { id: 'j1', name: 'Elegant Pearl Necklace Set', price: 1500, rating: 4.7, category: 'Jewelry', image: 'https://images.unsplash.com/photo-1535633302723-999aa2777b50?w=400&h=400&fit=crop', description: 'Timeless piece for elegant evenings.', isAvailable: true },
+  { id: 'j2', name: 'Traditional Gold Plated Jhumka', price: 1250, rating: 4.9, category: 'Jewelry', image: 'https://images.unsplash.com/photo-1630019051930-47382dbdb58c?w=400&h=400&fit=crop', description: 'Beautiful traditional earrings for festive occasions.', isAvailable: true },
   // Beauty
   { id: 'be1', name: 'Ultra-Hydrating Skin Care Set', price: 3200, rating: 4.6, category: 'Beauty And Personal Care', image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&h=400&fit=crop', description: 'Complete kit for glowing skin.', isAvailable: true },
   // Clothing
   { id: 'm1', name: 'Men\'s Premium Bomber Jacket', price: 3450, rating: 4.5, category: 'Men\'s Clothing', image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=400&h=400&fit=crop', description: 'Stylish and warm for the modern man.', isAvailable: true },
-  { id: 'w1', name: 'Floral Summer Maxi Dress', price: 1800, rating: 4.8, category: 'Women\'s Clothing', image: 'https://images.unsplash.com/photo-1572804013307-a9a111ddae26?w=400&h=400&fit=crop', description: 'Lightweight and stylish for warm days.', isAvailable: true },
+  { id: 'w1', name: 'Floral Summer Maxi Dress', price: 1800, rating: 4.8, category: 'Women\'s Clothing', image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400&h=400&fit=crop', description: 'Lightweight and stylish for warm days.', isAvailable: true },
   // Baby
   { id: 'ba1', name: 'Soft Cotton Baby Romper Set', price: 950, rating: 4.9, category: 'Baby Items', image: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400&h=400&fit=crop', description: '100% organic cotton for sensitive skin.', isAvailable: true },
   // Eyewear

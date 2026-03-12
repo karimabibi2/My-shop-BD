@@ -1,7 +1,7 @@
 
 import React from 'react';
 import Layout from '../components/Layout';
-import { CATEGORIES } from '../constants';
+import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { 
   Laptop, 
@@ -22,6 +22,7 @@ const categoryIcons: Record<string, React.ReactNode> = {
 
 const Categories: React.FC = () => {
   const navigate = useNavigate();
+  const { categories } = useAuth();
 
   const handleCategoryClick = (category: string) => {
     // Navigate home and potentially pass state to filter, 
@@ -37,7 +38,7 @@ const Categories: React.FC = () => {
         </h2>
         
         <div className="grid grid-cols-1 gap-3">
-          {CATEGORIES.map((cat) => (
+          {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => handleCategoryClick(cat)}

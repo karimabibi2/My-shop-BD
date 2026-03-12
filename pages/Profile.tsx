@@ -2,17 +2,24 @@
 import React, { useState } from 'react';
 import Layout from '../components/Layout';
 import { useAuth } from '../context/AuthContext';
-import { Package, MapPin, User as UserIcon, LogOut, ChevronRight, Mail, Settings, Lock, ShieldCheck, ArrowRight, RefreshCw, CheckCircle2 } from 'lucide-react';
+import { 
+  Package, MapPin, User as UserIcon, LogOut, ChevronRight, 
+  Mail, Settings, Lock, ShieldCheck, ArrowRight, RefreshCw, 
+  CheckCircle2, XCircle, Image as ImageIcon 
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Profile: React.FC = () => {
-  const { user, login, logout, orders, addresses } = useAuth();
+  const { user, login, logout, orders, addresses, updateUser } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [otp, setOtp] = useState('');
   const [activeTab, setActiveTab] = useState<'login' | 'signup'>('login');
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [newName, setNewName] = useState(user?.name || '');
+  const [newAvatar, setNewAvatar] = useState(user?.avatar || '');
   const navigate = useNavigate();
 
   const handleAuth = (e: React.FormEvent) => {
@@ -35,6 +42,25 @@ const Profile: React.FC = () => {
       login(email || 'guest@example.com');
       setIsLoading(false);
     }, 1000);
+  };
+
+  const handleUpdateProfile = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newName.trim()) {
+      updateUser(newName, newAvatar);
+      setIsEditing(false);
+    }
+  };
+
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setNewAvatar(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSendCode = () => {
@@ -233,13 +259,32 @@ const Profile: React.FC = () => {
       <div className="flex flex-col gap-6 py-6 px-4">
         {/* User Card */}
         <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 flex items-center gap-4 transition-colors">
-          <div className="relative">
-            <img src={user.avatar} className="w-16 h-16 rounded-2xl object-cover border-2 border-white dark:border-slate-800 shadow-sm" alt="User" />
+          <div className="relative flex-shrink-0">
+            <img 
+              src={user.avatar} 
+              referrerPolicy="no-referrer" 
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`;
+              }}
+              className="w-16 h-16 rounded-full object-cover border-2 border-white dark:border-slate-800 shadow-sm aspect-square" 
+              alt="User" 
+            />
             <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border-2 border-white dark:border-slate-900 rounded-full"></div>
           </div>
           <div className="flex-1">
             <h3 className="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tighter">{user.name}</h3>
             <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">{user.email}</p>
+            <button 
+              onClick={() => {
+                setNewName(user.name);
+                setNewAvatar(user.avatar);
+                setIsEditing(true);
+              }}
+              className="mt-1 text-[9px] font-black text-[#e62e04] uppercase tracking-widest hover:underline"
+            >
+              Edit Profile
+            </button>
           </div>
           <button onClick={logout} className="p-2.5 bg-red-50 dark:bg-red-950/20 text-red-500 rounded-xl transition-colors hover:bg-red-100 dark:hover:bg-red-950/40">
             <LogOut size={20} />
@@ -312,6 +357,71 @@ const Profile: React.FC = () => {
             Secure Sign Out
           </button>
         </div>
+
+        {/* Edit Profile Modal */}
+        {isEditing && (
+          <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl p-6 animate-in zoom-in-95 duration-200 shadow-2xl">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-sm font-black uppercase tracking-widest text-[#e62e04] italic">Update Profile</h3>
+                <button onClick={() => setIsEditing(false)} className="p-1 text-gray-400 hover:text-gray-800">
+                  <XCircle size={20} />
+                </button>
+              </div>
+
+              <form onSubmit={handleUpdateProfile} className="flex flex-col gap-5">
+                <div className="flex flex-col items-center gap-4 mb-2">
+                  <div className="relative group flex-shrink-0">
+                    <img 
+                      src={newAvatar} 
+                      className="w-24 h-24 rounded-full object-cover border-4 border-gray-50 dark:border-slate-800 shadow-md aspect-square"
+                      alt="Preview"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`;
+                      }}
+                    />
+                    <label className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                      <ImageIcon size={24} className="text-white" />
+                      <input type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+                    </label>
+                  </div>
+                  <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Tap image to change</p>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[10px] font-black text-gray-500 uppercase tracking-wider">Display Name</label>
+                  <input 
+                    type="text" 
+                    required
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    className="w-full bg-gray-50 dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-xl py-3.5 px-4 focus:border-[#e62e04] focus:ring-0 text-sm dark:text-white font-bold"
+                    placeholder="Your Name"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[10px] font-black text-gray-500 uppercase tracking-wider">Avatar URL (Optional)</label>
+                  <input 
+                    type="text" 
+                    value={newAvatar}
+                    onChange={(e) => setNewAvatar(e.target.value)}
+                    className="w-full bg-gray-50 dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-xl py-3 px-4 focus:border-[#e62e04] focus:ring-0 text-[10px] dark:text-gray-300"
+                    placeholder="https://example.com/image.jpg"
+                  />
+                </div>
+
+                <button 
+                  type="submit"
+                  className="w-full bg-[#e62e04] text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 dark:shadow-none mt-2 text-xs"
+                >
+                  Save Changes
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </Layout>
   );
