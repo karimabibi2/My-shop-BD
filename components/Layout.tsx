@@ -1,0 +1,263 @@
+
+import React, { ReactNode, useState, useRef, useEffect } from 'react';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { 
+  Home, ShoppingCart, User, Bell, Package, Menu, X, 
+  ChevronRight, Grid, Moon, Sun, ShieldAlert 
+} from 'lucide-react';
+import { useCart } from '../context/CartContext';
+import { CATEGORIES } from '../constants';
+import { useCategory } from '../context/CategoryContext';
+import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
+
+interface LayoutProps {
+  children: ReactNode;
+  title?: string;
+}
+
+interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  time: string;
+  isRead: boolean;
+}
+
+const Layout: React.FC<LayoutProps> = ({ children }) => {
+  const { totalItems } = useCart();
+  const { isDarkMode, toggleTheme } = useTheme();
+  const { user } = useAuth();
+  const { activeCategory, setActiveCategory, isDrawerOpen, setIsDrawerOpen } = useCategory();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>([
+    {
+      id: '1',
+      title: 'Welcome to MY shopBD!',
+      message: 'Explore the best products directly curated for you.',
+      time: 'Just now',
+      isRead: false
+    }
+  ]);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  const notificationRef = useRef<HTMLDivElement>(null);
+
+  const unreadCount = notifications.filter(n => !n.isRead).length;
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
+        setIsNotificationsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    setIsDrawerOpen(false);
+    setIsMenuOpen(false);
+  }, [location.pathname, setIsDrawerOpen]);
+
+  const handleCategorySelect = (cat: string) => {
+    setActiveCategory(cat);
+    setIsDrawerOpen(false);
+    if (location.pathname !== '/') {
+      navigate('/');
+    }
+  };
+
+  const toggleCategoryDrawer = () => {
+    setIsDrawerOpen(!isDrawerOpen);
+    if (isMenuOpen) setIsMenuOpen(false);
+  };
+
+  const toggleMainMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+    if (isDrawerOpen) setIsDrawerOpen(false);
+  };
+
+  return (
+    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-slate-950 max-w-md mx-auto relative shadow-xl overflow-hidden font-sans border-x border-gray-100 dark:border-slate-900 transition-colors duration-300">
+      
+      {/* --- Main Sidebar (Hamburger Menu) --- */}
+      <div className={`fixed inset-0 z-[70] transition-all duration-300 ${isMenuOpen ? 'visible opacity-100' : 'invisible opacity-0'}`}>
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsMenuOpen(false)} />
+        <div className={`absolute top-0 left-0 h-full w-64 bg-white dark:bg-slate-900 shadow-2xl transition-transform duration-300 ease-out transform ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+          <div className="flex flex-col h-full">
+            <div className="p-5 border-b border-gray-100 dark:border-slate-800 flex justify-between items-center bg-[#e62e04] text-white">
+              <div className="flex flex-col leading-tight">
+                <span className="text-xl font-black tracking-tighter italic uppercase">Menu</span>
+              </div>
+              <button onClick={() => setIsMenuOpen(false)} className="p-2 hover:bg-black/10 rounded-full transition-colors"><X size={24} /></button>
+            </div>
+            <div className="flex-1 py-2 overflow-y-auto no-scrollbar">
+              <NavLink to="/" onClick={() => setActiveCategory('All')} className="flex items-center gap-4 px-6 py-4 text-gray-700 dark:text-gray-300 font-bold text-sm border-b border-gray-50 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800">
+                <Home size={20} className="text-gray-400" /> Home
+              </NavLink>
+              
+              <NavLink to="/admin" className="flex items-center gap-4 px-6 py-4 text-[#e62e04] font-black text-sm border-b border-gray-50 dark:border-slate-800 bg-red-50 dark:bg-red-950/20 hover:bg-red-100 transition-colors">
+                <ShieldAlert size={20} className="text-[#e62e04]" /> Admin Panel
+              </NavLink>
+
+              <button onClick={() => { setIsMenuOpen(false); setIsDrawerOpen(true); }} className="w-full flex items-center gap-4 px-6 py-4 text-gray-700 dark:text-gray-300 font-bold text-sm border-b border-gray-50 dark:border-slate-800 text-left hover:bg-gray-50 dark:hover:bg-slate-800">
+                <Grid size={20} className="text-gray-400" /> All Categories
+              </button>
+              
+              <button 
+                onClick={toggleTheme}
+                className="w-full flex items-center gap-4 px-6 py-4 text-gray-700 dark:text-gray-300 font-bold text-sm border-b border-gray-50 dark:border-slate-800 text-left hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
+              >
+                {isDarkMode ? <Sun size={20} className="text-amber-400" /> : <Moon size={20} className="text-gray-400" />}
+                {isDarkMode ? 'Light Mode' : 'Dark Mode'}
+              </button>
+
+              <NavLink to="/orders" className="flex items-center gap-4 px-6 py-4 text-gray-700 dark:text-gray-300 font-bold text-sm border-b border-gray-50 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800">
+                <Package size={20} className="text-gray-400" /> My Orders
+              </NavLink>
+              <NavLink to="/profile" className="flex items-center gap-4 px-6 py-4 text-gray-700 dark:text-gray-300 font-bold text-sm border-b border-gray-50 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800">
+                <User size={20} className="text-gray-400" /> Account
+              </NavLink>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* --- Category Drawer --- */}
+      <div className={`fixed inset-0 z-[70] transition-all duration-300 ${isDrawerOpen ? 'visible opacity-100' : 'invisible opacity-0'}`}>
+        <div className="absolute inset-0 bg-black/40" onClick={() => setIsDrawerOpen(false)} />
+        <div className={`absolute top-0 left-0 h-full w-[240px] bg-white dark:bg-slate-900 shadow-2xl transition-transform duration-300 ease-out transform ${isDrawerOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+          <div className="flex flex-col h-full">
+            <div className="p-4 border-b border-gray-100 dark:border-slate-800 flex items-center gap-3 bg-white dark:bg-slate-900 sticky top-0 z-10 shadow-sm">
+              <button onClick={() => setIsDrawerOpen(false)} className="p-1 text-gray-400 hover:text-gray-800 dark:hover:text-white">
+                <X size={22} />
+              </button>
+              <span className="text-[11px] font-black text-gray-800 dark:text-white uppercase tracking-widest">Categories</span>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto no-scrollbar pb-10 bg-white dark:bg-slate-900">
+              <button 
+                onClick={() => handleCategorySelect('All')}
+                className={`w-full flex items-center gap-3 px-4 py-3 transition-colors border-b border-gray-50 dark:border-slate-800 ${activeCategory === 'All' ? 'bg-red-50 dark:bg-red-950/20' : 'hover:bg-gray-50 dark:hover:bg-slate-800'}`}
+              >
+                <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-slate-800 flex items-center justify-center text-[#e62e04]">
+                  <Grid size={20} />
+                </div>
+                <span className={`text-[12px] font-bold ${activeCategory === 'All' ? 'text-[#e62e04]' : 'text-gray-700 dark:text-gray-300'}`}>All Categories</span>
+              </button>
+
+              {CATEGORIES.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => handleCategorySelect(cat)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 transition-colors border-b border-gray-50 dark:border-slate-800 ${activeCategory === cat ? 'bg-red-50 dark:bg-red-950/20' : 'hover:bg-gray-50 dark:hover:bg-slate-800'}`}
+                >
+                  <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 flex-shrink-0">
+                    <img 
+                      src={`https://picsum.photos/seed/${cat.replace(/[^a-zA-Z]/g, '')}/100/100`} 
+                      alt={cat}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <span className={`text-[12px] font-bold text-left flex-1 ${activeCategory === cat ? 'text-[#e62e04]' : 'text-gray-700 dark:text-gray-300'}`}>
+                    {cat}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Header */}
+      <header className="sticky top-0 z-40 bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-800 shadow-sm transition-colors duration-300">
+        <div className="px-4 py-2.5 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <button onClick={toggleMainMenu} className="p-1 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800 rounded transition-colors">
+              <Menu size={26} />
+            </button>
+            <div className="flex flex-col leading-none" onClick={() => { setActiveCategory('All'); navigate('/'); }}>
+              <span className="text-lg font-black text-[#e62e04] tracking-tighter italic cursor-pointer">MY SHOP</span>
+              <span className="text-[8px] font-bold text-gray-900 dark:text-white tracking-[0.2em] uppercase cursor-pointer">BD</span>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-1">
+            <button onClick={() => setIsNotificationsOpen(!isNotificationsOpen)} className="p-2 text-gray-700 dark:text-gray-300 relative hover:bg-gray-50 dark:hover:bg-slate-800 rounded-full transition-colors">
+              <Bell size={22} />
+              {unreadCount > 0 && (
+                <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-[#e62e04] text-white text-[8px] font-bold rounded-full border border-white dark:border-slate-900 flex items-center justify-center animate-pulse">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+            <NavLink to="/profile" className="p-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800 rounded-full transition-colors">
+              <User size={22} />
+            </NavLink>
+          </div>
+
+          {/* Notifications Panel */}
+          {isNotificationsOpen && (
+            <div ref={notificationRef} className="absolute top-full right-4 w-64 bg-white dark:bg-slate-800 shadow-2xl border border-gray-100 dark:border-slate-700 rounded-b-xl overflow-hidden z-50 animate-in slide-in-from-top-2 duration-200">
+              <div className="bg-gray-50 dark:bg-slate-900 px-4 py-2 flex justify-between items-center border-b border-gray-100 dark:border-slate-700">
+                <span className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">Updates</span>
+              </div>
+              <div className="max-h-60 overflow-y-auto">
+                {notifications.map(n => (
+                  <div key={n.id} className="p-3 border-b border-gray-50 dark:border-slate-700 flex flex-col gap-1 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
+                    <span className="text-[11px] font-bold text-gray-800 dark:text-white">{n.title}</span>
+                    <p className="text-[10px] text-gray-500 dark:text-gray-400">{n.message}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="flex-1 pb-20 overflow-y-auto no-scrollbar">
+        {children}
+      </main>
+
+      {/* Bottom Navigation */}
+      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 px-1 py-1 flex justify-around items-center z-50 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] transition-colors duration-300">
+        <NavLink to="/" onClick={() => setActiveCategory('All')} className={({ isActive }) => `flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-all ${isActive && !isDrawerOpen ? 'text-[#e62e04]' : 'text-gray-400 dark:text-gray-500'}`}>
+          <Home size={22} />
+          <span className="text-[9px] font-bold">HOME</span>
+        </NavLink>
+        <button 
+          onClick={toggleCategoryDrawer}
+          className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-all ${isDrawerOpen ? 'text-[#e62e04]' : 'text-gray-400 dark:text-gray-500'}`}
+        >
+          <Grid size={22} />
+          <span className="text-[9px] font-bold">CATEGORY</span>
+        </button>
+        <NavLink to="/orders" className={({ isActive }) => `flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-all ${isActive ? 'text-[#e62e04]' : 'text-gray-400 dark:text-gray-500'}`}>
+          <Package size={22} />
+          <span className="text-[9px] font-bold">ORDERS</span>
+        </NavLink>
+        <NavLink to="/cart" className={({ isActive }) => `flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg relative transition-all ${isActive ? 'text-[#e62e04]' : 'text-gray-400 dark:text-gray-500'}`}>
+          <div className="relative">
+            <ShoppingCart size={22} />
+            {totalItems > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 bg-[#e62e04] text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center font-bold border border-white dark:border-slate-900">
+                {totalItems}
+              </span>
+            )}
+          </div>
+          <span className="text-[9px] font-bold">CART</span>
+        </NavLink>
+        <NavLink to="/admin" className={({ isActive }) => `flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-all ${isActive ? 'text-[#e62e04]' : 'text-gray-400 dark:text-gray-500'}`}>
+          <ShieldAlert size={22} />
+          <span className="text-[9px] font-bold">ADMIN</span>
+        </NavLink>
+      </nav>
+    </div>
+  );
+};
+
+export default Layout;

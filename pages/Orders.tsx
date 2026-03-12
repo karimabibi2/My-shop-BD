@@ -1,0 +1,88 @@
+
+import React from 'react';
+import Layout from '../components/Layout';
+import { useAuth } from '../context/AuthContext';
+import { Package, ShoppingBag } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
+const Orders: React.FC = () => {
+  const { user, orders } = useAuth();
+
+  if (!user) {
+    return (
+      <Layout>
+        <div className="flex flex-col items-center justify-center gap-6 py-20 text-center px-6">
+          <div className="w-20 h-20 bg-gray-100 dark:bg-slate-900 rounded-full flex items-center justify-center text-gray-300 dark:text-gray-700">
+            <Package size={40} />
+          </div>
+          <div className="flex flex-col gap-2">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Sign in to see orders</h2>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">Track your sourcing history by logging in.</p>
+          </div>
+          <Link to="/profile" className="bg-[#e62e04] text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-red-100 dark:shadow-none active:scale-95 transition-all uppercase tracking-widest text-xs">
+            Go to Profile
+          </Link>
+        </div>
+      </Layout>
+    );
+  }
+
+  return (
+    <Layout>
+      <div className="flex flex-col gap-4 py-4 px-4">
+        <h2 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-widest px-1">Order History</h2>
+        
+        {orders.length > 0 ? (
+          orders.map(order => (
+            <div key={order.id} className="bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 flex flex-col gap-4">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gray-50 dark:bg-slate-800 text-[#e62e04] rounded-xl flex items-center justify-center border border-gray-100 dark:border-slate-700">
+                    <Package size={20} />
+                  </div>
+                  <div>
+                    <h4 className="text-[11px] font-black text-gray-800 dark:text-white uppercase tracking-wider">Order #{order.id}</h4>
+                    <p className="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-[0.2em]">{order.date}</p>
+                  </div>
+                </div>
+                <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${
+                  order.status === 'Pending' 
+                  ? 'bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-500 border border-amber-100 dark:border-amber-900/30' 
+                  : 'bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-500 border border-green-100 dark:border-green-900/30'
+                }`}>
+                  {order.status}
+                </span>
+              </div>
+              
+              <div className="flex gap-2 overflow-x-auto no-scrollbar py-1">
+                {order.items.map(item => (
+                  <img key={item.id} src={item.image} className="w-10 h-10 rounded-lg object-contain bg-gray-50 dark:bg-white border border-gray-100 dark:border-slate-800 flex-shrink-0" alt={item.name} />
+                ))}
+              </div>
+              
+              <div className="flex justify-between items-center mt-1 pt-3 border-t border-gray-50 dark:border-slate-800">
+                <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">{order.items.length} Items</span>
+                <span className="font-black text-gray-800 dark:text-white text-sm">৳{order.total.toLocaleString()}</span>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="flex flex-col items-center justify-center gap-6 py-20 text-center px-6">
+            <div className="w-20 h-20 bg-gray-50 dark:bg-slate-900 rounded-full flex items-center justify-center text-gray-200 dark:text-gray-800">
+              <ShoppingBag size={40} />
+            </div>
+            <div className="flex flex-col gap-2">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">No orders yet</h2>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">When you buy something, your orders will appear here.</p>
+            </div>
+            <Link to="/" className="bg-[#e62e04] text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-red-100 dark:shadow-none active:scale-95 transition-all uppercase tracking-widest text-xs">
+              Start Sourcing
+            </Link>
+          </div>
+        )}
+      </div>
+    </Layout>
+  );
+};
+
+export default Orders;
