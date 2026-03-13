@@ -7,9 +7,10 @@ import { useNavigate } from 'react-router-dom';
 
 interface ProductCardProps {
   product: Product;
+  onOpenDetails: () => void;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetails }) => {
   const { addToCart, removeFromCart, cart } = useCart();
   const navigate = useNavigate();
 
@@ -26,11 +27,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     }
   };
 
-  const handleBuyNow = () => {
-    if (!isInCart) {
-      addToCart(product);
-    }
-    navigate('/cart');
+  const handleBuyNow = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onOpenDetails();
   };
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
@@ -39,7 +38,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col hover:shadow-md transition-all relative group h-full rounded-xl overflow-hidden">
+    <div 
+      onClick={onOpenDetails}
+      className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col hover:shadow-md transition-all relative group h-full rounded-xl overflow-hidden cursor-pointer"
+    >
       {/* Discount Badge */}
       <div className="absolute top-0 left-0 z-10 bg-[#e62e04] text-white text-[10px] font-black px-2 py-0.5 uppercase tracking-tighter">
         -{discountPercent}% OFF
@@ -57,9 +59,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       </div>
       
       <div className="p-3 flex flex-col flex-1 border-t border-gray-50 dark:border-slate-800">
-        <h3 className="text-[12px] font-bold text-gray-800 dark:text-gray-200 leading-tight line-clamp-2 h-8 mb-2">
+        <h3 className="text-[12px] font-bold text-gray-800 dark:text-gray-200 leading-tight line-clamp-2 h-8 mb-1">
           {product.name}
         </h3>
+        
+        {product.description && (
+          <p className="text-[9px] text-gray-500 dark:text-gray-400 line-clamp-1 mb-2">
+            {product.description}
+          </p>
+        )}
         
         <div className="flex items-baseline gap-2 mb-3">
           <span className="text-base font-black text-[#e62e04]">৳{product.price.toLocaleString()}</span>

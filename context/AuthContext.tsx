@@ -27,6 +27,17 @@ interface AuthContextType {
   updateUser: (name: string, avatar: string) => void;
   bannerImage: string;
   updateBannerImage: (image: string) => void;
+  whatsappNumber: string;
+  updateWhatsappNumber: (number: string) => void;
+  facebookLink: string;
+  updateFacebookLink: (link: string) => void;
+  youtubeLink: string;
+  updateYoutubeLink: (link: string) => void;
+  tiktokLink: string;
+  updateTiktokLink: (link: string) => void;
+  adminUsername: string;
+  adminPassword: string;
+  updateAdminCredentials: (username: string, password: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -68,7 +79,31 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const savedBanner = localStorage.getItem('shopbd_banner');
     return savedBanner || 'https://picsum.photos/seed/shop/800/400';
   });
-
+  const [whatsappNumber, setWhatsappNumber] = useState<string>(() => {
+    const savedNumber = localStorage.getItem('shopbd_whatsapp');
+    return savedNumber || '8801304881109';
+  });
+  const [facebookLink, setFacebookLink] = useState<string>(() => {
+    const saved = localStorage.getItem('shopbd_facebook');
+    return saved || 'https://facebook.com';
+  });
+  const [youtubeLink, setYoutubeLink] = useState<string>(() => {
+    const saved = localStorage.getItem('shopbd_youtube');
+    return saved || 'https://youtube.com';
+  });
+  const [tiktokLink, setTiktokLink] = useState<string>(() => {
+    const saved = localStorage.getItem('shopbd_tiktok');
+    return saved || 'https://tiktok.com';
+  });
+  const [adminUsername, setAdminUsername] = useState<string>(() => {
+    const saved = localStorage.getItem('shopbd_admin_user');
+    return saved || 'Niloyshop';
+  });
+  const [adminPassword, setAdminPassword] = useState<string>(() => {
+    const saved = localStorage.getItem('shopbd_admin_pass');
+    return saved || 'Niloyshop12#';
+  });
+  
   useEffect(() => {
     localStorage.setItem('shopbd_user', JSON.stringify(user));
   }, [user]);
@@ -97,6 +132,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.setItem('shopbd_banner', bannerImage);
   }, [bannerImage]);
 
+  useEffect(() => {
+    localStorage.setItem('shopbd_whatsapp', whatsappNumber);
+  }, [whatsappNumber]);
+
+  useEffect(() => {
+    localStorage.setItem('shopbd_facebook', facebookLink);
+  }, [facebookLink]);
+
+  useEffect(() => {
+    localStorage.setItem('shopbd_youtube', youtubeLink);
+  }, [youtubeLink]);
+
+  useEffect(() => {
+    localStorage.setItem('shopbd_tiktok', tiktokLink);
+  }, [tiktokLink]);
+
+  useEffect(() => {
+    localStorage.setItem('shopbd_admin_user', adminUsername);
+  }, [adminUsername]);
+
+  useEffect(() => {
+    localStorage.setItem('shopbd_admin_pass', adminPassword);
+  }, [adminPassword]);
+
   const login = (email: string) => {
     const isAdmin = email.toLowerCase() === 'admin@shopbd.com';
     const newUser = {
@@ -122,8 +181,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const adminLogin = (username: string, password: string): boolean => {
-    // Hardcoded admin credentials as requested
-    if (username === 'Niloyshop' && password === 'Niloyshop12#') {
+    if (username === adminUsername && password === adminPassword) {
       setUser({
         id: 'admin',
         name: 'Niloy Shop Admin',
@@ -134,6 +192,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return true;
     }
     return false;
+  };
+
+  const updateAdminCredentials = (username: string, password: string) => {
+    setAdminUsername(username);
+    setAdminPassword(password);
   };
 
   const logout = () => {
@@ -219,11 +282,31 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setBannerImage(image);
   };
 
+  const updateWhatsappNumber = (number: string) => {
+    setWhatsappNumber(number);
+  };
+
+  const updateFacebookLink = (link: string) => {
+    setFacebookLink(link);
+  };
+
+  const updateYoutubeLink = (link: string) => {
+    setYoutubeLink(link);
+  };
+
+  const updateTiktokLink = (link: string) => {
+    setTiktokLink(link);
+  };
+
   return (
     <AuthContext.Provider value={{ 
-      user, orders, allProducts, categories, addresses, shippingRates, bannerImage, login, adminLogin, logout, 
+      user, orders, allProducts, categories, addresses, shippingRates, bannerImage, whatsappNumber, 
+      facebookLink, youtubeLink, tiktokLink,
+      login, adminLogin, logout, 
       addOrder, updateOrderStatus, updateProduct, deleteProduct, addProduct, updateCategory, deleteCategory, addCategory,
-      addAddress, removeAddress, updateShippingRates, updateUser, updateBannerImage 
+      addAddress, removeAddress, updateShippingRates, updateUser, updateBannerImage, updateWhatsappNumber,
+      updateFacebookLink, updateYoutubeLink, updateTiktokLink,
+      adminUsername, adminPassword, updateAdminCredentials
     }}>
       {children}
     </AuthContext.Provider>

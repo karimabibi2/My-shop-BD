@@ -9,7 +9,7 @@ const AdminLogin: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { adminLogin } = useAuth();
+  const { adminLogin, adminUsername, adminPassword } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -94,7 +94,7 @@ const AdminLogin: React.FC = () => {
 
         <div className="mt-8 text-center">
           <p className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.3em]">Credentials for Demo:</p>
-          <p className="text-[9px] font-black text-gray-500 uppercase mt-1 tracking-widest">User: Niloyshop | Pass: Niloyshop12#</p>
+          <p className="text-[9px] font-black text-gray-500 uppercase mt-1 tracking-widest">User: {adminUsername} | Pass: {adminPassword}</p>
         </div>
       </div>
     </Layout>

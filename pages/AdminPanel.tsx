@@ -7,7 +7,7 @@ import {
   Plus, Edit2, Trash2, CheckCircle, Clock, 
   XCircle, ArrowLeft, Save, Globe, Truck, ShieldAlert,
   Image as ImageIcon, Upload, Link as LinkIcon,
-  Layers
+  Layers, MessageCircle, Youtube, Facebook, Lock, Key
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { CATEGORIES, DELIVERY_RATES } from '../constants';
@@ -17,7 +17,9 @@ const AdminPanel: React.FC = () => {
     user, orders, allProducts, updateOrderStatus, 
     updateProduct, deleteProduct, addProduct, logout,
     shippingRates, updateShippingRates, categories, updateCategory, deleteCategory, addCategory,
-    bannerImage, updateBannerImage
+    bannerImage, updateBannerImage, whatsappNumber, updateWhatsappNumber,
+    facebookLink, updateFacebookLink, youtubeLink, updateYoutubeLink, tiktokLink, updateTiktokLink,
+    adminUsername, adminPassword, updateAdminCredentials
   } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'orders' | 'settings' | 'categories'>('dashboard');
@@ -33,6 +35,13 @@ const AdminPanel: React.FC = () => {
   // Delivery Rates Local State
   const [rates, setRates] = useState(shippingRates);
   const [newBannerUrl, setNewBannerUrl] = useState(bannerImage);
+  const [newWhatsappNumber, setNewWhatsappNumber] = useState(whatsappNumber);
+  const [newFacebookLink, setNewFacebookLink] = useState(facebookLink);
+  const [newYoutubeLink, setNewYoutubeLink] = useState(youtubeLink);
+  const [newTiktokLink, setNewTiktokLink] = useState(tiktokLink);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [newAdminUser, setNewAdminUser] = useState(adminUsername);
+  const [newAdminPass, setNewAdminPass] = useState(adminPassword);
 
   // Sync local rates if context rates change
   useEffect(() => {
@@ -42,6 +51,30 @@ const AdminPanel: React.FC = () => {
   useEffect(() => {
     setNewBannerUrl(bannerImage);
   }, [bannerImage]);
+
+  useEffect(() => {
+    setNewWhatsappNumber(whatsappNumber);
+  }, [whatsappNumber]);
+
+  useEffect(() => {
+    setNewFacebookLink(facebookLink);
+  }, [facebookLink]);
+
+  useEffect(() => {
+    setNewYoutubeLink(youtubeLink);
+  }, [youtubeLink]);
+
+  useEffect(() => {
+    setNewTiktokLink(tiktokLink);
+  }, [tiktokLink]);
+
+  useEffect(() => {
+    setNewAdminUser(adminUsername);
+  }, [adminUsername]);
+
+  useEffect(() => {
+    setNewAdminPass(adminPassword);
+  }, [adminPassword]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -192,6 +225,9 @@ const AdminPanel: React.FC = () => {
                   />
                   <div className="flex-1 min-w-0">
                     <h4 className="text-[11px] font-bold text-gray-800 dark:text-white truncate">{product.name}</h4>
+                    {product.description && (
+                      <p className="text-[8px] text-gray-400 truncate mt-0.5">{product.description}</p>
+                    )}
                     <div className="flex items-center gap-2 mt-0.5">
                       <span className="text-[10px] font-black text-[#e62e04]">৳{product.price}</span>
                       <span className={`text-[8px] font-bold uppercase px-1.5 py-0.5 rounded ${product.isAvailable ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
@@ -324,6 +360,38 @@ const AdminPanel: React.FC = () => {
         {activeTab === 'settings' && (
           <div className="flex flex-col gap-5 animate-in slide-in-from-bottom-4 duration-300 pb-10">
             <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                <MessageCircle size={18} className="text-[#25D366]" />
+                <h4 className="text-[11px] font-black uppercase tracking-widest">WhatsApp Settings</h4>
+              </div>
+              
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[9px] font-black text-gray-400 uppercase">WhatsApp Number (with country code)</label>
+                <div className="flex gap-2">
+                  <input 
+                    type="text" 
+                    value={newWhatsappNumber}
+                    onChange={(e) => setNewWhatsappNumber(e.target.value)}
+                    className="flex-1 bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-[10px] font-bold dark:text-white"
+                    placeholder="e.g. 8801304881109"
+                  />
+                  <button 
+                    onClick={() => {
+                      updateWhatsappNumber(newWhatsappNumber);
+                      alert('WhatsApp number updated successfully!');
+                    }}
+                    className="bg-[#25D366] text-white px-4 rounded-xl text-[10px] font-black uppercase tracking-widest"
+                  >
+                    Update
+                  </button>
+                </div>
+                <p className="text-[8px] text-gray-400 font-bold uppercase leading-tight px-1">
+                  This number will be used for all WhatsApp contact buttons on the site.
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
               <div className="flex items-center gap-2 mb-1">
                 <Truck size={18} className="text-[#e62e04]" />
                 <h4 className="text-[11px] font-black uppercase tracking-widest">Delivery Settings</h4>
@@ -382,6 +450,92 @@ const AdminPanel: React.FC = () => {
             <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
               <div className="flex items-center gap-2">
                 <Globe size={18} className="text-blue-500" />
+                <h4 className="text-[11px] font-black uppercase tracking-widest">Social Media Links</h4>
+              </div>
+              
+              <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    <Facebook size={12} className="text-blue-600" />
+                    <label className="text-[9px] font-black text-gray-400 uppercase">Facebook Page Link</label>
+                  </div>
+                  <div className="flex gap-2">
+                    <input 
+                      type="text" 
+                      value={newFacebookLink}
+                      onChange={(e) => setNewFacebookLink(e.target.value)}
+                      className="flex-1 bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-[10px] font-bold dark:text-white"
+                      placeholder="https://facebook.com/yourpage"
+                    />
+                    <button 
+                      onClick={() => {
+                        updateFacebookLink(newFacebookLink);
+                        alert('Facebook link updated!');
+                      }}
+                      className="bg-blue-600 text-white px-3 rounded-xl text-[10px] font-black uppercase"
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    <Youtube size={12} className="text-red-600" />
+                    <label className="text-[9px] font-black text-gray-400 uppercase">YouTube Channel Link</label>
+                  </div>
+                  <div className="flex gap-2">
+                    <input 
+                      type="text" 
+                      value={newYoutubeLink}
+                      onChange={(e) => setNewYoutubeLink(e.target.value)}
+                      className="flex-1 bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-[10px] font-bold dark:text-white"
+                      placeholder="https://youtube.com/@yourchannel"
+                    />
+                    <button 
+                      onClick={() => {
+                        updateYoutubeLink(newYoutubeLink);
+                        alert('YouTube link updated!');
+                      }}
+                      className="bg-red-600 text-white px-3 rounded-xl text-[10px] font-black uppercase"
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" className="text-black dark:text-white">
+                      <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.17-2.89-.6-4.13-1.47-.13-.08-.26-.17-.38-.26v7.02c0 3.11-1.8 5.54-4.57 6.32-2.33.66-5.13.14-6.77-1.72-1.6-1.81-1.9-4.74-.46-6.78 1.14-1.62 3.16-2.39 5.08-2.09v4.27c-.67-.13-1.39-.14-2.01.23-.72.43-1.18 1.23-1.14 2.06.03.76.46 1.47 1.11 1.81.65.34 1.44.31 2.04-.08.6-.39.91-1.07.92-1.78V.02z"/>
+                    </svg>
+                    <label className="text-[9px] font-black text-gray-400 uppercase">TikTok Profile Link</label>
+                  </div>
+                  <div className="flex gap-2">
+                    <input 
+                      type="text" 
+                      value={newTiktokLink}
+                      onChange={(e) => setNewTiktokLink(e.target.value)}
+                      className="flex-1 bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-[10px] font-bold dark:text-white"
+                      placeholder="https://tiktok.com/@yourprofile"
+                    />
+                    <button 
+                      onClick={() => {
+                        updateTiktokLink(newTiktokLink);
+                        alert('TikTok link updated!');
+                      }}
+                      className="bg-black text-white px-3 rounded-xl text-[10px] font-black uppercase"
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                <Globe size={18} className="text-blue-500" />
                 <h4 className="text-[11px] font-black uppercase tracking-widest">Site Visibility</h4>
               </div>
               <div className="flex justify-between items-center">
@@ -394,6 +548,65 @@ const AdminPanel: React.FC = () => {
                 <span className="text-[10px] font-bold text-gray-500 uppercase">Dark Mode Default</span>
                 <button className="w-10 h-5 bg-gray-200 dark:bg-slate-700 rounded-full relative">
                   <div className="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full"></div>
+                </button>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                <Lock size={18} className="text-amber-500" />
+                <h4 className="text-[11px] font-black uppercase tracking-widest">Security & Account</h4>
+              </div>
+              <div className="flex flex-col gap-3">
+                <p className="text-[9px] font-bold text-gray-400 uppercase leading-tight">
+                  Manage your administrative access and security settings.
+                </p>
+                
+                <div className="flex flex-col gap-3 mt-2">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[9px] font-black text-gray-400 uppercase">Admin Username</label>
+                    <input 
+                      type="text" 
+                      value={newAdminUser}
+                      onChange={(e) => setNewAdminUser(e.target.value)}
+                      className="bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-[10px] font-bold dark:text-white"
+                      placeholder="Admin Username"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[9px] font-black text-gray-400 uppercase">Admin Password</label>
+                    <input 
+                      type="text" 
+                      value={newAdminPass}
+                      onChange={(e) => setNewAdminPass(e.target.value)}
+                      className="bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-[10px] font-bold dark:text-white"
+                      placeholder="Admin Password"
+                    />
+                  </div>
+                  <button 
+                    onClick={() => {
+                      if (newAdminUser.trim() && newAdminPass.trim()) {
+                        updateAdminCredentials(newAdminUser, newAdminPass);
+                        alert('Admin credentials updated successfully!');
+                      } else {
+                        alert('Username and Password cannot be empty.');
+                      }
+                    }}
+                    className="bg-[#e62e04] text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
+                  >
+                    <Save size={14} /> Update Credentials
+                  </button>
+                </div>
+
+                <div className="h-px bg-gray-100 dark:bg-slate-800 my-2"></div>
+
+                <button 
+                  onClick={() => {
+                    setShowPasswordModal(true);
+                  }}
+                  className="w-full bg-amber-500 text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
+                >
+                  <Key size={14} /> View Current Credentials
                 </button>
               </div>
             </div>
@@ -524,6 +737,16 @@ const AdminPanel: React.FC = () => {
                       className="accent-[#e62e04]"
                     />
                     <label htmlFor="avail" className="text-[10px] font-bold text-gray-600 uppercase">Mark as In-Stock</label>
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[9px] font-black text-gray-400 uppercase">Product Description</label>
+                    <textarea 
+                      value={editingProduct.description}
+                      onChange={(e) => setEditingProduct({...editingProduct, description: e.target.value})}
+                      className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-xs font-bold dark:text-white min-h-[80px] resize-none"
+                      placeholder="Enter product details..."
+                    />
                   </div>
 
                   <div className="flex flex-col gap-1.5">
@@ -676,6 +899,45 @@ const AdminPanel: React.FC = () => {
                     className="w-full bg-[#e62e04] text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 mt-2 text-xs"
                   >
                     Update Category Name
+                  </button>
+               </div>
+            </div>
+          </div>
+        )}
+
+        {/* --- Forgot Password Modal --- */}
+        {showPasswordModal && (
+          <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-slate-900 w-full max-w-xs rounded-3xl p-6 animate-in zoom-in-95 duration-200 shadow-2xl">
+               <div className="flex justify-between items-center mb-6">
+                 <h3 className="text-sm font-black uppercase tracking-widest text-amber-500 italic">Admin Credentials</h3>
+                 <button onClick={() => setShowPasswordModal(false)} className="p-1 text-gray-400 hover:text-gray-800"><XCircle size={20} /></button>
+               </div>
+
+               <div className="flex flex-col gap-4">
+                  <div className="bg-amber-50 dark:bg-amber-950/20 p-4 rounded-2xl border border-amber-100 dark:border-amber-900/30">
+                    <div className="flex flex-col gap-3">
+                      <div>
+                        <span className="text-[9px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest">Username</span>
+                        <p className="text-sm font-black text-gray-900 dark:text-white mt-0.5">{adminUsername}</p>
+                      </div>
+                      <div className="h-px bg-amber-100 dark:bg-amber-900/30 w-full"></div>
+                      <div>
+                        <span className="text-[9px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest">Password</span>
+                        <p className="text-sm font-black text-gray-900 dark:text-white mt-0.5">{adminPassword}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="text-[8px] text-gray-400 font-bold uppercase leading-tight px-1 text-center">
+                    Please keep these credentials safe and do not share them with anyone.
+                  </p>
+
+                  <button 
+                    onClick={() => setShowPasswordModal(false)}
+                    className="w-full bg-amber-500 text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-amber-100 mt-2 text-xs"
+                  >
+                    Close
                   </button>
                </div>
             </div>

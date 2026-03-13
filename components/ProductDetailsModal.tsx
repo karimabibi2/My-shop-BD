@@ -1,0 +1,150 @@
+
+import React from 'react';
+import { X, ShoppingCart, Zap, Star, ShieldCheck, Truck, RotateCcw } from 'lucide-react';
+import { Product } from '../types';
+import { useCart } from '../context/CartContext';
+import { motion, AnimatePresence } from 'framer-motion';
+
+interface ProductDetailsModalProps {
+  product: Product | null;
+  onClose: () => void;
+  onBuyNow: (product: Product) => void;
+}
+
+const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ product, onClose, onBuyNow }) => {
+  const { addToCart, removeFromCart, cart } = useCart();
+
+  if (!product) return null;
+
+  const isInCart = cart.some(item => item.id === product.id);
+  const oldPrice = Math.round(product.price * 1.25);
+
+  const handleCartToggle = () => {
+    if (isInCart) {
+      removeFromCart(product.id);
+    } else {
+      addToCart(product);
+    }
+  };
+
+  return (
+    <AnimatePresence>
+      {product && (
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          />
+          
+          <motion.div 
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col"
+          >
+            {/* Close Button */}
+            <button 
+              onClick={onClose}
+              className="absolute top-4 right-4 z-10 p-2 bg-black/10 dark:bg-white/10 hover:bg-black/20 dark:hover:bg-white/20 rounded-full text-gray-800 dark:text-white transition-colors"
+            >
+              <X size={20} />
+            </button>
+
+            <div className="overflow-y-auto no-scrollbar">
+              {/* Product Image */}
+              <div className="relative aspect-square bg-white flex items-center justify-center p-8">
+                <img 
+                  src={product.image} 
+                  alt={product.name} 
+                  className="w-full h-full object-contain"
+                  referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=600&h=600&fit=crop';
+                  }}
+                />
+                <div className="absolute top-4 left-4 bg-[#e62e04] text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">
+                  20% OFF
+                </div>
+              </div>
+
+              {/* Product Info */}
+              <div className="p-6 flex flex-col gap-4">
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-black text-[#e62e04] uppercase tracking-widest bg-red-50 dark:bg-red-950/30 px-2 py-0.5 rounded">
+                      {product.category}
+                    </span>
+                    <div className="flex items-center gap-0.5 text-amber-400">
+                      <Star size={10} fill="currentColor" />
+                      <span className="text-[10px] font-bold">{product.rating}</span>
+                    </div>
+                  </div>
+                  <h2 className="text-xl font-black text-gray-800 dark:text-white leading-tight">
+                    {product.name}
+                  </h2>
+                </div>
+
+                <div className="flex items-baseline gap-3">
+                  <span className="text-2xl font-black text-[#e62e04]">৳{product.price.toLocaleString()}</span>
+                  <span className="text-sm text-gray-400 line-through font-bold">৳{oldPrice.toLocaleString()}</span>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Description</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
+                    {product.description || "No description available for this product."}
+                  </p>
+                </div>
+
+                {/* Features */}
+                <div className="grid grid-cols-3 gap-2 py-2">
+                  <div className="flex flex-col items-center gap-1 p-2 rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700">
+                    <ShieldCheck size={16} className="text-green-500" />
+                    <span className="text-[8px] font-black uppercase text-gray-500 text-center">Authentic</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-1 p-2 rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700">
+                    <Truck size={16} className="text-blue-500" />
+                    <span className="text-[8px] font-black uppercase text-gray-500 text-center">Fast Delivery</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-1 p-2 rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700">
+                    <RotateCcw size={16} className="text-orange-500" />
+                    <span className="text-[8px] font-black uppercase text-gray-500 text-center">7 Days Return</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="p-4 bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-slate-800 flex gap-3">
+              <button 
+                onClick={handleCartToggle}
+                className={`flex-1 py-3.5 rounded-2xl flex justify-center items-center gap-2 transition-all font-black text-[11px] uppercase tracking-widest ${
+                  isInCart 
+                    ? 'bg-green-500 text-white' 
+                    : 'bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-300'
+                }`}
+              >
+                <ShoppingCart size={18} />
+                {isInCart ? 'In Cart' : 'Add to Cart'}
+              </button>
+              <button 
+                onClick={() => onBuyNow(product)}
+                className="flex-[1.5] bg-[#e62e04] text-white py-3.5 rounded-2xl flex justify-center items-center gap-2 font-black text-[11px] uppercase tracking-widest shadow-lg shadow-red-200 dark:shadow-none active:scale-95 transition-all"
+              >
+                <Zap size={16} fill="currentColor" />
+                Buy Now
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+export default ProductDetailsModal;

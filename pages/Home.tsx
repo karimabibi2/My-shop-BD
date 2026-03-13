@@ -2,14 +2,30 @@
 import React, { useState, useMemo } from 'react';
 import Layout from '../components/Layout';
 import ProductCard from '../components/ProductCard';
+import ProductDetailsModal from '../components/ProductDetailsModal';
 import { useAuth } from '../context/AuthContext';
 import { useCategory } from '../context/CategoryContext';
+import { useCart } from '../context/CartContext';
 import { Search, X, SlidersHorizontal } from 'lucide-react';
+import { Product } from '../types';
+import { useNavigate } from 'react-router-dom';
 
 const Home: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const { allProducts, bannerImage } = useAuth();
   const { activeCategory, setActiveCategory, setIsDrawerOpen } = useCategory();
+  const { addToCart, cart } = useCart();
+  const navigate = useNavigate();
+
+  const handleBuyNow = (product: Product) => {
+    const isInCart = cart.some(item => item.id === product.id);
+    if (!isInCart) {
+      addToCart(product);
+    }
+    setSelectedProduct(null);
+    navigate('/cart');
+  };
 
   const filteredProducts = useMemo(() => {
     return allProducts.filter(p => {
@@ -112,7 +128,11 @@ const Home: React.FC = () => {
         {/* Product Grid */}
         <div className="grid grid-cols-2 gap-3 pb-10">
           {filteredProducts.map(product => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard 
+              key={product.id} 
+              product={product} 
+              onOpenDetails={() => setSelectedProduct(product)}
+            />
           ))}
           {filteredProducts.length === 0 && (
             <div className="col-span-2 text-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-gray-200 dark:border-slate-800">
@@ -130,6 +150,12 @@ const Home: React.FC = () => {
           )}
         </div>
       </div>
+
+      <ProductDetailsModal 
+        product={selectedProduct} 
+        onClose={() => setSelectedProduct(null)} 
+        onBuyNow={handleBuyNow}
+      />
     </Layout>
   );
 };

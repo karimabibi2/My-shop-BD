@@ -3,7 +3,8 @@ import React, { ReactNode, useState, useRef, useEffect } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { 
   Home, ShoppingCart, User, Bell, Package, Menu, X, 
-  ChevronRight, Grid, Moon, Sun, ShieldAlert 
+  ChevronRight, Grid, Moon, Sun, ShieldAlert, MessageCircle,
+  Youtube, Facebook
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { CATEGORIES } from '../constants';
@@ -27,7 +28,7 @@ interface Notification {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { totalItems } = useCart();
   const { isDarkMode, toggleTheme } = useTheme();
-  const { user, categories } = useAuth();
+  const { user, categories, whatsappNumber, facebookLink, youtubeLink, tiktokLink } = useAuth();
   const { activeCategory, setActiveCategory, isDrawerOpen, setIsDrawerOpen } = useCategory();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -121,6 +122,23 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <NavLink to="/profile" className="flex items-center gap-4 px-6 py-4 text-gray-700 dark:text-gray-300 font-bold text-sm border-b border-gray-50 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800">
                 <User size={20} className="text-gray-400" /> Account
               </NavLink>
+
+              <div className="mt-6 px-6 flex flex-col gap-3">
+                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Follow Us</span>
+                <div className="flex gap-4">
+                  <a href={facebookLink} target="_blank" rel="noopener noreferrer" className="p-2 bg-blue-50 dark:bg-blue-950/20 text-blue-600 rounded-xl hover:scale-110 transition-transform">
+                    <Facebook size={20} />
+                  </a>
+                  <a href={youtubeLink} target="_blank" rel="noopener noreferrer" className="p-2 bg-red-50 dark:bg-red-950/20 text-red-600 rounded-xl hover:scale-110 transition-transform">
+                    <Youtube size={20} />
+                  </a>
+                  <a href={tiktokLink} target="_blank" rel="noopener noreferrer" className="p-2 bg-gray-100 dark:bg-slate-800 text-gray-800 dark:text-white rounded-xl hover:scale-110 transition-transform">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                      <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.17-2.89-.6-4.13-1.47-.13-.08-.26-.17-.38-.26v7.02c0 3.11-1.8 5.54-4.57 6.32-2.33.66-5.13.14-6.77-1.72-1.6-1.81-1.9-4.74-.46-6.78 1.14-1.62 3.16-2.39 5.08-2.09v4.27c-.67-.13-1.39-.14-2.01.23-.72.43-1.18 1.23-1.14 2.06.03.76.46 1.47 1.11 1.81.65.34 1.44.31 2.04-.08.6-.39.91-1.07.92-1.78V.02z"/>
+                    </svg>
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -271,10 +289,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
           <span className="text-[9px] font-bold">CART</span>
         </NavLink>
-        <NavLink to="/admin" className={({ isActive }) => `flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-all ${isActive ? 'text-[#e62e04]' : 'text-gray-400 dark:text-gray-500'}`}>
-          <ShieldAlert size={22} />
-          <span className="text-[9px] font-bold">ADMIN</span>
-        </NavLink>
+        <a href={`https://wa.me/${whatsappNumber}`} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg text-[#25D366] transition-all">
+          <MessageCircle size={22} />
+          <span className="text-[9px] font-bold uppercase">WhatsApp</span>
+        </a>
       </nav>
     </div>
   );
