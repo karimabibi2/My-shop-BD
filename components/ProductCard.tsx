@@ -3,6 +3,7 @@ import React from 'react';
 import { ShoppingCart, Zap, Check } from 'lucide-react';
 import { Product } from '../types';
 import { useCart } from '../context/CartContext';
+import { useLanguage } from '../context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 
 interface ProductCardProps {
@@ -12,6 +13,7 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetails }) => {
   const { addToCart, removeFromCart, cart } = useCart();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const isInCart = cart.some(item => item.id === product.id);
@@ -44,7 +46,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetails }) => 
     >
       {/* Discount Badge */}
       <div className="absolute top-0 left-0 z-10 bg-[#e62e04] text-white text-[10px] font-black px-2 py-0.5 uppercase tracking-tighter">
-        -{discountPercent}% OFF
+        -{discountPercent}% {t('off')}
       </div>
 
       <div className="relative aspect-square overflow-hidden bg-white dark:bg-white p-2 flex items-center justify-center">
@@ -82,7 +84,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetails }) => 
                 ? 'bg-green-500 text-white shadow-lg shadow-green-100 dark:shadow-none' 
                 : 'bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-700'
             }`}
-            title={isInCart ? "Remove from Cart" : "Add to Cart"}
+            title={isInCart ? t('remove_from_cart') : t('add_to_cart')}
           >
             {isInCart ? <Check size={18} strokeWidth={3} /> : <ShoppingCart size={18} />}
           </button>
@@ -91,7 +93,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetails }) => 
             className="flex-[2.5] bg-[#e62e04] text-white text-[10px] font-black py-2.5 rounded-lg flex justify-center items-center gap-1.5 hover:bg-[#c42704] transition-all active:scale-95 uppercase tracking-widest shadow-sm"
           >
             <Zap size={12} fill="currentColor" />
-            BUY NOW
+            {t('buy_now')}
           </button>
         </div>
       </div>

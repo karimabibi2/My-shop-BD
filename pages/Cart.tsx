@@ -2,11 +2,13 @@
 import React from 'react';
 import Layout from '../components/Layout';
 import { useCart } from '../context/CartContext';
+import { useLanguage } from '../context/LanguageContext';
 import { Trash2, Minus, Plus, ShoppingBag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Cart: React.FC = () => {
   const { cart, removeFromCart, updateQuantity, totalPrice } = useCart();
+  const { t } = useLanguage();
 
   if (cart.length === 0) {
     return (
@@ -16,11 +18,11 @@ const Cart: React.FC = () => {
             <ShoppingBag size={48} />
           </div>
           <div className="flex flex-col gap-2">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Your cart is empty</h2>
-            <p className="text-gray-500 dark:text-gray-400 text-sm">Looks like you haven't added anything yet.</p>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('cart_empty')}</h2>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">{t('cart_empty_desc')}</p>
           </div>
           <Link to="/" className="bg-[#e62e04] text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-red-100 dark:shadow-none active:scale-95 transition-all uppercase tracking-widest text-xs">
-            Start Shopping
+            {t('start_shopping')}
           </Link>
         </div>
       </Layout>
@@ -30,7 +32,7 @@ const Cart: React.FC = () => {
   return (
     <Layout>
       <div className="flex flex-col gap-4 py-4 px-4">
-        <h2 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-widest px-1">My Shopping Cart</h2>
+        <h2 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-widest px-1">{t('my_cart')}</h2>
         
         <div className="flex flex-col gap-3">
           {cart.map(item => (
@@ -69,20 +71,20 @@ const Cart: React.FC = () => {
 
         <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 flex flex-col gap-3 mt-2">
           <div className="flex justify-between items-center text-[11px] uppercase tracking-wider">
-            <span className="text-gray-500 dark:text-gray-400 font-bold">Subtotal</span>
+            <span className="text-gray-500 dark:text-gray-400 font-bold">{t('subtotal')}</span>
             <span className="font-black text-gray-800 dark:text-white">৳{totalPrice.toLocaleString()}</span>
           </div>
           <div className="flex justify-between items-center text-[11px] uppercase tracking-wider">
-            <span className="text-gray-500 dark:text-gray-400 font-bold">Delivery</span>
-            <span className="font-black text-[#e62e04] text-[9px]">CALCULATED AT CHECKOUT</span>
+            <span className="text-gray-500 dark:text-gray-400 font-bold">{t('delivery')}</span>
+            <span className="font-black text-[#e62e04] text-[9px]">{t('calc_at_checkout')}</span>
           </div>
           <div className="h-[1px] bg-gray-50 dark:bg-slate-800 my-1"></div>
           <div className="flex justify-between items-center">
-            <span className="text-xs font-black text-gray-800 dark:text-white uppercase tracking-[0.2em]">Total</span>
+            <span className="text-xs font-black text-gray-800 dark:text-white uppercase tracking-[0.2em]">{t('total')}</span>
             <span className="text-xl font-black text-[#e62e04]">৳{totalPrice.toLocaleString()}</span>
           </div>
           <Link to="/checkout" className="w-full bg-[#e62e04] text-white text-center py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 dark:shadow-none mt-2 active:scale-95 transition-all text-sm">
-            Checkout Now
+            {t('checkout_now')}
           </Link>
         </div>
       </div>

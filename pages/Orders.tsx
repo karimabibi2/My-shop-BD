@@ -2,11 +2,13 @@
 import React from 'react';
 import Layout from '../components/Layout';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { Package, ShoppingBag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Orders: React.FC = () => {
   const { user, orders } = useAuth();
+  const { t } = useLanguage();
 
   if (!user) {
     return (
@@ -16,11 +18,11 @@ const Orders: React.FC = () => {
             <Package size={40} />
           </div>
           <div className="flex flex-col gap-2">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Sign in to see orders</h2>
-            <p className="text-gray-500 dark:text-gray-400 text-sm">Track your sourcing history by logging in.</p>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('sign_in_orders')}</h2>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">{t('track_history')}</p>
           </div>
           <Link to="/profile" className="bg-[#e62e04] text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-red-100 dark:shadow-none active:scale-95 transition-all uppercase tracking-widest text-xs">
-            Go to Profile
+            {t('go_to_profile')}
           </Link>
         </div>
       </Layout>
@@ -30,7 +32,7 @@ const Orders: React.FC = () => {
   return (
     <Layout>
       <div className="flex flex-col gap-4 py-4 px-4">
-        <h2 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-widest px-1">Order History</h2>
+        <h2 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-widest px-1">{t('order_history')}</h2>
         
         {orders.length > 0 ? (
           orders.map(order => (
@@ -41,7 +43,7 @@ const Orders: React.FC = () => {
                     <Package size={20} />
                   </div>
                   <div>
-                    <h4 className="text-[11px] font-black text-gray-800 dark:text-white uppercase tracking-wider">Order #{order.id}</h4>
+                    <h4 className="text-[11px] font-black text-gray-800 dark:text-white uppercase tracking-wider">{t('order_id')}{order.id}</h4>
                     <p className="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-[0.2em]">{order.date}</p>
                   </div>
                 </div>
@@ -50,7 +52,7 @@ const Orders: React.FC = () => {
                   ? 'bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-500 border border-amber-100 dark:border-amber-900/30' 
                   : 'bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-500 border border-green-100 dark:border-green-900/30'
                 }`}>
-                  {order.status}
+                  {order.status === 'Pending' ? t('pending') : t('delivered')}
                 </span>
               </div>
               
@@ -72,16 +74,16 @@ const Orders: React.FC = () => {
               
               <div className="bg-gray-50 dark:bg-slate-800/50 p-3 rounded-xl border border-gray-100 dark:border-slate-800">
                 <div className="flex flex-col gap-1">
-                  <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Delivery Details</span>
+                  <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">{t('delivery_details')}</span>
                   <p className="text-[10px] font-bold text-gray-800 dark:text-white uppercase">{order.customerName}</p>
                   {order.phone && <p className="text-[10px] font-black text-[#e62e04]">{order.phone}</p>}
-                  <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">Method: {order.paymentMethod || 'COD'}</p>
+                  <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">{t('method')}: {order.paymentMethod || 'COD'}</p>
                   <p className="text-[10px] text-gray-500 dark:text-gray-400 italic mt-1 leading-tight">{order.address}</p>
                 </div>
               </div>
               
               <div className="flex justify-between items-center mt-1 pt-3 border-t border-gray-50 dark:border-slate-800">
-                <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">{order.items.length} Items</span>
+                <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">{order.items.length} {t('items_count')}</span>
                 <span className="font-black text-gray-800 dark:text-white text-sm">৳{order.total.toLocaleString()}</span>
               </div>
             </div>
@@ -92,11 +94,11 @@ const Orders: React.FC = () => {
               <ShoppingBag size={40} />
             </div>
             <div className="flex flex-col gap-2">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">No orders yet</h2>
-              <p className="text-gray-500 dark:text-gray-400 text-sm">When you buy something, your orders will appear here.</p>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('no_orders')}</h2>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">{t('no_orders_desc')}</p>
             </div>
             <Link to="/" className="bg-[#e62e04] text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-red-100 dark:shadow-none active:scale-95 transition-all uppercase tracking-widest text-xs">
-              Start Sourcing
+              {t('start_sourcing')}
             </Link>
           </div>
         )}

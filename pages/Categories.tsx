@@ -2,6 +2,7 @@
 import React from 'react';
 import Layout from '../components/Layout';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 import { 
   Laptop, 
@@ -23,6 +24,7 @@ const categoryIcons: Record<string, React.ReactNode> = {
 const Categories: React.FC = () => {
   const navigate = useNavigate();
   const { categories } = useAuth();
+  const { t } = useLanguage();
 
   const handleCategoryClick = (category: string) => {
     // Navigate home and potentially pass state to filter, 
@@ -31,10 +33,10 @@ const Categories: React.FC = () => {
   };
 
   return (
-    <Layout title="Categories">
+    <Layout title={t('categories')}>
       <div className="p-4 flex flex-col gap-4">
-        <h2 className="text-sm font-black text-gray-800 uppercase tracking-widest mb-2 px-1">
-          Shop by Category
+        <h2 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-widest mb-2 px-1">
+          {t('shop_by_category')}
         </h2>
         
         <div className="grid grid-cols-1 gap-3">
@@ -45,12 +47,12 @@ const Categories: React.FC = () => {
               className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between group active:scale-[0.98] transition-all"
             >
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center text-[#e62e04] group-hover:bg-[#e62e04] group-hover:text-white transition-colors">
+                <div className="w-12 h-12 bg-gray-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-[#e62e04] group-hover:bg-[#e62e04] group-hover:text-white transition-colors">
                   {categoryIcons[cat] || <LayoutGrid size={24} />}
                 </div>
                 <div className="flex flex-col items-start">
-                  <span className="text-sm font-bold text-gray-800">{cat}</span>
-                  <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">Explore Collection</span>
+                  <span className="text-sm font-bold text-gray-800 dark:text-gray-200">{cat}</span>
+                  <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">{t('explore_collection')}</span>
                 </div>
               </div>
               <ChevronRight size={18} className="text-gray-300 group-hover:text-[#e62e04] transition-colors" />

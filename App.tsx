@@ -5,6 +5,7 @@ import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 import { CategoryProvider } from './context/CategoryContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { LanguageProvider } from './context/LanguageContext';
 import Home from './pages/Home';
 import Search from './pages/Search';
 import Cart from './pages/Cart';
@@ -17,27 +18,29 @@ import AdminLogin from './pages/AdminLogin';
 
 const App: React.FC = () => {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <CartProvider>
-          <CategoryProvider>
-            <Router>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/search" element={<Search />} />
-                <Route path="/cart" element={<Cart />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/checkout" element={<Checkout />} />
-                <Route path="/orders" element={<Orders />} />
-                <Route path="/addresses" element={<Addresses />} />
-                <Route path="/admin" element={<AdminPanel />} />
-                <Route path="/admin/login" element={<AdminLogin />} />
-              </Routes>
-            </Router>
-          </CategoryProvider>
-        </CartProvider>
-      </AuthProvider>
-    </ThemeProvider>
+    <LanguageProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <CartProvider>
+            <CategoryProvider>
+              <Router>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/search" element={<Search />} />
+                  <Route path="/cart" element={<Cart />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/checkout" element={<Checkout />} />
+                  <Route path="/orders" element={<Orders />} />
+                  <Route path="/addresses" element={<Addresses />} />
+                  <Route path="/admin" element={<AdminPanel />} />
+                  <Route path="/admin/login" element={<AdminLogin />} />
+                </Routes>
+              </Router>
+            </CategoryProvider>
+          </CartProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </LanguageProvider>
   );
 };
 

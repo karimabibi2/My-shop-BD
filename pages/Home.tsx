@@ -6,6 +6,7 @@ import ProductDetailsModal from '../components/ProductDetailsModal';
 import { useAuth } from '../context/AuthContext';
 import { useCategory } from '../context/CategoryContext';
 import { useCart } from '../context/CartContext';
+import { useLanguage } from '../context/LanguageContext';
 import { Search, X, SlidersHorizontal } from 'lucide-react';
 import { Product } from '../types';
 import { useNavigate } from 'react-router-dom';
@@ -16,6 +17,7 @@ const Home: React.FC = () => {
   const { allProducts, bannerImage } = useAuth();
   const { activeCategory, setActiveCategory, setIsDrawerOpen } = useCategory();
   const { addToCart, cart } = useCart();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const handleBuyNow = (product: Product) => {
@@ -43,7 +45,7 @@ const Home: React.FC = () => {
           <div className="relative flex-1">
             <input
               type="text"
-              placeholder="Search anything on MY shopBD..."
+              placeholder={t('search')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg py-2.5 pl-4 pr-10 focus:border-[#e62e04] dark:focus:border-[#e62e04] focus:ring-0 text-sm transition-all shadow-sm dark:text-white"

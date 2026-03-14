@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import Layout from '../components/Layout';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { 
   Package, MapPin, User as UserIcon, LogOut, ChevronRight, 
   Mail, Settings, Lock, ShieldCheck, ArrowRight, RefreshCw, 
@@ -11,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Profile: React.FC = () => {
   const { user, login, logout, orders, addresses, updateUser } = useAuth();
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [otp, setOtp] = useState('');
@@ -90,10 +92,10 @@ const Profile: React.FC = () => {
         <div className="flex flex-col gap-6 py-8 px-4">
           <div className="flex flex-col gap-1 text-center">
             <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">
-              MY shopBD Account
+              {t('my_account')}
             </h2>
             <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
-              Direct Sourcing & Secure Access
+              {t('direct_sourcing')}
             </p>
           </div>
           
@@ -108,7 +110,7 @@ const Profile: React.FC = () => {
                   : 'text-gray-400 dark:text-gray-500 hover:text-gray-600'
                 }`}
               >
-                Login
+                {t('login')}
               </button>
               <button 
                 onClick={() => resetForm('signup')}
@@ -118,7 +120,7 @@ const Profile: React.FC = () => {
                   : 'text-gray-400 dark:text-gray-500 hover:text-gray-600'
                 }`}
               >
-                Signup
+                {t('signup')}
               </button>
             </div>
 
@@ -127,7 +129,7 @@ const Profile: React.FC = () => {
                 {/* Email Field with inline Send Code button */}
                 <div className="flex flex-col gap-1.5">
                   <label className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Gmail Address
+                    {t('gmail_address')}
                   </label>
                   <div className="flex gap-2">
                     <div className="relative flex-1">
@@ -153,7 +155,7 @@ const Profile: React.FC = () => {
                           : 'bg-[#e62e04] text-white border-transparent hover:bg-[#c42704]'
                         }`}
                       >
-                        {isLoading && !isOtpSent ? <RefreshCw className="animate-spin" size={14} /> : (isOtpSent ? 'Change' : 'Send Code')}
+                        {isLoading && !isOtpSent ? <RefreshCw className="animate-spin" size={14} /> : (isOtpSent ? t('change') : t('send_code'))}
                       </button>
                     )}
                   </div>
@@ -165,11 +167,11 @@ const Profile: React.FC = () => {
                     <div className="flex justify-between items-center mb-0.5">
                       <label className="text-[10px] font-black text-gray-700 dark:text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
                         {isOtpSent && <CheckCircle2 size={12} className="text-green-500" />}
-                        Gmail Verification Code
+                        {t('verification_code')}
                       </label>
                       {isOtpSent && (
                         <button type="button" onClick={handleSendCode} className="text-[9px] font-black text-[#e62e04] uppercase tracking-tighter">
-                          RESEND
+                          {t('resend')}
                         </button>
                       )}
                     </div>
@@ -194,7 +196,7 @@ const Profile: React.FC = () => {
 
                 {/* Password Field */}
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider">Password</label>
+                  <label className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('password')}</label>
                   <div className="relative">
                     <input 
                       type="password" 
@@ -211,7 +213,7 @@ const Profile: React.FC = () => {
                 {activeTab === 'login' && (
                   <div className="flex justify-end">
                     <button type="button" className="text-[10px] font-bold text-[#e62e04] hover:underline uppercase tracking-wider">
-                      Forgot Password?
+                      {t('forgot_password')}
                     </button>
                   </div>
                 )}
@@ -226,20 +228,20 @@ const Profile: React.FC = () => {
                   <RefreshCw className="animate-spin" size={20} />
                 ) : (
                   <>
-                    {activeTab === 'login' ? 'Secure Login' : (isOtpSent ? 'Verify & Create Account' : 'Create Account')}
+                    {activeTab === 'login' ? t('secure_login') : (isOtpSent ? t('verify_create') : t('create_account'))}
                     <ArrowRight size={18} />
                   </>
                 )}
               </button>
               
               <p className="text-center text-[9px] text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] px-4 leading-relaxed">
-                {activeTab === 'signup' && isOtpSent ? 'Check your Gmail inbox for the code' : 'Secure & Trusted Sourcing Network'}
+                {activeTab === 'signup' && isOtpSent ? t('check_inbox') : t('trusted_network')}
               </p>
             </form>
           </div>
 
           <div className="mt-4 flex flex-col gap-4">
-            <p className="text-center text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest">Connect with</p>
+            <p className="text-center text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest">{t('connect_with')}</p>
             <div className="flex gap-3">
               <button className="flex-1 py-3 border border-gray-200 dark:border-slate-800 rounded-xl flex items-center justify-center text-xs font-black dark:text-white hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors">
                 GOOGLE
@@ -283,7 +285,7 @@ const Profile: React.FC = () => {
               }}
               className="mt-1 text-[9px] font-black text-[#e62e04] uppercase tracking-widest hover:underline"
             >
-              Edit Profile
+              {t('edit_profile')}
             </button>
           </div>
           <button onClick={logout} className="p-2.5 bg-red-50 dark:bg-red-950/20 text-red-500 rounded-xl transition-colors hover:bg-red-100 dark:hover:bg-red-950/40">
@@ -293,7 +295,7 @@ const Profile: React.FC = () => {
 
         {/* Quick Actions */}
         <div className="flex flex-col gap-2">
-          <h4 className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] ml-1 mb-1">Activity & Settings</h4>
+          <h4 className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] ml-1 mb-1">{t('activity_settings')}</h4>
           
           <button 
             onClick={() => navigate('/orders')}
@@ -304,8 +306,8 @@ const Profile: React.FC = () => {
                 <Package size={20} />
               </div>
               <div className="flex flex-col items-start">
-                <span className="font-bold text-[13px] text-gray-800 dark:text-gray-200">My Orders</span>
-                <span className="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{orders.length} Shipments</span>
+                <span className="font-bold text-[13px] text-gray-800 dark:text-gray-200">{t('my_orders')}</span>
+                <span className="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{orders.length} {t('shipments')}</span>
               </div>
             </div>
             <ChevronRight size={18} className="text-gray-300 dark:text-gray-600" />
@@ -316,7 +318,7 @@ const Profile: React.FC = () => {
               <div className="w-10 h-10 bg-blue-50 dark:bg-blue-950/20 text-blue-500 rounded-xl flex items-center justify-center border border-blue-100 dark:border-blue-900/30">
                 <UserIcon size={20} />
               </div>
-              <span className="font-bold text-[13px] text-gray-800 dark:text-gray-200">Personal Information</span>
+              <span className="font-bold text-[13px] text-gray-800 dark:text-gray-200">{t('personal_info')}</span>
             </div>
             <ChevronRight size={18} className="text-gray-300 dark:text-gray-600" />
           </button>
@@ -330,8 +332,8 @@ const Profile: React.FC = () => {
                 <MapPin size={20} />
               </div>
               <div className="flex flex-col items-start">
-                <span className="font-bold text-[13px] text-gray-800 dark:text-gray-200">Delivery Addresses</span>
-                <span className="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{addresses.length} Locations</span>
+                <span className="font-bold text-[13px] text-gray-800 dark:text-gray-200">{t('delivery_addresses')}</span>
+                <span className="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{addresses.length} {t('locations')}</span>
               </div>
             </div>
             <ChevronRight size={18} className="text-gray-300 dark:text-gray-600" />
@@ -342,7 +344,7 @@ const Profile: React.FC = () => {
               <div className="w-10 h-10 bg-gray-50 dark:bg-slate-800 text-gray-500 rounded-xl flex items-center justify-center border border-gray-200 dark:border-slate-700">
                 <Settings size={20} />
               </div>
-              <span className="font-bold text-[13px] text-gray-800 dark:text-gray-200">Store Settings</span>
+              <span className="font-bold text-[13px] text-gray-800 dark:text-gray-200">{t('store_settings')}</span>
             </div>
             <ChevronRight size={18} className="text-gray-300 dark:text-gray-600" />
           </button>
@@ -354,7 +356,7 @@ const Profile: React.FC = () => {
             className="w-full flex items-center justify-center gap-2 py-4 rounded-xl border-2 border-red-50 dark:border-red-950/20 text-red-500 font-black text-[11px] uppercase tracking-widest hover:bg-red-50 dark:hover:bg-red-950/20 transition-all"
           >
             <LogOut size={16} />
-            Secure Sign Out
+            {t('sign_out')}
           </button>
         </div>
 
@@ -363,7 +365,7 @@ const Profile: React.FC = () => {
           <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl p-6 animate-in zoom-in-95 duration-200 shadow-2xl">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-sm font-black uppercase tracking-widest text-[#e62e04] italic">Update Profile</h3>
+                <h3 className="text-sm font-black uppercase tracking-widest text-[#e62e04] italic">{t('update_profile')}</h3>
                 <button onClick={() => setIsEditing(false)} className="p-1 text-gray-400 hover:text-gray-800">
                   <XCircle size={20} />
                 </button>
@@ -386,11 +388,11 @@ const Profile: React.FC = () => {
                       <input type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
                     </label>
                   </div>
-                  <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Tap image to change</p>
+                  <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{t('tap_to_change')}</p>
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-black text-gray-500 uppercase tracking-wider">Display Name</label>
+                  <label className="text-[10px] font-black text-gray-500 uppercase tracking-wider">{t('display_name')}</label>
                   <input 
                     type="text" 
                     required
@@ -402,7 +404,7 @@ const Profile: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-black text-gray-500 uppercase tracking-wider">Avatar URL (Optional)</label>
+                  <label className="text-[10px] font-black text-gray-500 uppercase tracking-wider">{t('avatar_url')}</label>
                   <input 
                     type="text" 
                     value={newAvatar}
@@ -416,7 +418,7 @@ const Profile: React.FC = () => {
                   type="submit"
                   className="w-full bg-[#e62e04] text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 dark:shadow-none mt-2 text-xs"
                 >
-                  Save Changes
+                  {t('save_changes')}
                 </button>
               </form>
             </div>

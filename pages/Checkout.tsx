@@ -4,12 +4,14 @@ import Layout from '../components/Layout';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { CheckCircle, ArrowLeft, ChevronDown } from 'lucide-react';
 import { BD_LOCATIONS, DELIVERY_RATES } from '../constants';
 
 const Checkout: React.FC = () => {
   const { totalPrice, cart, clearCart } = useCart();
   const { user, addOrder, addresses, shippingRates } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [isOrdered, setIsOrdered] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'COD' | 'bKash' | 'Nagad'>('COD');
@@ -85,31 +87,31 @@ const Checkout: React.FC = () => {
         <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 text-green-500 rounded-full flex items-center justify-center mb-6 animate-bounce">
           <CheckCircle size={48} />
         </div>
-        <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2 italic">Order Confirmed!</h2>
-        <p className="text-gray-500 dark:text-gray-400 text-sm">Your order has been placed successfully. Thank you for shopping with MY shopBD.</p>
-        <div className="mt-8 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Redirecting to your orders...</div>
+        <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2 italic">{t('order_confirmed')}</h2>
+        <p className="text-gray-500 dark:text-gray-400 text-sm">{t('order_success_desc')}</p>
+        <div className="mt-8 text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t('redirecting_orders')}</div>
       </div>
     );
   }
 
   return (
-    <Layout title="Checkout">
+    <Layout title={t('checkout')}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-4 px-4 pb-20">
         <button onClick={() => navigate(-1)} type="button" className="flex items-center gap-2 text-gray-400 dark:text-gray-500 text-[10px] font-black uppercase mb-2">
           <ArrowLeft size={14} />
-          Back to Cart
+          {t('back_to_cart')}
         </button>
 
         <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 flex flex-col gap-4">
           <div className="flex justify-between items-center">
-            <h3 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-wider">Shipping Details</h3>
+            <h3 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-wider">{t('shipping_details')}</h3>
             {addresses.length > 0 && (
               <button 
                 type="button" 
                 onClick={() => setUseSavedAddress(!useSavedAddress)}
                 className="text-[10px] font-black text-[#e62e04] uppercase tracking-tighter border border-red-50 dark:border-red-900/30 px-2 py-1 rounded"
               >
-                {useSavedAddress ? 'New Address' : 'Use Saved'}
+                {useSavedAddress ? t('new_address') : t('use_saved')}
               </button>
             )}
           </div>
@@ -144,7 +146,7 @@ const Checkout: React.FC = () => {
             <>
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Full Name</label>
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('full_name')}</label>
                   <input 
                     required
                     type="text" 
@@ -154,7 +156,7 @@ const Checkout: React.FC = () => {
                   />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Mobile Number</label>
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('mobile_number')}</label>
                   <input 
                     required
                     type="tel" 
@@ -167,7 +169,7 @@ const Checkout: React.FC = () => {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">District (Jela)</label>
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('district')}</label>
                 <div className="relative">
                   <select 
                     required
@@ -175,7 +177,7 @@ const Checkout: React.FC = () => {
                     value={formData.district}
                     onChange={(e) => setFormData({...formData, district: e.target.value, thana: ''})}
                   >
-                    <option value="">Select District</option>
+                    <option value="">{t('select_district')}</option>
                     {districts.map(d => <option key={d} value={d}>{d}</option>)}
                   </select>
                   <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
@@ -183,7 +185,7 @@ const Checkout: React.FC = () => {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Thana / Upazila</label>
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('thana')}</label>
                 <div className="relative">
                   <select 
                     required
@@ -192,7 +194,7 @@ const Checkout: React.FC = () => {
                     value={formData.thana}
                     onChange={(e) => setFormData({...formData, thana: e.target.value})}
                   >
-                    <option value="">Select Thana</option>
+                    <option value="">{t('select_thana')}</option>
                     {thanas.map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                   <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
@@ -200,12 +202,12 @@ const Checkout: React.FC = () => {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Address Details</label>
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('address_details')}</label>
                 <textarea 
                   required
                   rows={2}
                   className="bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-sm focus:ring-1 focus:ring-[#e62e04] outline-none dark:text-white"
-                  placeholder="Street, area, etc."
+                  placeholder={t('street_area')}
                   value={formData.details}
                   onChange={(e) => setFormData({...formData, details: e.target.value})}
                 />
@@ -215,7 +217,7 @@ const Checkout: React.FC = () => {
         </div>
 
         <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 flex flex-col gap-4">
-          <h3 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-wider">Payment Method</h3>
+          <h3 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-wider">{t('payment_method')}</h3>
           <div className="grid grid-cols-3 gap-2">
             <button 
               type="button"
@@ -223,14 +225,14 @@ const Checkout: React.FC = () => {
               className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all gap-1 ${paymentMethod === 'COD' ? 'border-[#e62e04] bg-red-50/30 dark:bg-red-950/10' : 'border-gray-50 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30'}`}
             >
               <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-slate-700 flex items-center justify-center text-[10px] font-black">COD</div>
-              <span className="text-[8px] font-black uppercase">Cash</span>
+              <span className="text-[8px] font-black uppercase">{t('cash')}</span>
             </button>
             <button 
               type="button"
               onClick={() => setPaymentMethod('bKash')}
               className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all gap-1 ${paymentMethod === 'bKash' ? 'border-[#e2136e] bg-pink-50/30 dark:bg-pink-950/10' : 'border-gray-50 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30'}`}
             >
-              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6_X-6X7f6X7X7X7X7X7X7X7X7X7X7X7X7X7&s" alt="bKash" className="w-8 h-8 rounded-lg object-contain" referrerPolicy="no-referrer" onError={(e) => (e.currentTarget.src = 'https://picsum.photos/seed/bkash/32/32')} />
+              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6_X-6X7f6X7f6X7X7X7X7X7X7X7X7X7X7X7X7X7&s" alt="bKash" className="w-8 h-8 rounded-lg object-contain" referrerPolicy="no-referrer" onError={(e) => (e.currentTarget.src = 'https://picsum.photos/seed/bkash/32/32')} />
               <span className="text-[8px] font-black uppercase">bKash</span>
             </button>
             <button 
@@ -238,35 +240,35 @@ const Checkout: React.FC = () => {
               onClick={() => setPaymentMethod('Nagad')}
               className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all gap-1 ${paymentMethod === 'Nagad' ? 'border-[#f7941d] bg-orange-50/30 dark:bg-orange-950/10' : 'border-gray-50 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30'}`}
             >
-              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_X-6X7f6X7X7X7X7X7X7X7X7X7X7X7X7X7&s" alt="Nagad" className="w-8 h-8 rounded-lg object-contain" referrerPolicy="no-referrer" onError={(e) => (e.currentTarget.src = 'https://picsum.photos/seed/nagad/32/32')} />
+              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_X-6X7f6X7f6X7X7X7X7X7X7X7X7X7X7X7X7X7&s" alt="Nagad" className="w-8 h-8 rounded-lg object-contain" referrerPolicy="no-referrer" onError={(e) => (e.currentTarget.src = 'https://picsum.photos/seed/nagad/32/32')} />
               <span className="text-[8px] font-black uppercase">Nagad</span>
             </button>
           </div>
           {paymentMethod !== 'COD' && (
             <div className="bg-amber-50 dark:bg-amber-950/20 p-3 rounded-xl border border-amber-100 dark:border-amber-900/30">
               <p className="text-[9px] font-bold text-amber-700 dark:text-amber-500 leading-tight">
-                Please complete the payment to our official number after confirming the order. Our team will contact you for the transaction ID.
+                {t('payment_notice')}
               </p>
             </div>
           )}
         </div>
 
         <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800">
-          <h3 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-wider mb-3">Order Summary</h3>
+          <h3 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-wider mb-3">{t('order_summary')}</h3>
           <div className="flex justify-between items-center py-2 border-b border-gray-50 dark:border-slate-800">
-            <span className="text-[10px] text-gray-500 uppercase font-bold">Subtotal</span>
+            <span className="text-[10px] text-gray-500 uppercase font-bold">{t('subtotal')}</span>
             <span className="text-sm font-black text-gray-800 dark:text-white">৳{totalPrice.toLocaleString()}</span>
           </div>
           <div className="flex justify-between items-center py-2 border-b border-gray-50 dark:border-slate-800">
-            <span className="text-[10px] text-gray-500 uppercase font-bold">Shipping Charge</span>
+            <span className="text-[10px] text-gray-500 uppercase font-bold">{t('shipping_charge')}</span>
             {currentShipping > 0 ? (
               <span className="text-sm font-black text-gray-800 dark:text-white">৳{currentShipping.toLocaleString()}</span>
             ) : (
-              <span className="text-[10px] font-black text-[#e62e04] uppercase italic">Select Address</span>
+              <span className="text-[10px] font-black text-[#e62e04] uppercase italic">{t('select_address')}</span>
             )}
           </div>
           <div className="flex justify-between items-center pt-3">
-            <span className="text-sm font-black text-gray-800 dark:text-white uppercase">Total Payable</span>
+            <span className="text-sm font-black text-gray-800 dark:text-white uppercase">{t('total_payable')}</span>
             <span className="text-xl font-black text-[#e62e04]">৳{totalPayable.toLocaleString()}</span>
           </div>
         </div>
@@ -276,7 +278,7 @@ const Checkout: React.FC = () => {
           disabled={!useSavedAddress && (!formData.district || !formData.thana)}
           className="w-full bg-[#e62e04] text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 dark:shadow-none active:scale-[0.98] transition-all mt-2 text-sm disabled:opacity-50 disabled:grayscale"
         >
-          CONFIRM ORDER
+          {t('confirm_order')}
         </button>
       </form>
     </Layout>

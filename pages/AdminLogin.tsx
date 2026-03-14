@@ -91,11 +91,6 @@ const AdminLogin: React.FC = () => {
             </button>
           </form>
         </div>
-
-        <div className="mt-8 text-center">
-          <p className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.3em]">Credentials for Demo:</p>
-          <p className="text-[9px] font-black text-gray-500 uppercase mt-1 tracking-widest">User: {adminUsername} | Pass: {adminPassword}</p>
-        </div>
       </div>
     </Layout>
   );

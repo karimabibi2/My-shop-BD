@@ -12,7 +12,10 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { CATEGORIES, DELIVERY_RATES } from '../constants';
 
+import { useLanguage } from '../context/LanguageContext';
+
 const AdminPanel: React.FC = () => {
+  const { t } = useLanguage();
   const { 
     user, orders, allProducts, updateOrderStatus, 
     updateProduct, deleteProduct, addProduct, logout,
@@ -40,6 +43,7 @@ const AdminPanel: React.FC = () => {
   const [newYoutubeLink, setNewYoutubeLink] = useState(youtubeLink);
   const [newTiktokLink, setNewTiktokLink] = useState(tiktokLink);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [newAdminUser, setNewAdminUser] = useState(adminUsername);
   const [newAdminPass, setNewAdminPass] = useState(adminPassword);
 
@@ -92,20 +96,20 @@ const AdminPanel: React.FC = () => {
       <Layout>
         <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
           <ShieldAlert size={64} className="text-amber-500 mb-4" />
-          <h2 className="text-xl font-black uppercase italic">Admin Access Required</h2>
-          <p className="text-gray-500 text-sm mt-2">Please log in with administrator credentials to manage the store.</p>
+          <h2 className="text-xl font-black uppercase italic">{t('admin_access_required')}</h2>
+          <p className="text-gray-500 text-sm mt-2">{t('admin_access_required_desc')}</p>
           <div className="flex flex-col w-full gap-3 mt-8">
             <button 
               onClick={() => navigate('/admin/login')} 
               className="bg-[#e62e04] text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-red-100"
             >
-              Go to Admin Login
+              {t('go_to_admin_login')}
             </button>
             <button 
               onClick={() => navigate('/')} 
               className="text-gray-400 font-black text-[10px] uppercase tracking-widest py-2"
             >
-              Back to Home
+              {t('back_to_home')}
             </button>
           </div>
         </div>
@@ -126,8 +130,8 @@ const AdminPanel: React.FC = () => {
         {/* Admin Header */}
         <div className="flex items-center justify-between">
           <div className="flex flex-col">
-            <h2 className="text-xl font-black text-gray-900 dark:text-white uppercase italic tracking-tighter">Admin Dashboard</h2>
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Store Management System</p>
+            <h2 className="text-xl font-black text-gray-900 dark:text-white uppercase italic tracking-tighter">{t('admin_dashboard')}</h2>
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t('store_management')}</p>
           </div>
           <div className="flex items-center gap-3">
             <div className="bg-red-50 dark:bg-red-950/20 px-3 py-1 rounded-full border border-red-100 dark:border-red-900">
@@ -137,7 +141,7 @@ const AdminPanel: React.FC = () => {
               onClick={() => { logout(); navigate('/'); }}
               className="text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-[#e62e04] transition-colors"
             >
-              Logout
+              {t('logout')}
             </button>
           </div>
         </div>
@@ -159,7 +163,7 @@ const AdminPanel: React.FC = () => {
               {tab === 'categories' && <Layers size={16} />}
               {tab === 'orders' && <ShoppingCart size={16} />}
               {tab === 'settings' && <Settings size={16} />}
-              {tab}
+              {t(tab)}
             </button>
           ))}
         </div>
@@ -168,30 +172,30 @@ const AdminPanel: React.FC = () => {
         {activeTab === 'dashboard' && (
           <div className="grid grid-cols-2 gap-4 animate-in fade-in duration-300">
             <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm">
-              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Total Sales</span>
+              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{t('total_sales')}</span>
               <h3 className="text-lg font-black text-gray-900 dark:text-white mt-1">৳{stats.totalSales.toLocaleString()}</h3>
             </div>
             <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm">
-              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Orders</span>
+              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{t('orders')}</span>
               <h3 className="text-lg font-black text-gray-900 dark:text-white mt-1">{stats.totalOrders}</h3>
             </div>
             <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm">
-              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Inventory</span>
-              <h3 className="text-lg font-black text-gray-900 dark:text-white mt-1">{stats.totalProducts} Items</h3>
+              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{t('inventory')}</span>
+              <h3 className="text-lg font-black text-gray-900 dark:text-white mt-1">{stats.totalProducts} {t('items_count')}</h3>
             </div>
             <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm">
-              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Pending</span>
-              <h3 className="text-lg font-black text-amber-500 mt-1">{stats.pendingOrders} Orders</h3>
+              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{t('pending')}</span>
+              <h3 className="text-lg font-black text-amber-500 mt-1">{stats.pendingOrders} {t('orders')}</h3>
             </div>
 
             <div className="col-span-2 bg-gradient-to-r from-[#e62e04] to-red-400 p-5 rounded-2xl shadow-lg text-white">
-              <h4 className="text-sm font-black uppercase italic mb-1">Quick Action</h4>
-              <p className="text-[11px] opacity-90 mb-4">Add a new trending product to the store immediately.</p>
+              <h4 className="text-sm font-black uppercase italic mb-1">{t('quick_action')}</h4>
+              <p className="text-[11px] opacity-90 mb-4">{t('add_trending_desc')}</p>
               <button 
                 onClick={() => setActiveTab('products')}
                 className="w-full bg-white text-[#e62e04] py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest"
               >
-                Go to Inventory
+                {t('go_to_inventory')}
               </button>
             </div>
           </div>
@@ -201,7 +205,7 @@ const AdminPanel: React.FC = () => {
         {activeTab === 'products' && (
           <div className="flex flex-col gap-4 animate-in slide-in-from-bottom-4 duration-300 pb-10">
             <div className="flex justify-between items-center px-1">
-              <h3 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-widest">Store Inventory</h3>
+              <h3 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-widest">{t('store_inventory')}</h3>
               <button 
                 onClick={() => setEditingProduct({ id: 'new-' + Date.now(), name: '', price: 0, category: categories[0], isAvailable: true, image: 'https://picsum.photos/400', description: '' })}
                 className="bg-green-500 text-white p-2 rounded-lg"
@@ -231,13 +235,23 @@ const AdminPanel: React.FC = () => {
                     <div className="flex items-center gap-2 mt-0.5">
                       <span className="text-[10px] font-black text-[#e62e04]">৳{product.price}</span>
                       <span className={`text-[8px] font-bold uppercase px-1.5 py-0.5 rounded ${product.isAvailable ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
-                        {product.isAvailable ? 'In Stock' : 'Out'}
+                        {product.isAvailable ? t('in_stock') : t('out_of_stock')}
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => setEditingProduct(product)} className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg"><Edit2 size={16} /></button>
-                    <button onClick={() => deleteProduct(product.id)} className="p-2 text-red-500 hover:bg-red-50 rounded-lg"><Trash2 size={16} /></button>
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={() => setEditingProduct(product)} 
+                      className="px-3 py-1.5 bg-blue-500 text-white rounded-lg flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest shadow-sm shadow-blue-100"
+                    >
+                      <Edit2 size={12} /> {t('edit')}
+                    </button>
+                    <button 
+                      onClick={() => deleteProduct(product.id)} 
+                      className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg"
+                    >
+                      <Trash2 size={14} />
+                    </button>
                   </div>
                 </div>
               ))}
@@ -249,7 +263,7 @@ const AdminPanel: React.FC = () => {
         {activeTab === 'categories' && (
           <div className="flex flex-col gap-4 animate-in slide-in-from-bottom-4 duration-300 pb-10">
             <div className="flex justify-between items-center px-1">
-              <h3 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-widest">Categories List</h3>
+              <h3 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-widest">{t('categories_list')}</h3>
               <button 
                 onClick={() => setIsAddingCategory(true)}
                 className="bg-green-500 text-white p-2 rounded-lg"
@@ -264,7 +278,7 @@ const AdminPanel: React.FC = () => {
                   <div className="flex flex-col">
                     <span className="text-xs font-black text-gray-800 dark:text-white uppercase tracking-wider">{category}</span>
                     <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">
-                      {allProducts.filter(p => p.category === category).length} Products
+                      {allProducts.filter(p => p.category === category).length} {t('products')}
                     </span>
                   </div>
                   <div className="flex items-center gap-1">
@@ -272,7 +286,7 @@ const AdminPanel: React.FC = () => {
                       onClick={() => setEditingCategory({ oldName: category, newName: category })}
                       className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950/20 rounded-lg flex items-center gap-1 text-[10px] font-black uppercase"
                     >
-                      <Edit2 size={14} /> Edit
+                      <Edit2 size={14} /> {t('edit')}
                     </button>
                     <button 
                       onClick={() => {
@@ -288,7 +302,7 @@ const AdminPanel: React.FC = () => {
                       disabled={category === 'Uncategorized'}
                       className={`p-2 rounded-lg flex items-center gap-1 text-[10px] font-black uppercase ${category === 'Uncategorized' ? 'text-gray-300 cursor-not-allowed' : 'text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20'}`}
                     >
-                      <Trash2 size={14} /> Delete
+                      <Trash2 size={14} /> {t('delete')}
                     </button>
                   </div>
                 </div>
@@ -300,12 +314,12 @@ const AdminPanel: React.FC = () => {
         {/* --- Orders Tab --- */}
         {activeTab === 'orders' && (
           <div className="flex flex-col gap-4 animate-in slide-in-from-bottom-4 duration-300 pb-10">
-             <h3 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-widest px-1">Customer Orders</h3>
+             <h3 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-widest px-1">{t('orders')}</h3>
              
              {orders.length === 0 ? (
                <div className="py-20 text-center opacity-40">
                  <ShoppingCart size={48} className="mx-auto mb-3" />
-                 <p className="text-[10px] font-bold uppercase">No orders placed yet</p>
+                 <p className="text-[10px] font-bold uppercase">{t('no_orders')}</p>
                </div>
              ) : (
                <div className="flex flex-col gap-3">
@@ -378,11 +392,11 @@ const AdminPanel: React.FC = () => {
                   <button 
                     onClick={() => {
                       updateWhatsappNumber(newWhatsappNumber);
-                      alert('WhatsApp number updated successfully!');
+                      alert(t('whatsapp_updated'));
                     }}
                     className="bg-[#25D366] text-white px-4 rounded-xl text-[10px] font-black uppercase tracking-widest"
                   >
-                    Update
+                    {t('save')}
                   </button>
                 </div>
                 <p className="text-[8px] text-gray-400 font-bold uppercase leading-tight px-1">
@@ -394,12 +408,12 @@ const AdminPanel: React.FC = () => {
             <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
               <div className="flex items-center gap-2 mb-1">
                 <Truck size={18} className="text-[#e62e04]" />
-                <h4 className="text-[11px] font-black uppercase tracking-widest">Delivery Settings</h4>
+                <h4 className="text-[11px] font-black uppercase tracking-widest">{t('delivery_settings')}</h4>
               </div>
               
               <div className="flex flex-col gap-3">
                 <div className="flex justify-between items-center">
-                  <label className="text-[10px] font-bold text-gray-500 uppercase">Dhaka Charge</label>
+                  <label className="text-[10px] font-bold text-gray-500 uppercase">{t('dhaka_charge')}</label>
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-black">৳</span>
                     <input 
@@ -411,7 +425,7 @@ const AdminPanel: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex justify-between items-center">
-                  <label className="text-[10px] font-bold text-gray-500 uppercase">Bogura Charge</label>
+                  <label className="text-[10px] font-bold text-gray-500 uppercase">{t('bogura_charge')}</label>
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-black">৳</span>
                     <input 
@@ -423,7 +437,7 @@ const AdminPanel: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex justify-between items-center">
-                  <label className="text-[10px] font-bold text-gray-500 uppercase">Other (Default)</label>
+                  <label className="text-[10px] font-bold text-gray-500 uppercase">{t('other_charge')}</label>
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-black">৳</span>
                     <input 
@@ -439,25 +453,25 @@ const AdminPanel: React.FC = () => {
               <button 
                 onClick={() => {
                   updateShippingRates(rates);
-                  alert('Shipping rates updated successfully!');
+                  alert(t('shipping_rates_updated'));
                 }}
                 className="w-full bg-[#e62e04] text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest mt-2 flex items-center justify-center gap-2"
               >
-                <Save size={14} /> Update Shipping Rates
+                <Save size={14} /> {t('update_shipping_rates')}
               </button>
             </div>
 
             <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
               <div className="flex items-center gap-2">
                 <Globe size={18} className="text-blue-500" />
-                <h4 className="text-[11px] font-black uppercase tracking-widest">Social Media Links</h4>
+                <h4 className="text-[11px] font-black uppercase tracking-widest">{t('social_media_links')}</h4>
               </div>
               
               <div className="flex flex-col gap-3">
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-1.5 mb-0.5">
                     <Facebook size={12} className="text-blue-600" />
-                    <label className="text-[9px] font-black text-gray-400 uppercase">Facebook Page Link</label>
+                    <label className="text-[9px] font-black text-gray-400 uppercase">{t('facebook_page_link')}</label>
                   </div>
                   <div className="flex gap-2">
                     <input 
@@ -470,11 +484,11 @@ const AdminPanel: React.FC = () => {
                     <button 
                       onClick={() => {
                         updateFacebookLink(newFacebookLink);
-                        alert('Facebook link updated!');
+                        alert(t('facebook_link_updated'));
                       }}
                       className="bg-blue-600 text-white px-3 rounded-xl text-[10px] font-black uppercase"
                     >
-                      Save
+                      {t('save')}
                     </button>
                   </div>
                 </div>
@@ -482,7 +496,7 @@ const AdminPanel: React.FC = () => {
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-1.5 mb-0.5">
                     <Youtube size={12} className="text-red-600" />
-                    <label className="text-[9px] font-black text-gray-400 uppercase">YouTube Channel Link</label>
+                    <label className="text-[9px] font-black text-gray-400 uppercase">{t('youtube_channel_link')}</label>
                   </div>
                   <div className="flex gap-2">
                     <input 
@@ -495,11 +509,11 @@ const AdminPanel: React.FC = () => {
                     <button 
                       onClick={() => {
                         updateYoutubeLink(newYoutubeLink);
-                        alert('YouTube link updated!');
+                        alert(t('youtube_link_updated'));
                       }}
                       className="bg-red-600 text-white px-3 rounded-xl text-[10px] font-black uppercase"
                     >
-                      Save
+                      {t('save')}
                     </button>
                   </div>
                 </div>
@@ -509,7 +523,7 @@ const AdminPanel: React.FC = () => {
                     <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" className="text-black dark:text-white">
                       <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.17-2.89-.6-4.13-1.47-.13-.08-.26-.17-.38-.26v7.02c0 3.11-1.8 5.54-4.57 6.32-2.33.66-5.13.14-6.77-1.72-1.6-1.81-1.9-4.74-.46-6.78 1.14-1.62 3.16-2.39 5.08-2.09v4.27c-.67-.13-1.39-.14-2.01.23-.72.43-1.18 1.23-1.14 2.06.03.76.46 1.47 1.11 1.81.65.34 1.44.31 2.04-.08.6-.39.91-1.07.92-1.78V.02z"/>
                     </svg>
-                    <label className="text-[9px] font-black text-gray-400 uppercase">TikTok Profile Link</label>
+                    <label className="text-[9px] font-black text-gray-400 uppercase">{t('tiktok_profile_link')}</label>
                   </div>
                   <div className="flex gap-2">
                     <input 
@@ -522,11 +536,11 @@ const AdminPanel: React.FC = () => {
                     <button 
                       onClick={() => {
                         updateTiktokLink(newTiktokLink);
-                        alert('TikTok link updated!');
+                        alert(t('tiktok_link_updated'));
                       }}
                       className="bg-black text-white px-3 rounded-xl text-[10px] font-black uppercase"
                     >
-                      Save
+                      {t('save')}
                     </button>
                   </div>
                 </div>
@@ -536,16 +550,16 @@ const AdminPanel: React.FC = () => {
             <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
               <div className="flex items-center gap-2">
                 <Globe size={18} className="text-blue-500" />
-                <h4 className="text-[11px] font-black uppercase tracking-widest">Site Visibility</h4>
+                <h4 className="text-[11px] font-black uppercase tracking-widest">{t('site_visibility')}</h4>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-[10px] font-bold text-gray-500 uppercase">Promo Banner</span>
+                <span className="text-[10px] font-bold text-gray-500 uppercase">{t('promo_banner')}</span>
                 <button className="w-10 h-5 bg-green-500 rounded-full relative">
                   <div className="absolute right-0.5 top-0.5 w-4 h-4 bg-white rounded-full"></div>
                 </button>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-[10px] font-bold text-gray-500 uppercase">Dark Mode Default</span>
+                <span className="text-[10px] font-bold text-gray-500 uppercase">{t('dark_mode_default')}</span>
                 <button className="w-10 h-5 bg-gray-200 dark:bg-slate-700 rounded-full relative">
                   <div className="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full"></div>
                 </button>
@@ -555,7 +569,7 @@ const AdminPanel: React.FC = () => {
             <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
               <div className="flex items-center gap-2">
                 <Lock size={18} className="text-amber-500" />
-                <h4 className="text-[11px] font-black uppercase tracking-widest">Security & Account</h4>
+                <h4 className="text-[11px] font-black uppercase tracking-widest">{t('security_account')}</h4>
               </div>
               <div className="flex flex-col gap-3">
                 <p className="text-[9px] font-bold text-gray-400 uppercase leading-tight">
@@ -564,7 +578,7 @@ const AdminPanel: React.FC = () => {
                 
                 <div className="flex flex-col gap-3 mt-2">
                   <div className="flex flex-col gap-1">
-                    <label className="text-[9px] font-black text-gray-400 uppercase">Admin Username</label>
+                    <label className="text-[9px] font-black text-gray-400 uppercase">{t('admin_username')}</label>
                     <input 
                       type="text" 
                       value={newAdminUser}
@@ -574,7 +588,7 @@ const AdminPanel: React.FC = () => {
                     />
                   </div>
                   <div className="flex flex-col gap-1">
-                    <label className="text-[9px] font-black text-gray-400 uppercase">Admin Password</label>
+                    <label className="text-[9px] font-black text-gray-400 uppercase">{t('admin_password')}</label>
                     <input 
                       type="text" 
                       value={newAdminPass}
@@ -587,14 +601,14 @@ const AdminPanel: React.FC = () => {
                     onClick={() => {
                       if (newAdminUser.trim() && newAdminPass.trim()) {
                         updateAdminCredentials(newAdminUser, newAdminPass);
-                        alert('Admin credentials updated successfully!');
+                        alert(t('admin_credentials_updated'));
                       } else {
-                        alert('Username and Password cannot be empty.');
+                        alert(t('empty_credentials_error'));
                       }
                     }}
                     className="bg-[#e62e04] text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
                   >
-                    <Save size={14} /> Update Credentials
+                    <Save size={14} /> {t('update_credentials')}
                   </button>
                 </div>
 
@@ -606,7 +620,7 @@ const AdminPanel: React.FC = () => {
                   }}
                   className="w-full bg-amber-500 text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
                 >
-                  <Key size={14} /> View Current Credentials
+                  <Key size={14} /> {t('view_current_credentials')}
                 </button>
               </div>
             </div>
@@ -614,7 +628,7 @@ const AdminPanel: React.FC = () => {
             <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
               <div className="flex items-center gap-2">
                 <ImageIcon size={18} className="text-[#e62e04]" />
-                <h4 className="text-[11px] font-black uppercase tracking-widest">Home Banner Management</h4>
+                <h4 className="text-[11px] font-black uppercase tracking-widest">{t('home_banner_management')}</h4>
               </div>
               
               <div className="flex flex-col gap-3">
@@ -634,7 +648,7 @@ const AdminPanel: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[9px] font-black text-gray-400 uppercase">Banner Image URL</label>
+                  <label className="text-[9px] font-black text-gray-400 uppercase">{t('banner_image_url')}</label>
                   <div className="flex gap-2">
                     <input 
                       type="text" 
@@ -646,11 +660,11 @@ const AdminPanel: React.FC = () => {
                     <button 
                       onClick={() => {
                         updateBannerImage(newBannerUrl);
-                        alert('Banner image updated successfully!');
+                        alert(t('banner_updated'));
                       }}
                       className="bg-[#e62e04] text-white px-4 rounded-xl text-[10px] font-black uppercase tracking-widest"
                     >
-                      Update
+                      {t('update')}
                     </button>
                   </div>
                 </div>
@@ -689,26 +703,26 @@ const AdminPanel: React.FC = () => {
             <div className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl p-6 animate-in slide-in-from-bottom-10 duration-300 shadow-2xl overflow-y-auto max-h-[90vh]">
                <div className="flex justify-between items-center mb-6">
                  <h3 className="text-sm font-black uppercase tracking-widest text-[#e62e04] italic">
-                   {editingProduct.id.toString().startsWith('new') ? 'Add New Product' : 'Edit Product'}
+                   {editingProduct.id.toString().startsWith('new') ? t('add_new_product') : t('edit_product')}
                  </h3>
                  <button onClick={() => setEditingProduct(null)} className="p-1 text-gray-400 hover:text-gray-800"><ArrowLeft size={20} /></button>
                </div>
 
                <div className="flex flex-col gap-4">
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[9px] font-black text-gray-400 uppercase">Product Name</label>
+                    <label className="text-[9px] font-black text-gray-400 uppercase">{t('product_name')}</label>
                     <input 
                       type="text" 
                       value={editingProduct.name}
                       onChange={(e) => setEditingProduct({...editingProduct, name: e.target.value})}
                       className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-xs font-bold dark:text-white"
-                      placeholder="e.g. Premium Sports Shoes"
+                      placeholder={t('product_name_placeholder')}
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-[9px] font-black text-gray-400 uppercase">Price (৳)</label>
+                      <label className="text-[9px] font-black text-gray-400 uppercase">{t('price')} (৳)</label>
                       <input 
                         type="number" 
                         value={editingProduct.price}
@@ -717,7 +731,7 @@ const AdminPanel: React.FC = () => {
                       />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-[9px] font-black text-gray-400 uppercase">Category</label>
+                      <label className="text-[9px] font-black text-gray-400 uppercase">{t('category')}</label>
                       <select 
                         value={editingProduct.category}
                         onChange={(e) => setEditingProduct({...editingProduct, category: e.target.value})}
@@ -736,21 +750,21 @@ const AdminPanel: React.FC = () => {
                       onChange={(e) => setEditingProduct({...editingProduct, isAvailable: e.target.checked})}
                       className="accent-[#e62e04]"
                     />
-                    <label htmlFor="avail" className="text-[10px] font-bold text-gray-600 uppercase">Mark as In-Stock</label>
+                    <label htmlFor="avail" className="text-[10px] font-bold text-gray-600 uppercase">{t('mark_in_stock')}</label>
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[9px] font-black text-gray-400 uppercase">Product Description</label>
+                    <label className="text-[9px] font-black text-gray-400 uppercase">{t('product_description')}</label>
                     <textarea 
                       value={editingProduct.description}
                       onChange={(e) => setEditingProduct({...editingProduct, description: e.target.value})}
                       className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-xs font-bold dark:text-white min-h-[80px] resize-none"
-                      placeholder="Enter product details..."
+                      placeholder={t('product_desc_placeholder')}
                     />
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[9px] font-black text-gray-400 uppercase">Product Image</label>
+                    <label className="text-[9px] font-black text-gray-400 uppercase">{t('product_image')}</label>
                     <div className="flex flex-col gap-3">
                       <div className="flex gap-3 items-center">
                         <div className="w-20 h-20 rounded-2xl bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700 overflow-hidden flex-shrink-0 flex items-center justify-center shadow-inner relative group">
@@ -773,7 +787,7 @@ const AdminPanel: React.FC = () => {
                           ) : (
                             <div className="flex flex-col items-center gap-1">
                               <ImageIcon size={24} className="text-gray-300" />
-                              <span className="text-[8px] text-gray-400 font-bold uppercase">No Image</span>
+                              <span className="text-[8px] text-gray-400 font-bold uppercase">{t('no_image')}</span>
                             </div>
                           )}
                         </div>
@@ -781,7 +795,7 @@ const AdminPanel: React.FC = () => {
                         <div className="flex-1 flex flex-col gap-2">
                           <label className="cursor-pointer bg-gray-50 dark:bg-slate-800 border-2 border-dashed border-gray-200 dark:border-slate-700 rounded-xl p-3 flex flex-col items-center justify-center gap-1 hover:border-[#e62e04] transition-colors">
                             <Upload size={16} className="text-gray-400" />
-                            <span className="text-[10px] font-black uppercase text-gray-500">Upload Image</span>
+                            <span className="text-[10px] font-black uppercase text-gray-500">{t('upload_image')}</span>
                             <input 
                               type="file" 
                               accept="image/*" 
@@ -801,11 +815,11 @@ const AdminPanel: React.FC = () => {
                           value={editingProduct.image}
                           onChange={(e) => setEditingProduct({...editingProduct, image: e.target.value})}
                           className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-xl py-2.5 pl-9 pr-3 text-[10px] font-medium dark:text-gray-300 focus:ring-1 focus:ring-[#e62e04]"
-                          placeholder="Or paste image URL here..."
+                          placeholder={t('image_url_placeholder')}
                         />
                       </div>
                       <p className="text-[8px] text-gray-400 font-bold uppercase leading-tight px-1">
-                        Upload a file or paste a direct link for the product image.
+                        {t('image_upload_hint')}
                       </p>
                     </div>
                   </div>
@@ -821,7 +835,7 @@ const AdminPanel: React.FC = () => {
                     }}
                     className="w-full bg-[#e62e04] text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 mt-4 text-xs"
                   >
-                    Save Product Changes
+                    {t('save_product_changes')}
                   </button>
                </div>
             </div>
@@ -832,19 +846,19 @@ const AdminPanel: React.FC = () => {
           <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-white dark:bg-slate-900 w-full max-w-xs rounded-3xl p-6 animate-in zoom-in-95 duration-200 shadow-2xl">
                <div className="flex justify-between items-center mb-6">
-                 <h3 className="text-sm font-black uppercase tracking-widest text-green-500 italic">Add Category</h3>
+                 <h3 className="text-sm font-black uppercase tracking-widest text-green-500 italic">{t('add_category')}</h3>
                  <button onClick={() => setIsAddingCategory(false)} className="p-1 text-gray-400 hover:text-gray-800"><XCircle size={20} /></button>
                </div>
 
                <div className="flex flex-col gap-4">
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[9px] font-black text-gray-400 uppercase">Category Name</label>
+                    <label className="text-[9px] font-black text-gray-400 uppercase">{t('category_name')}</label>
                     <input 
                       type="text" 
                       value={newCategoryName}
                       onChange={(e) => setNewCategoryName(e.target.value)}
                       className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-xs font-bold dark:text-white"
-                      placeholder="e.g. New Collection"
+                      placeholder={t('category_name_placeholder')}
                       autoFocus
                     />
                   </div>
@@ -859,7 +873,7 @@ const AdminPanel: React.FC = () => {
                     }}
                     className="w-full bg-green-500 text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-green-100 mt-2 text-xs"
                   >
-                    Add New Category
+                    {t('add_new_category')}
                   </button>
                </div>
             </div>
@@ -871,24 +885,24 @@ const AdminPanel: React.FC = () => {
           <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-white dark:bg-slate-900 w-full max-w-xs rounded-3xl p-6 animate-in zoom-in-95 duration-200 shadow-2xl">
                <div className="flex justify-between items-center mb-6">
-                 <h3 className="text-sm font-black uppercase tracking-widest text-[#e62e04] italic">Edit Category</h3>
+                 <h3 className="text-sm font-black uppercase tracking-widest text-[#e62e04] italic">{t('edit_category')}</h3>
                  <button onClick={() => setEditingCategory(null)} className="p-1 text-gray-400 hover:text-gray-800"><XCircle size={20} /></button>
                </div>
 
                <div className="flex flex-col gap-4">
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[9px] font-black text-gray-400 uppercase">Category Name</label>
+                    <label className="text-[9px] font-black text-gray-400 uppercase">{t('category_name')}</label>
                     <input 
                       type="text" 
                       value={editingCategory.newName}
                       onChange={(e) => setEditingCategory({...editingCategory, newName: e.target.value})}
                       className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-xs font-bold dark:text-white"
-                      placeholder="Enter new name"
+                      placeholder={t('enter_new_name')}
                     />
                   </div>
 
                   <p className="text-[8px] text-gray-400 font-bold uppercase leading-tight px-1">
-                    Changing this will update all products currently in this category.
+                    {t('category_update_warning')}
                   </p>
 
                   <button 
@@ -898,7 +912,7 @@ const AdminPanel: React.FC = () => {
                     }}
                     className="w-full bg-[#e62e04] text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 mt-2 text-xs"
                   >
-                    Update Category Name
+                    {t('update_category_name')}
                   </button>
                </div>
             </div>
@@ -910,7 +924,7 @@ const AdminPanel: React.FC = () => {
           <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-white dark:bg-slate-900 w-full max-w-xs rounded-3xl p-6 animate-in zoom-in-95 duration-200 shadow-2xl">
                <div className="flex justify-between items-center mb-6">
-                 <h3 className="text-sm font-black uppercase tracking-widest text-amber-500 italic">Admin Credentials</h3>
+                 <h3 className="text-sm font-black uppercase tracking-widest text-amber-500 italic">{t('admin_credentials')}</h3>
                  <button onClick={() => setShowPasswordModal(false)} className="p-1 text-gray-400 hover:text-gray-800"><XCircle size={20} /></button>
                </div>
 
@@ -918,26 +932,36 @@ const AdminPanel: React.FC = () => {
                   <div className="bg-amber-50 dark:bg-amber-950/20 p-4 rounded-2xl border border-amber-100 dark:border-amber-900/30">
                     <div className="flex flex-col gap-3">
                       <div>
-                        <span className="text-[9px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest">Username</span>
+                        <span className="text-[9px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest">{t('username')}</span>
                         <p className="text-sm font-black text-gray-900 dark:text-white mt-0.5">{adminUsername}</p>
                       </div>
                       <div className="h-px bg-amber-100 dark:bg-amber-900/30 w-full"></div>
                       <div>
-                        <span className="text-[9px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest">Password</span>
-                        <p className="text-sm font-black text-gray-900 dark:text-white mt-0.5">{adminPassword}</p>
+                        <div className="flex justify-between items-center mb-0.5">
+                          <span className="text-[9px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest">{t('password')}</span>
+                          <button 
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="text-[8px] font-black text-amber-600 dark:text-amber-400 uppercase underline"
+                          >
+                            {showPassword ? t('hide') : t('show')}
+                          </button>
+                        </div>
+                        <p className="text-sm font-black text-gray-900 dark:text-white mt-0.5">
+                          {showPassword ? adminPassword : '••••••••'}
+                        </p>
                       </div>
                     </div>
                   </div>
 
                   <p className="text-[8px] text-gray-400 font-bold uppercase leading-tight px-1 text-center">
-                    Please keep these credentials safe and do not share them with anyone.
+                    {t('credentials_safety_warning')}
                   </p>
 
                   <button 
                     onClick={() => setShowPasswordModal(false)}
                     className="w-full bg-amber-500 text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-amber-100 mt-2 text-xs"
                   >
-                    Close
+                    {t('close')}
                   </button>
                </div>
             </div>

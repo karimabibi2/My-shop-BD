@@ -4,13 +4,14 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { 
   Home, ShoppingCart, User, Bell, Package, Menu, X, 
   ChevronRight, Grid, Moon, Sun, ShieldAlert, MessageCircle,
-  Youtube, Facebook
+  Youtube, Facebook, Languages
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { CATEGORIES } from '../constants';
 import { useAuth } from '../context/AuthContext';
 import { useCategory } from '../context/CategoryContext';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 
 interface LayoutProps {
   children: ReactNode;
@@ -28,6 +29,7 @@ interface Notification {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { totalItems } = useCart();
   const { isDarkMode, toggleTheme } = useTheme();
+  const { language, setLanguage, t } = useLanguage();
   const { user, categories, whatsappNumber, facebookLink, youtubeLink, tiktokLink } = useAuth();
   const { activeCategory, setActiveCategory, isDrawerOpen, setIsDrawerOpen } = useCategory();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -91,21 +93,21 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className="flex flex-col h-full">
             <div className="p-5 border-b border-gray-100 dark:border-slate-800 flex justify-between items-center bg-[#e62e04] text-white">
               <div className="flex flex-col leading-tight">
-                <span className="text-xl font-black tracking-tighter italic uppercase">Menu</span>
+                <span className="text-xl font-black tracking-tighter italic uppercase">{t('menu')}</span>
               </div>
               <button onClick={() => setIsMenuOpen(false)} className="p-2 hover:bg-black/10 rounded-full transition-colors"><X size={24} /></button>
             </div>
             <div className="flex-1 py-2 overflow-y-auto no-scrollbar">
               <NavLink to="/" onClick={() => setActiveCategory('All')} className="flex items-center gap-4 px-6 py-4 text-gray-700 dark:text-gray-300 font-bold text-sm border-b border-gray-50 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800">
-                <Home size={20} className="text-gray-400" /> Home
+                <Home size={20} className="text-gray-400" /> {t('home')}
               </NavLink>
               
               <NavLink to="/admin" className="flex items-center gap-4 px-6 py-4 text-[#e62e04] font-black text-sm border-b border-gray-50 dark:border-slate-800 bg-red-50 dark:bg-red-950/20 hover:bg-red-100 transition-colors">
-                <ShieldAlert size={20} className="text-[#e62e04]" /> Admin Panel
+                <ShieldAlert size={20} className="text-[#e62e04]" /> {t('admin_panel')}
               </NavLink>
 
               <button onClick={() => { setIsMenuOpen(false); setIsDrawerOpen(true); }} className="w-full flex items-center gap-4 px-6 py-4 text-gray-700 dark:text-gray-300 font-bold text-sm border-b border-gray-50 dark:border-slate-800 text-left hover:bg-gray-50 dark:hover:bg-slate-800">
-                <Grid size={20} className="text-gray-400" /> All Categories
+                <Grid size={20} className="text-gray-400" /> {t('all_categories')}
               </button>
               
               <button 
@@ -113,18 +115,38 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 className="w-full flex items-center gap-4 px-6 py-4 text-gray-700 dark:text-gray-300 font-bold text-sm border-b border-gray-50 dark:border-slate-800 text-left hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
               >
                 {isDarkMode ? <Sun size={20} className="text-amber-400" /> : <Moon size={20} className="text-gray-400" />}
-                {isDarkMode ? 'Light Mode' : 'Dark Mode'}
+                {isDarkMode ? t('light_mode') : t('dark_mode')}
               </button>
 
+              <div className="flex flex-col border-b border-gray-50 dark:border-slate-800">
+                <div className="flex items-center gap-4 px-6 py-3 text-gray-400 font-black text-[10px] uppercase tracking-widest">
+                  <Languages size={16} /> {t('language')}
+                </div>
+                <div className="flex px-6 pb-4 gap-2">
+                  <button 
+                    onClick={() => setLanguage('en')}
+                    className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${language === 'en' ? 'bg-[#e62e04] text-white border-[#e62e04]' : 'bg-gray-50 dark:bg-slate-800 text-gray-500 border-gray-100 dark:border-slate-700'}`}
+                  >
+                    {t('english')}
+                  </button>
+                  <button 
+                    onClick={() => setLanguage('bn')}
+                    className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${language === 'bn' ? 'bg-[#e62e04] text-white border-[#e62e04]' : 'bg-gray-50 dark:bg-slate-800 text-gray-500 border-gray-100 dark:border-slate-700'}`}
+                  >
+                    {t('bangla')}
+                  </button>
+                </div>
+              </div>
+
               <NavLink to="/orders" className="flex items-center gap-4 px-6 py-4 text-gray-700 dark:text-gray-300 font-bold text-sm border-b border-gray-50 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800">
-                <Package size={20} className="text-gray-400" /> My Orders
+                <Package size={20} className="text-gray-400" /> {t('my_orders')}
               </NavLink>
               <NavLink to="/profile" className="flex items-center gap-4 px-6 py-4 text-gray-700 dark:text-gray-300 font-bold text-sm border-b border-gray-50 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800">
-                <User size={20} className="text-gray-400" /> Account
+                <User size={20} className="text-gray-400" /> {t('account')}
               </NavLink>
 
               <div className="mt-6 px-6 flex flex-col gap-3">
-                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Follow Us</span>
+                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('follow_us')}</span>
                 <div className="flex gap-4">
                   <a href={facebookLink} target="_blank" rel="noopener noreferrer" className="p-2 bg-blue-50 dark:bg-blue-950/20 text-blue-600 rounded-xl hover:scale-110 transition-transform">
                     <Facebook size={20} />
@@ -265,18 +287,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 px-1 py-1 flex justify-around items-center z-50 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] transition-colors duration-300">
         <NavLink to="/" onClick={() => setActiveCategory('All')} className={({ isActive }) => `flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-all ${isActive && !isDrawerOpen ? 'text-[#e62e04]' : 'text-gray-400 dark:text-gray-500'}`}>
           <Home size={22} />
-          <span className="text-[9px] font-bold">HOME</span>
+          <span className="text-[9px] font-bold">{t('home')}</span>
         </NavLink>
         <button 
           onClick={toggleCategoryDrawer}
           className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-all ${isDrawerOpen ? 'text-[#e62e04]' : 'text-gray-400 dark:text-gray-500'}`}
         >
           <Grid size={22} />
-          <span className="text-[9px] font-bold">CATEGORY</span>
+          <span className="text-[9px] font-bold">{t('category')}</span>
         </button>
         <NavLink to="/orders" className={({ isActive }) => `flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-all ${isActive ? 'text-[#e62e04]' : 'text-gray-400 dark:text-gray-500'}`}>
           <Package size={22} />
-          <span className="text-[9px] font-bold">ORDERS</span>
+          <span className="text-[9px] font-bold">{t('my_orders')}</span>
         </NavLink>
         <NavLink to="/cart" className={({ isActive }) => `flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg relative transition-all ${isActive ? 'text-[#e62e04]' : 'text-gray-400 dark:text-gray-500'}`}>
           <div className="relative">
@@ -287,11 +309,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </span>
             )}
           </div>
-          <span className="text-[9px] font-bold">CART</span>
+          <span className="text-[9px] font-bold">{t('cart')}</span>
         </NavLink>
         <a href={`https://wa.me/${whatsappNumber}`} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg text-[#25D366] transition-all">
           <MessageCircle size={22} />
-          <span className="text-[9px] font-bold uppercase">WhatsApp</span>
+          <span className="text-[9px] font-bold uppercase">{t('whatsapp')}</span>
         </a>
       </nav>
     </div>
