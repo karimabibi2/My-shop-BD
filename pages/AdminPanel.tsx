@@ -1,15 +1,16 @@
 
 import React, { useState, useEffect } from 'react';
-import Layout from '../components/Layout';
+import AdminLayout from '../components/AdminLayout';
 import { useAuth } from '../context/AuthContext';
 import { 
   BarChart3, Package, ShoppingCart, Settings, 
   Plus, Edit2, Trash2, CheckCircle, Clock, 
   XCircle, ArrowLeft, Save, Globe, Truck, ShieldAlert,
   Image as ImageIcon, Upload, Link as LinkIcon,
-  Layers, MessageCircle, Youtube, Facebook, Lock, Key
+  Layers, MessageCircle, Youtube, Facebook, Lock, Key, FileText,
+  Users, Activity, Terminal
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { CATEGORIES, DELIVERY_RATES } from '../constants';
 
 import { useLanguage } from '../context/LanguageContext';
@@ -22,10 +23,25 @@ const AdminPanel: React.FC = () => {
     shippingRates, updateShippingRates, categories, updateCategory, deleteCategory, addCategory,
     bannerImage, updateBannerImage, whatsappNumber, updateWhatsappNumber,
     facebookLink, updateFacebookLink, youtubeLink, updateYoutubeLink, tiktokLink, updateTiktokLink,
-    adminUsername, adminPassword, updateAdminCredentials
+    adminUsername, adminPassword, updateAdminCredentials,
+    globalOrderPolicy, updateGlobalOrderPolicy,
+    trackingConfig, updateTrackingConfig,
+    visitorCount, trackingLogs
   } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'orders' | 'settings' | 'categories'>('dashboard');
+
+  // Sync activeTab with URL query param
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tab = params.get('tab');
+    if (tab && ['dashboard', 'products', 'orders', 'settings', 'categories'].includes(tab)) {
+      setActiveTab(tab as any);
+    } else {
+      setActiveTab('dashboard');
+    }
+  }, [location.search]);
   
   // Product Edit Modal State
   const [editingProduct, setEditingProduct] = useState<any>(null);
@@ -46,6 +62,8 @@ const AdminPanel: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [newAdminUser, setNewAdminUser] = useState(adminUsername);
   const [newAdminPass, setNewAdminPass] = useState(adminPassword);
+  const [newGlobalPolicy, setNewGlobalPolicy] = useState(globalOrderPolicy);
+  const [localTracking, setLocalTracking] = useState(trackingConfig);
 
   // Sync local rates if context rates change
   useEffect(() => {
@@ -80,6 +98,14 @@ const AdminPanel: React.FC = () => {
     setNewAdminPass(adminPassword);
   }, [adminPassword]);
 
+  useEffect(() => {
+    setNewGlobalPolicy(globalOrderPolicy);
+  }, [globalOrderPolicy]);
+
+  useEffect(() => {
+    setLocalTracking(trackingConfig);
+  }, [trackingConfig]);
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -93,10 +119,10 @@ const AdminPanel: React.FC = () => {
 
   if (!user?.isAdmin) {
     return (
-      <Layout>
-        <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
-          <ShieldAlert size={64} className="text-amber-500 mb-4" />
-          <h2 className="text-xl font-black uppercase italic">{t('admin_access_required')}</h2>
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-2xl border border-gray-100 dark:border-slate-800">
+          <ShieldAlert size={64} className="text-amber-500 mx-auto mb-6" />
+          <h2 className="text-xl font-black uppercase italic text-gray-900 dark:text-white">{t('admin_access_required')}</h2>
           <p className="text-gray-500 text-sm mt-2">{t('admin_access_required_desc')}</p>
           <div className="flex flex-col w-full gap-3 mt-8">
             <button 
@@ -113,7 +139,7 @@ const AdminPanel: React.FC = () => {
             </button>
           </div>
         </div>
-      </Layout>
+      </div>
     );
   }
 
@@ -125,52 +151,34 @@ const AdminPanel: React.FC = () => {
   };
 
   return (
-    <Layout>
-      <div className="flex flex-col gap-6 p-4">
+    <AdminLayout>
+      <div className="flex flex-col gap-8">
         {/* Admin Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex flex-col">
-            <h2 className="text-xl font-black text-gray-900 dark:text-white uppercase italic tracking-tighter">{t('admin_dashboard')}</h2>
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t('store_management')}</p>
+            <h1 className="text-3xl font-black text-gray-900 dark:text-white uppercase italic tracking-tighter">
+              {activeTab === 'dashboard' && 'Overview'}
+              {activeTab === 'products' && 'Inventory'}
+              {activeTab === 'orders' && 'Sales Orders'}
+              {activeTab === 'categories' && 'Categories'}
+              {activeTab === 'settings' && 'Store Settings'}
+            </h1>
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+              {t('store_management')} — {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+            </p>
           </div>
+          
           <div className="flex items-center gap-3">
-            <div className="bg-red-50 dark:bg-red-950/20 px-3 py-1 rounded-full border border-red-100 dark:border-red-900">
-              <span className="text-[10px] font-black text-[#e62e04] uppercase">Live</span>
+            <div className="bg-red-50 dark:bg-red-950/20 px-4 py-1.5 rounded-full border border-red-100 dark:border-red-900 flex items-center gap-2">
+              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+              <span className="text-[10px] font-black text-[#e62e04] uppercase tracking-widest">System Live</span>
             </div>
-            <button 
-              onClick={() => { logout(); navigate('/'); }}
-              className="text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-[#e62e04] transition-colors"
-            >
-              {t('logout')}
-            </button>
           </div>
-        </div>
-
-        {/* Tab Navigation */}
-        <div className="flex bg-white dark:bg-slate-900 p-1 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-x-auto no-scrollbar">
-          {(['dashboard', 'products', 'categories', 'orders', 'settings'] as const).map(tab => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`flex-1 min-w-[70px] py-2.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all flex flex-col items-center gap-1 ${
-                activeTab === tab 
-                ? 'bg-[#e62e04] text-white' 
-                : 'text-gray-400 dark:text-gray-500 hover:text-gray-600'
-              }`}
-            >
-              {tab === 'dashboard' && <BarChart3 size={16} />}
-              {tab === 'products' && <Package size={16} />}
-              {tab === 'categories' && <Layers size={16} />}
-              {tab === 'orders' && <ShoppingCart size={16} />}
-              {tab === 'settings' && <Settings size={16} />}
-              {t(tab)}
-            </button>
-          ))}
         </div>
 
         {/* --- Dashboard Tab --- */}
         {activeTab === 'dashboard' && (
-          <div className="grid grid-cols-2 gap-4 animate-in fade-in duration-300">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-in fade-in duration-300">
             <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm">
               <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{t('total_sales')}</span>
               <h3 className="text-lg font-black text-gray-900 dark:text-white mt-1">৳{stats.totalSales.toLocaleString()}</h3>
@@ -207,7 +215,7 @@ const AdminPanel: React.FC = () => {
             <div className="flex justify-between items-center px-1">
               <h3 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-widest">{t('store_inventory')}</h3>
               <button 
-                onClick={() => setEditingProduct({ id: 'new-' + Date.now(), name: '', price: 0, category: categories[0], isAvailable: true, image: 'https://picsum.photos/400', description: '' })}
+                onClick={() => setEditingProduct({ id: 'new-' + Date.now(), name: '', price: 0, category: categories[0], isAvailable: true, image: 'https://picsum.photos/400', description: '', orderPolicy: '' })}
                 className="bg-green-500 text-white p-2 rounded-lg"
               >
                 <Plus size={18} />
@@ -245,6 +253,12 @@ const AdminPanel: React.FC = () => {
                       className="px-3 py-1.5 bg-blue-500 text-white rounded-lg flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest shadow-sm shadow-blue-100"
                     >
                       <Edit2 size={12} /> {t('edit')}
+                    </button>
+                    <button 
+                      onClick={() => setEditingProduct(product)} 
+                      className="px-3 py-1.5 bg-amber-500 text-white rounded-lg flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest shadow-sm shadow-amber-100"
+                    >
+                      <FileText size={12} /> {t('order_policy')}
                     </button>
                     <button 
                       onClick={() => deleteProduct(product.id)} 
@@ -693,6 +707,207 @@ const AdminPanel: React.FC = () => {
                   </div>
                 </div>
               </div>
+
+              <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
+                <div className="flex items-center gap-2">
+                  <FileText size={18} className="text-[#e62e04]" />
+                  <h4 className="text-[11px] font-black uppercase tracking-widest">{t('global_order_policy')}</h4>
+                </div>
+                
+                <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-1.5">
+                    <textarea 
+                      value={newGlobalPolicy}
+                      onChange={(e) => setNewGlobalPolicy(e.target.value)}
+                      rows={5}
+                      className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-[10px] font-bold dark:text-white resize-none"
+                      placeholder={t('order_policy_placeholder')}
+                    />
+                    <button 
+                      onClick={() => {
+                        updateGlobalOrderPolicy(newGlobalPolicy);
+                        alert(t('update_success'));
+                      }}
+                      className="bg-[#e62e04] text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
+                    >
+                      <Save size={14} /> {t('update')}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
+                <div className="flex items-center gap-2">
+                  <BarChart3 size={18} className="text-[#e62e04]" />
+                  <h4 className="text-[11px] font-black uppercase tracking-widest">{t('tracking_settings')}</h4>
+                </div>
+                
+                <div className="flex flex-col gap-4">
+                  <div className="grid grid-cols-1 gap-3">
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[9px] font-black text-gray-400 uppercase">{t('fb_pixel_id')}</label>
+                      <input 
+                        type="text" 
+                        value={localTracking.fbPixelId}
+                        onChange={(e) => setLocalTracking({...localTracking, fbPixelId: e.target.value})}
+                        className="bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-[10px] font-bold dark:text-white"
+                        placeholder="e.g. 1234567890"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[9px] font-black text-gray-400 uppercase">{t('fb_capi_token')}</label>
+                      <input 
+                        type="text" 
+                        value={localTracking.fbCapiToken}
+                        onChange={(e) => setLocalTracking({...localTracking, fbCapiToken: e.target.value})}
+                        className="bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-[10px] font-bold dark:text-white"
+                        placeholder="EAAB..."
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[9px] font-black text-gray-400 uppercase">{t('tiktok_pixel_id')}</label>
+                      <input 
+                        type="text" 
+                        value={localTracking.tiktokPixelId}
+                        onChange={(e) => setLocalTracking({...localTracking, tiktokPixelId: e.target.value})}
+                        className="bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-[10px] font-bold dark:text-white"
+                        placeholder="e.g. C1234567890"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[9px] font-black text-gray-400 uppercase">{t('gtm_id')}</label>
+                      <input 
+                        type="text" 
+                        value={localTracking.gtmId}
+                        onChange={(e) => setLocalTracking({...localTracking, gtmId: e.target.value})}
+                        className="bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-[10px] font-bold dark:text-white"
+                        placeholder="GTM-XXXXXX"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[9px] font-black text-gray-400 uppercase">{t('ga4_id')}</label>
+                      <input 
+                        type="text" 
+                        value={localTracking.ga4Id}
+                        onChange={(e) => setLocalTracking({...localTracking, ga4Id: e.target.value})}
+                        className="bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-[10px] font-bold dark:text-white"
+                        placeholder="G-XXXXXX"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[9px] font-black text-gray-400 uppercase">{t('custom_scripts')}</label>
+                      <textarea 
+                        value={localTracking.customScripts}
+                        onChange={(e) => setLocalTracking({...localTracking, customScripts: e.target.value})}
+                        rows={5}
+                        className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-[10px] font-bold dark:text-white resize-none"
+                        placeholder="<!-- Paste your custom scripts here -->"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2 py-2">
+                      <input 
+                        type="checkbox" 
+                        id="trackingEnabled"
+                        checked={localTracking.isEnabled}
+                        onChange={(e) => setLocalTracking({...localTracking, isEnabled: e.target.checked})}
+                        className="w-4 h-4 rounded border-gray-300 text-[#e62e04] focus:ring-[#e62e04]"
+                      />
+                      <label htmlFor="trackingEnabled" className="text-[10px] font-black uppercase tracking-widest cursor-pointer">
+                        {t('enable_tracking')}
+                      </label>
+                    </div>
+                  </div>
+                  
+                  <button 
+                    onClick={() => {
+                      updateTrackingConfig(localTracking);
+                      alert(t('tracking_updated'));
+                    }}
+                    className="bg-[#e62e04] text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
+                  >
+                    <Save size={14} /> {t('update_tracking')}
+                  </button>
+                </div>
+              </div>
+
+              {/* Conversion Dashboard */}
+              <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Activity size={18} className="text-[#e62e04]" />
+                    <h4 className="text-[11px] font-black uppercase tracking-widest">Conversion Dashboard</h4>
+                  </div>
+                  <div className="bg-green-50 dark:bg-green-900/20 text-green-600 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest">
+                    Live
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-gray-50 dark:bg-slate-800 p-4 rounded-xl">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Users size={14} className="text-blue-500" />
+                      <span className="text-[9px] font-black text-gray-400 uppercase">Total Visitors</span>
+                    </div>
+                    <p className="text-xl font-black">{visitorCount}</p>
+                  </div>
+                  <div className="bg-gray-50 dark:bg-slate-800 p-4 rounded-xl">
+                    <div className="flex items-center gap-2 mb-1">
+                      <ShoppingCart size={14} className="text-orange-500" />
+                      <span className="text-[9px] font-black text-gray-400 uppercase">Total Sales</span>
+                    </div>
+                    <p className="text-xl font-black">
+                      {orders.filter(o => o.status === 'delivered').length}
+                    </p>
+                  </div>
+                  <div className="bg-gray-50 dark:bg-slate-800 p-4 rounded-xl">
+                    <div className="flex items-center gap-2 mb-1">
+                      <BarChart3 size={14} className="text-purple-500" />
+                      <span className="text-[9px] font-black text-gray-400 uppercase">Conv. Rate</span>
+                    </div>
+                    <p className="text-xl font-black">
+                      {visitorCount > 0 ? ((orders.length / visitorCount) * 100).toFixed(1) : 0}%
+                    </p>
+                  </div>
+                  <div className="bg-gray-50 dark:bg-slate-800 p-4 rounded-xl">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Package size={14} className="text-green-500" />
+                      <span className="text-[9px] font-black text-gray-400 uppercase">Total Revenue</span>
+                    </div>
+                    <p className="text-xl font-black">
+                      ৳{orders.filter(o => o.status === 'delivered').reduce((acc, curr) => acc + curr.total, 0)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Pixel Debug Tool */}
+              <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
+                <div className="flex items-center gap-2">
+                  <Terminal size={18} className="text-[#e62e04]" />
+                  <h4 className="text-[11px] font-black uppercase tracking-widest">Pixel Debug Tool</h4>
+                </div>
+                
+                <div className="bg-black rounded-xl p-4 font-mono text-[9px] text-green-400 h-64 overflow-y-auto flex flex-col gap-2">
+                  {trackingLogs.length === 0 ? (
+                    <p className="text-gray-500 italic">No events tracked yet...</p>
+                  ) : (
+                    trackingLogs.map((log, idx) => (
+                      <div key={idx} className="border-b border-gray-800 pb-2 last:border-0">
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-blue-400 font-black uppercase">[{log.platform}]</span>
+                          <span className="text-gray-500">{log.timestamp}</span>
+                        </div>
+                        <div className="flex gap-2">
+                          <span className="text-yellow-400 font-bold">{log.event}:</span>
+                          <span className="text-gray-300">
+                            {typeof log.data === 'object' ? JSON.stringify(log.data) : log.data}
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -760,6 +975,16 @@ const AdminPanel: React.FC = () => {
                       onChange={(e) => setEditingProduct({...editingProduct, description: e.target.value})}
                       className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-xs font-bold dark:text-white min-h-[80px] resize-none"
                       placeholder={t('product_desc_placeholder')}
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[9px] font-black text-gray-400 uppercase">{t('order_policy')}</label>
+                    <textarea 
+                      value={editingProduct.orderPolicy || ''}
+                      onChange={(e) => setEditingProduct({...editingProduct, orderPolicy: e.target.value})}
+                      className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-xs font-bold dark:text-white min-h-[80px] resize-none"
+                      placeholder={t('order_policy_placeholder')}
                     />
                   </div>
 
@@ -968,7 +1193,7 @@ const AdminPanel: React.FC = () => {
           </div>
         )}
       </div>
-    </Layout>
+    </AdminLayout>
   );
 };
 

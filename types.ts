@@ -7,6 +7,7 @@ export interface Product {
   category: string;
   image: string;
   description: string;
+  orderPolicy?: string;
   isAvailable: boolean;
 }
 

@@ -21,12 +21,8 @@ const Home: React.FC = () => {
   const navigate = useNavigate();
 
   const handleBuyNow = (product: Product) => {
-    const isInCart = cart.some(item => item.id === product.id);
-    if (!isInCart) {
-      addToCart(product);
-    }
     setSelectedProduct(null);
-    navigate('/cart');
+    navigate('/checkout', { state: { buyNowProduct: product } });
   };
 
   const filteredProducts = useMemo(() => {

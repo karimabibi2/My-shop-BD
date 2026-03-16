@@ -102,10 +102,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <Home size={20} className="text-gray-400" /> {t('home')}
               </NavLink>
               
-              <NavLink to="/admin" className="flex items-center gap-4 px-6 py-4 text-[#e62e04] font-black text-sm border-b border-gray-50 dark:border-slate-800 bg-red-50 dark:bg-red-950/20 hover:bg-red-100 transition-colors">
-                <ShieldAlert size={20} className="text-[#e62e04]" /> {t('admin_panel')}
-              </NavLink>
-
               <button onClick={() => { setIsMenuOpen(false); setIsDrawerOpen(true); }} className="w-full flex items-center gap-4 px-6 py-4 text-gray-700 dark:text-gray-300 font-bold text-sm border-b border-gray-50 dark:border-slate-800 text-left hover:bg-gray-50 dark:hover:bg-slate-800">
                 <Grid size={20} className="text-gray-400" /> {t('all_categories')}
               </button>

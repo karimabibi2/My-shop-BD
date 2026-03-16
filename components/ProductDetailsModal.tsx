@@ -3,8 +3,11 @@ import React from 'react';
 import { X, ShoppingCart, Zap, Star, ShieldCheck, Truck, RotateCcw } from 'lucide-react';
 import { Product } from '../types';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import { trackingService } from '../services/TrackingService';
+import { MessageSquare } from 'lucide-react';
 
 interface ProductDetailsModalProps {
   product: Product | null;
@@ -14,9 +17,23 @@ interface ProductDetailsModalProps {
 
 const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ product, onClose, onBuyNow }) => {
   const { addToCart, removeFromCart, cart } = useCart();
+  const { globalOrderPolicy, user } = useAuth();
   const { t } = useLanguage();
 
   const [activeTab, setActiveTab] = React.useState<'description' | 'policy' | 'reviews'>('description');
+  const [reviewText, setReviewText] = React.useState('');
+  const [isReviewSent, setIsReviewSent] = React.useState(false);
+  const [localReviews, setLocalReviews] = React.useState([
+    { id: 1, user: 'Karim Ahmed', rating: 5, comment: 'Excellent product! Very fast delivery.', date: '2 days ago' },
+    { id: 2, user: 'Sultana Begum', rating: 4, comment: 'Good quality, but packaging could be better.', date: '1 week ago' },
+    { id: 3, user: 'Rahat Khan', rating: 5, comment: 'Highly recommended. Authentic item.', date: '2 weeks ago' },
+  ]);
+
+  React.useEffect(() => {
+    if (product) {
+      trackingService.trackViewItem(product);
+    }
+  }, [product]);
 
   if (!product) return null;
 
@@ -28,14 +45,26 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ product, onCl
       removeFromCart(product.id);
     } else {
       addToCart(product);
+      trackingService.trackAddToCart({ ...product, quantity: 1 });
     }
   };
 
-  const reviews = [
-    { id: 1, user: 'Karim Ahmed', rating: 5, comment: 'Excellent product! Very fast delivery.', date: '2 days ago' },
-    { id: 2, user: 'Sultana Begum', rating: 4, comment: 'Good quality, but packaging could be better.', date: '1 week ago' },
-    { id: 3, user: 'Rahat Khan', rating: 5, comment: 'Highly recommended. Authentic item.', date: '2 weeks ago' },
-  ];
+  const handleSendReview = () => {
+    if (!reviewText.trim()) return;
+    
+    const newReview = {
+      id: Date.now(),
+      user: user?.name || 'Guest User',
+      rating: 5, // Default rating for now
+      comment: reviewText,
+      date: 'Just now'
+    };
+
+    setLocalReviews(prev => [newReview, ...prev]);
+    setIsReviewSent(true);
+    setReviewText('');
+    setTimeout(() => setIsReviewSent(false), 3000);
+  };
 
   return (
     <AnimatePresence>
@@ -145,22 +174,9 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ product, onCl
                       animate={{ opacity: 1, y: 0 }}
                       className="flex flex-col gap-3"
                     >
-                      <div className="flex items-start gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#e62e04] mt-1.5 shrink-0" />
-                        <p className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase">Cash on delivery available all over Bangladesh.</p>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#e62e04] mt-1.5 shrink-0" />
-                        <p className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase">Delivery within 24-48 hours inside Dhaka.</p>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#e62e04] mt-1.5 shrink-0" />
-                        <p className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase">7 days easy return policy if product is damaged.</p>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#e62e04] mt-1.5 shrink-0" />
-                        <p className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase">Check the product before paying the delivery man.</p>
-                      </div>
+                      <p className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase whitespace-pre-wrap leading-relaxed">
+                        {product.orderPolicy || globalOrderPolicy}
+                      </p>
                     </motion.div>
                   )}
 
@@ -170,7 +186,36 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ product, onCl
                       animate={{ opacity: 1, y: 0 }}
                       className="flex flex-col gap-4"
                     >
-                      {reviews.map(review => (
+                      <div className="flex flex-col gap-2 bg-gray-50 dark:bg-slate-800/50 p-3 rounded-2xl border border-gray-100 dark:border-slate-800">
+                        <span className="text-[9px] font-black uppercase text-[#e62e04] tracking-widest">{t('write_review')}</span>
+                        <div className="flex gap-2">
+                          <input 
+                            type="text" 
+                            value={reviewText}
+                            onChange={(e) => setReviewText(e.target.value)}
+                            placeholder={t('write_review_placeholder')}
+                            className="flex-1 bg-white dark:bg-slate-800 border-none rounded-xl px-3 py-2 text-[10px] font-bold dark:text-white"
+                          />
+                          <button 
+                            onClick={handleSendReview}
+                            disabled={isReviewSent}
+                            className={`${isReviewSent ? 'bg-green-500' : 'bg-[#e62e04]'} text-white p-2 rounded-xl active:scale-95 transition-all flex items-center justify-center min-w-[40px]`}
+                          >
+                            {isReviewSent ? <ShieldCheck size={16} /> : <MessageSquare size={16} />}
+                          </button>
+                        </div>
+                        {isReviewSent && (
+                          <motion.span 
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className="text-[8px] font-bold text-green-500 uppercase tracking-widest mt-1"
+                          >
+                            {t('review_sent_success') || 'Review sent successfully!'}
+                          </motion.span>
+                        )}
+                      </div>
+
+                      {localReviews.map(review => (
                         <div key={review.id} className="flex flex-col gap-1 border-b border-gray-50 dark:border-slate-800 pb-3 last:border-0">
                           <div className="flex justify-between items-center">
                             <span className="text-[10px] font-black uppercase text-gray-800 dark:text-white">{review.user}</span>

@@ -1,25 +1,39 @@
 
 import React, { useState, useMemo } from 'react';
 import Layout from '../components/Layout';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { CheckCircle, ArrowLeft, ChevronDown } from 'lucide-react';
 import { BD_LOCATIONS, DELIVERY_RATES } from '../constants';
+import { trackingService } from '../services/TrackingService';
 
 const Checkout: React.FC = () => {
-  const { totalPrice, cart, clearCart } = useCart();
+  const { totalPrice: cartTotalPrice, cart: cartItems, clearCart } = useCart();
   const { user, addOrder, addresses, shippingRates } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const location = useLocation();
+  const buyNowProduct = location.state?.buyNowProduct;
+
+  const checkoutItems = buyNowProduct ? [{ ...buyNowProduct, quantity: 1 }] : cartItems;
+  const checkoutSubtotal = buyNowProduct ? buyNowProduct.price : cartTotalPrice;
+
   const [isOrdered, setIsOrdered] = useState(false);
+
+  React.useEffect(() => {
+    if (checkoutItems.length === 0 && !isOrdered) {
+      navigate('/');
+    }
+  }, [checkoutItems, navigate, isOrdered]);
+
   const [paymentMethod, setPaymentMethod] = useState<'COD' | 'bKash' | 'Nagad'>('COD');
-  const [useSavedAddress, setUseSavedAddress] = useState(addresses.length > 0);
-  const [selectedAddressId, setSelectedAddressId] = useState(addresses[0]?.id || '');
+  const [useSavedAddress, setUseSavedAddress] = useState(false);
+  const [selectedAddressId, setSelectedAddressId] = useState('');
   
   const [formData, setFormData] = useState({
-    fullName: user?.name || '',
+    fullName: '',
     phone: '',
     details: '',
     district: '',
@@ -41,7 +55,7 @@ const Checkout: React.FC = () => {
     return shippingRates[district] || shippingRates['Default'];
   }, [useSavedAddress, selectedAddressId, formData.district, addresses, shippingRates]);
 
-  const totalPayable = totalPrice + currentShipping;
+  const totalPayable = checkoutSubtotal + currentShipping;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,9 +72,9 @@ const Checkout: React.FC = () => {
       finalAddressString = `${formData.fullName}, ${formData.phone}, ${formData.details}, ${formData.thana}, ${formData.district}`;
     }
     
-    addOrder({
+    const orderData = {
       id: Math.random().toString(36).substr(2, 9),
-      items: cart,
+      items: checkoutItems,
       total: totalPayable,
       status: 'Pending',
       date: new Date().toLocaleDateString(),
@@ -72,11 +86,16 @@ const Checkout: React.FC = () => {
         ? addresses.find(a => a.id === selectedAddressId)?.phone 
         : formData.phone,
       paymentMethod
-    });
+    };
+
+    addOrder(orderData);
+    trackingService.trackPurchase(orderData.id, orderData.total, orderData.items);
     
     setIsOrdered(true);
     setTimeout(() => {
-      clearCart();
+      if (!buyNowProduct) {
+        clearCart();
+      }
       navigate('/orders');
     }, 2500);
   };
@@ -257,7 +276,7 @@ const Checkout: React.FC = () => {
           <h3 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-wider mb-3">{t('order_summary')}</h3>
           <div className="flex justify-between items-center py-2 border-b border-gray-50 dark:border-slate-800">
             <span className="text-[10px] text-gray-500 uppercase font-bold">{t('subtotal')}</span>
-            <span className="text-sm font-black text-gray-800 dark:text-white">৳{totalPrice.toLocaleString()}</span>
+            <span className="text-sm font-black text-gray-800 dark:text-white">৳{checkoutSubtotal.toLocaleString()}</span>
           </div>
           <div className="flex justify-between items-center py-2 border-b border-gray-50 dark:border-slate-800">
             <span className="text-[10px] text-gray-500 uppercase font-bold">{t('shipping_charge')}</span>

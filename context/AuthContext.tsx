@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { User, Order, Address, Product } from '../types';
 import { MOCK_PRODUCTS, DELIVERY_RATES, CATEGORIES } from '../constants';
+import { trackingService, TrackingConfig } from '../services/TrackingService';
 
 interface AuthContextType {
   user: User | null;
@@ -38,6 +39,12 @@ interface AuthContextType {
   adminUsername: string;
   adminPassword: string;
   updateAdminCredentials: (username: string, password: string) => void;
+  globalOrderPolicy: string;
+  updateGlobalOrderPolicy: (policy: string) => void;
+  trackingConfig: TrackingConfig;
+  updateTrackingConfig: (config: TrackingConfig) => void;
+  visitorCount: number;
+  trackingLogs: any[];
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -103,6 +110,53 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const saved = localStorage.getItem('shopbd_admin_pass');
     return saved || 'Niloyshop12#';
   });
+  const [globalOrderPolicy, setGlobalOrderPolicy] = useState<string>(() => {
+    const saved = localStorage.getItem('shopbd_global_policy');
+    return saved || 'Cash on delivery available all over Bangladesh.\nDelivery within 24-48 hours inside Dhaka.\n7 days easy return policy if product is damaged.\nCheck the product before paying the delivery man.';
+  });
+  const [trackingConfig, setTrackingConfig] = useState<TrackingConfig>(() => {
+    const saved = localStorage.getItem('shopbd_tracking');
+    return saved ? JSON.parse(saved) : {
+      fbPixelId: '',
+      fbCapiToken: '',
+      tiktokPixelId: '',
+      gtmId: '',
+      ga4Id: '',
+      customScripts: '',
+      isEnabled: false,
+    };
+  });
+
+  const [visitorCount, setVisitorCount] = useState<number>(() => {
+    const saved = localStorage.getItem('shopbd_visitors');
+    return saved ? parseInt(saved) : 0;
+  });
+
+  const [trackingLogs, setTrackingLogs] = useState<any[]>([]);
+
+  useEffect(() => {
+    // Increment visitor count on load
+    const hasVisited = sessionStorage.getItem('shopbd_visited');
+    if (!hasVisited) {
+      setVisitorCount(prev => prev + 1);
+      sessionStorage.setItem('shopbd_visited', 'true');
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('shopbd_visitors', visitorCount.toString());
+  }, [visitorCount]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTrackingLogs([...trackingService.getLogs()]);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
+  
+  useEffect(() => {
+    trackingService.init(trackingConfig);
+  }, [trackingConfig]);
   
   useEffect(() => {
     localStorage.setItem('shopbd_user', JSON.stringify(user));
@@ -155,6 +209,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     localStorage.setItem('shopbd_admin_pass', adminPassword);
   }, [adminPassword]);
+
+  useEffect(() => {
+    localStorage.setItem('shopbd_global_policy', globalOrderPolicy);
+  }, [globalOrderPolicy]);
+
+  useEffect(() => {
+    localStorage.setItem('shopbd_tracking', JSON.stringify(trackingConfig));
+  }, [trackingConfig]);
 
   const login = (email: string) => {
     const isAdmin = email.toLowerCase() === 'admin@shopbd.com';
@@ -302,6 +364,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setTiktokLink(link);
   };
 
+  const updateGlobalOrderPolicy = (policy: string) => {
+    setGlobalOrderPolicy(policy);
+  };
+
+  const updateTrackingConfig = (config: TrackingConfig) => {
+    setTrackingConfig(config);
+  };
+
   return (
     <AuthContext.Provider value={{ 
       user, orders, allProducts, categories, addresses, shippingRates, bannerImage, whatsappNumber, 
@@ -310,7 +380,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       addOrder, updateOrderStatus, updateProduct, deleteProduct, addProduct, updateCategory, deleteCategory, addCategory,
       addAddress, removeAddress, updateShippingRates, updateUser, updateBannerImage, updateWhatsappNumber,
       updateFacebookLink, updateYoutubeLink, updateTiktokLink,
-      adminUsername, adminPassword, updateAdminCredentials
+      adminUsername, adminPassword, updateAdminCredentials,
+      globalOrderPolicy, updateGlobalOrderPolicy,
+      trackingConfig, updateTrackingConfig,
+      visitorCount, trackingLogs
     }}>
       {children}
     </AuthContext.Provider>
