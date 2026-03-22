@@ -223,6 +223,15 @@ const AdminPanel: React.FC = () => {
           </div>
           
           <div className="flex items-center gap-3">
+            <a 
+              href="https://my-shop-bd.vercel.app/#/admin" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hidden sm:flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl text-[10px] font-black text-gray-600 dark:text-gray-300 uppercase tracking-widest hover:bg-gray-50 dark:hover:bg-slate-800 transition-all shadow-sm"
+            >
+              <Globe size={14} className="text-[#e62e04]" />
+              {t('visit_live_dashboard')}
+            </a>
             <div className="bg-red-50 dark:bg-red-950/20 px-4 py-1.5 rounded-full border border-red-100 dark:border-red-900 flex items-center gap-2">
               <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
               <span className="text-[10px] font-black text-[#e62e04] uppercase tracking-widest">System Live</span>
@@ -232,7 +241,19 @@ const AdminPanel: React.FC = () => {
 
         {/* --- Dashboard Tab --- */}
         {activeTab === 'dashboard' && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-in fade-in duration-300">
+          <div className="flex flex-col gap-4 animate-in fade-in duration-300">
+            {/* Mobile Live Link */}
+            <a 
+              href="https://my-shop-bd.vercel.app/#/admin" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="sm:hidden flex items-center justify-center gap-3 w-full py-4 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl text-[11px] font-black text-[#e62e04] uppercase tracking-[0.2em] shadow-sm active:scale-95 transition-all"
+            >
+              <Globe size={18} />
+              {t('visit_live_dashboard')}
+            </a>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm">
               <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{t('total_sales')}</span>
               <h3 className="text-lg font-black text-gray-900 dark:text-white mt-1">৳{stats.totalSales.toLocaleString()}</h3>
@@ -371,9 +392,10 @@ const AdminPanel: React.FC = () => {
               )}
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* --- Products Tab --- */}
+      {/* --- Products Tab --- */}
         {activeTab === 'products' && (
           <div className="flex flex-col gap-4 animate-in slide-in-from-bottom-4 duration-300 pb-10">
             <div className="flex justify-between items-center px-1">

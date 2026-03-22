@@ -6,7 +6,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { 
   Package, MapPin, User as UserIcon, LogOut, ChevronRight, 
   Mail, Settings, Lock, ShieldCheck, ArrowRight, RefreshCw, 
-  CheckCircle2, XCircle, Image as ImageIcon 
+  CheckCircle2, XCircle, Image as ImageIcon, Globe 
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -295,7 +295,7 @@ const Profile: React.FC = () => {
 
         {/* Admin Access - Only for Admins */}
         {user.isAdmin && (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-3">
             <h4 className="text-[10px] font-black text-red-500 dark:text-red-400 uppercase tracking-[0.2em] ml-1 mb-1">Administrative Access</h4>
             <button 
               onClick={() => navigate('/admin')}
@@ -312,6 +312,16 @@ const Profile: React.FC = () => {
               </div>
               <ArrowRight size={20} />
             </button>
+
+            <a 
+              href="https://my-shop-bd.vercel.app/#/admin" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-3 w-full py-4 bg-white dark:bg-slate-900 border-2 border-red-50 dark:border-red-950/20 rounded-2xl text-[11px] font-black text-[#e62e04] uppercase tracking-[0.2em] shadow-sm hover:bg-red-50 dark:hover:bg-red-950/20 transition-all"
+            >
+              <Globe size={18} />
+              {t('visit_live_dashboard')}
+            </a>
           </div>
         )}
 

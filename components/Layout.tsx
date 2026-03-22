@@ -308,10 +308,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest text-center">
             © {new Date().getFullYear()} MY shopBD. All Rights Reserved.
           </p>
-          <div className="flex gap-6 mt-2">
+          <div className="flex flex-wrap justify-center gap-6 mt-2">
             <NavLink to="/admin" className="text-[10px] font-black text-gray-400 hover:text-[#e62e04] uppercase tracking-widest transition-colors">
               {t('admin_panel')}
             </NavLink>
+            <a 
+              href="https://my-shop-bd.vercel.app/#/admin" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-[10px] font-black text-gray-400 hover:text-[#e62e04] uppercase tracking-widest transition-colors"
+            >
+              {t('visit_live_dashboard')}
+            </a>
             <NavLink to="/profile" className="text-[10px] font-black text-gray-400 hover:text-[#e62e04] uppercase tracking-widest transition-colors">
               {t('account')}
             </NavLink>

@@ -223,6 +223,7 @@ const translations = {
     'write_review_placeholder': 'Share your experience with this product...',
     'send_review': 'Send Review',
     'review_sent_success': 'Thank you! Your review has been submitted for moderation.',
+    'visit_live_dashboard': 'Visit Live Dashboard',
   },
   bn: {
     'menu': 'মেনু',
@@ -437,6 +438,7 @@ const translations = {
     'write_review_placeholder': 'এই পণ্য সম্পর্কে আপনার অভিজ্ঞতা শেয়ার করুন...',
     'send_review': 'রিভিউ পাঠান',
     'review_sent_success': 'ধন্যবাদ! আপনার রিভিউটি মডারেশনের জন্য জমা দেওয়া হয়েছে।',
+    'visit_live_dashboard': 'লাইভ ড্যাশবোর্ড ভিজিট করুন',
   }
 };
 
