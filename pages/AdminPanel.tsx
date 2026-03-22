@@ -19,6 +19,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { CATEGORIES, DELIVERY_RATES } from '../constants';
 
 import { useLanguage } from '../context/LanguageContext';
+import { trackingService } from '../services/TrackingService';
 
 const AdminPanel: React.FC = () => {
   const { t } = useLanguage();
@@ -30,7 +31,7 @@ const AdminPanel: React.FC = () => {
     facebookLink, updateFacebookLink, youtubeLink, updateYoutubeLink, tiktokLink, updateTiktokLink,
     adminUsername, adminPassword, updateAdminCredentials,
     globalOrderPolicy, updateGlobalOrderPolicy,
-    trackingConfig, updateTrackingConfig,
+    trackingConfig, updateTrackingConfig, clearTrackingLogs,
     visitorCount, trackingLogs,
     customApiKey, updateCustomApiKey,
     twelvedataApiKey, updateTwelvedataApiKey
@@ -868,6 +869,16 @@ const AdminPanel: React.FC = () => {
                       />
                     </div>
                     <div className="flex flex-col gap-1">
+                      <label className="text-[9px] font-black text-gray-400 uppercase">{t('fb_test_event_code')}</label>
+                      <input 
+                        type="text" 
+                        value={localTracking.fbTestEventCode}
+                        onChange={(e) => setLocalTracking({...localTracking, fbTestEventCode: e.target.value})}
+                        className="bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-[10px] font-bold dark:text-white"
+                        placeholder="TEST12345"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
                       <label className="text-[9px] font-black text-gray-400 uppercase">{t('tiktok_pixel_id')}</label>
                       <input 
                         type="text" 
@@ -1058,9 +1069,32 @@ const AdminPanel: React.FC = () => {
 
               {/* Pixel Debug Tool */}
               <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
-                <div className="flex items-center gap-2">
-                  <Terminal size={18} className="text-[#e62e04]" />
-                  <h4 className="text-[11px] font-black uppercase tracking-widest">Pixel Debug Tool</h4>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Terminal size={18} className="text-[#e62e04]" />
+                    <h4 className="text-[11px] font-black uppercase tracking-widest">Pixel Debug Tool</h4>
+                  </div>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => {
+                        trackingService.trackViewItem(allProducts[0] || { id: 'test', name: 'Test Product', price: 100, category: 'Test' });
+                        alert('Test event sent! Check logs below.');
+                      }}
+                      className="text-[9px] font-black uppercase text-blue-500 hover:underline"
+                    >
+                      Send Test Event
+                    </button>
+                    <button 
+                      onClick={() => {
+                        if (window.confirm('Are you sure you want to clear all tracking logs?')) {
+                          clearTrackingLogs();
+                        }
+                      }}
+                      className="text-[9px] font-black uppercase text-red-500 hover:underline"
+                    >
+                      Clear Logs
+                    </button>
+                  </div>
                 </div>
                 
                 <div className="bg-black rounded-xl p-4 font-mono text-[9px] text-green-400 h-64 overflow-y-auto flex flex-col gap-2">

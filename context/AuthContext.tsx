@@ -43,6 +43,7 @@ interface AuthContextType {
   updateGlobalOrderPolicy: (policy: string) => void;
   trackingConfig: TrackingConfig;
   updateTrackingConfig: (config: TrackingConfig) => void;
+  clearTrackingLogs: () => void;
   visitorCount: number;
   trackingLogs: any[];
   customApiKey: string;
@@ -123,6 +124,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return saved ? JSON.parse(saved) : {
       fbPixelId: '',
       fbCapiToken: '',
+      fbTestEventCode: '',
       tiktokPixelId: '',
       gtmId: '',
       ga4Id: '',
@@ -392,6 +394,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const updateTrackingConfig = (config: TrackingConfig) => {
     setTrackingConfig(config);
+    trackingService.init(config);
+  };
+
+  const clearTrackingLogs = () => {
+    trackingService.clearLogs();
+    setTrackingLogs([]);
   };
 
   const updateCustomApiKey = (key: string) => {
@@ -412,7 +420,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       updateFacebookLink, updateYoutubeLink, updateTiktokLink,
       adminUsername, adminPassword, updateAdminCredentials,
       globalOrderPolicy, updateGlobalOrderPolicy,
-      trackingConfig, updateTrackingConfig,
+      trackingConfig, updateTrackingConfig, clearTrackingLogs,
       visitorCount, trackingLogs,
       customApiKey, updateCustomApiKey,
       twelvedataApiKey, updateTwelvedataApiKey

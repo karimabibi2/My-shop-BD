@@ -4,6 +4,7 @@ import { CartItem, Product } from '../types';
 export interface TrackingConfig {
   fbPixelId: string;
   fbCapiToken: string;
+  fbTestEventCode: string;
   tiktokPixelId: string;
   gtmId: string;
   ga4Id: string;
@@ -15,6 +16,7 @@ class TrackingService {
   private config: TrackingConfig = {
     fbPixelId: '',
     fbCapiToken: '',
+    fbTestEventCode: '',
     tiktokPixelId: '',
     gtmId: '',
     ga4Id: '',
@@ -38,6 +40,12 @@ class TrackingService {
     return this.logs;
   }
 
+  clearLogs() {
+    this.logs = [];
+  }
+
+  private scriptsInjected = false;
+
   init(config: TrackingConfig) {
     this.config = config;
     if (!config.isEnabled) return;
@@ -47,7 +55,8 @@ class TrackingService {
   }
 
   private injectScripts() {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || this.scriptsInjected) return;
+    this.scriptsInjected = true;
 
     // Google Tag Manager
     if (this.config.gtmId) {
@@ -161,6 +170,31 @@ class TrackingService {
         currency: 'BDT'
       });
     }
+
+    // CAPI ViewContent
+    if (this.config.fbCapiToken && this.config.fbPixelId) {
+      const payload = {
+        data: [{
+          event_name: 'ViewContent',
+          event_time: Math.floor(Date.now() / 1000),
+          action_source: 'website',
+          event_source_url: window.location.href,
+          test_event_code: this.config.fbTestEventCode || undefined,
+          user_data: {
+            client_ip_address: '127.0.0.1',
+            client_user_agent: navigator.userAgent,
+          },
+          custom_data: {
+            currency: 'BDT',
+            value: product.price,
+            content_ids: [product.id],
+            content_name: product.name,
+            content_type: 'product'
+          }
+        }]
+      };
+      console.log('FB CAPI Event: ViewContent', payload);
+    }
   }
 
   trackAddToCart(item: CartItem) {
@@ -204,6 +238,31 @@ class TrackingService {
         value: item.price * item.quantity,
         currency: 'BDT'
       });
+    }
+
+    // CAPI AddToCart
+    if (this.config.fbCapiToken && this.config.fbPixelId) {
+      const payload = {
+        data: [{
+          event_name: 'AddToCart',
+          event_time: Math.floor(Date.now() / 1000),
+          action_source: 'website',
+          event_source_url: window.location.href,
+          test_event_code: this.config.fbTestEventCode || undefined,
+          user_data: {
+            client_ip_address: '127.0.0.1',
+            client_user_agent: navigator.userAgent,
+          },
+          custom_data: {
+            currency: 'BDT',
+            value: item.price * item.quantity,
+            content_ids: [item.id],
+            content_name: item.name,
+            content_type: 'product'
+          }
+        }]
+      };
+      console.log('FB CAPI Event: AddToCart', payload);
     }
   }
 
@@ -252,10 +311,44 @@ class TrackingService {
       });
     }
 
-    // Server Side Tracking (CAPI) - Mock call
-    if (this.config.fbCapiToken) {
+    // Server Side Tracking (CAPI)
+    if (this.config.fbCapiToken && this.config.fbPixelId) {
       this.addLog('CAPI Purchase', { orderId, total }, 'CAPI');
-      console.log('FB CAPI Event: Purchase', { orderId, total });
+      
+      // Construct CAPI payload
+      const payload = {
+        data: [{
+          event_name: 'Purchase',
+          event_time: Math.floor(Date.now() / 1000),
+          action_source: 'website',
+          event_source_url: window.location.href,
+          test_event_code: this.config.fbTestEventCode || undefined,
+          user_data: {
+            client_ip_address: '127.0.0.1', // Should be real IP from server
+            client_user_agent: navigator.userAgent,
+          },
+          custom_data: {
+            currency: 'BDT',
+            value: total,
+            content_ids: items.map(i => i.id),
+            content_type: 'product',
+            order_id: orderId
+          }
+        }]
+      };
+
+      // In a real app, this should be sent via a server-side proxy to hide the token
+      // For now, we'll log the intended call
+      console.log('FB CAPI Event: Purchase', payload);
+      
+      // Optional: Attempt direct call if allowed (usually blocked by CORS if not from server)
+      /*
+      fetch(`https://graph.facebook.com/v17.0/${this.config.fbPixelId}/events?access_token=${this.config.fbCapiToken}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).catch(err => console.error('CAPI Error:', err));
+      */
     }
   }
 }
