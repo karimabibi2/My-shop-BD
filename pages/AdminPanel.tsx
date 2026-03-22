@@ -89,11 +89,21 @@ const AdminPanel: React.FC = () => {
 
   const handleOpenKeySelector = async () => {
     if ((window as any).aistudio?.openSelectKey) {
-      await (window as any).aistudio.openSelectKey();
-      if ((window as any).aistudio?.hasSelectedApiKey) {
-        const hasKey = await (window as any).aistudio.hasSelectedApiKey();
-        setHasApiKey(hasKey);
+      try {
+        await (window as any).aistudio.openSelectKey();
+        // Mitigate race condition: assume success after dialog closes
+        setHasApiKey(true);
+        
+        // Still try to verify if possible
+        if ((window as any).aistudio?.hasSelectedApiKey) {
+          const hasKey = await (window as any).aistudio.hasSelectedApiKey();
+          setHasApiKey(hasKey);
+        }
+      } catch (error) {
+        console.error("Error opening key selector:", error);
       }
+    } else {
+      alert("API Key selection is only available within the AI Studio environment.");
     }
   };
 
