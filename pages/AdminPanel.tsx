@@ -401,7 +401,7 @@ const AdminPanel: React.FC = () => {
             <div className="flex justify-between items-center px-1">
               <h3 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-widest">{t('store_inventory')}</h3>
               <button 
-                onClick={() => setEditingProduct({ id: 'new-' + Date.now(), name: '', price: 0, category: categories[0], isAvailable: true, image: 'https://picsum.photos/400', description: '', orderPolicy: '' })}
+                onClick={() => setEditingProduct({ id: 'new-' + Date.now(), name: '', price: 0, category: categories[0], isAvailable: true, image: 'https://picsum.photos/400', description: '', orderPolicy: '', sizes: [] })}
                 className="bg-green-500 text-white p-2 rounded-lg"
               >
                 <Plus size={18} />
@@ -536,6 +536,35 @@ const AdminPanel: React.FC = () => {
                        </div>
                        <div className={`px-2 py-1 rounded-lg text-[8px] font-black uppercase ${order.status === 'Pending' ? 'bg-amber-50 text-amber-500' : order.status === 'Delivered' ? 'bg-green-50 text-green-500' : 'bg-red-50 text-red-500'}`}>
                          {order.status}
+                       </div>
+                     </div>
+
+                     {/* Ordered Product Images */}
+                     <div className="flex flex-col gap-1.5">
+                       <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Ordered Items:</span>
+                       <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                         {order.items.map((item, idx) => (
+                           <div key={idx} className="relative flex-shrink-0 group">
+                             <img 
+                               src={item.image} 
+                               alt={item.name} 
+                               className="w-12 h-12 rounded-xl object-contain bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-800 shadow-sm"
+                               referrerPolicy="no-referrer"
+                             />
+                             <div className="absolute -top-1 -right-1 flex flex-col gap-0.5 items-end">
+                               {item.quantity > 1 && (
+                                 <span className="bg-[#e62e04] text-white text-[8px] font-black w-4 h-4 flex items-center justify-center rounded-full border-2 border-white dark:border-slate-900 shadow-sm">
+                                   {item.quantity}
+                                 </span>
+                               )}
+                               {item.selectedSize && (
+                                 <span className="bg-blue-600 text-white text-[7px] font-black px-1 py-0.5 rounded border border-white dark:border-slate-900 shadow-sm">
+                                   {item.selectedSize}
+                                 </span>
+                               )}
+                             </div>
+                           </div>
+                         ))}
                        </div>
                      </div>
                      
@@ -1187,6 +1216,17 @@ const AdminPanel: React.FC = () => {
                         {categories.map(c => <option key={c} value={c}>{c}</option>)}
                       </select>
                     </div>
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[9px] font-black text-gray-400 uppercase">{t('product_sizes')}</label>
+                    <input 
+                      type="text" 
+                      value={editingProduct.sizes?.join(', ') || ''}
+                      onChange={(e) => setEditingProduct({...editingProduct, sizes: e.target.value.split(',').map(s => s.trim()).filter(s => s !== '')})}
+                      className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-xs font-bold dark:text-white"
+                      placeholder={t('product_sizes_placeholder')}
+                    />
                   </div>
 
                   <div className="flex items-center gap-2">

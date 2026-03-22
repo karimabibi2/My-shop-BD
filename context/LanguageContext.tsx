@@ -224,6 +224,9 @@ const translations = {
     'send_review': 'Send Review',
     'review_sent_success': 'Thank you! Your review has been submitted for moderation.',
     'visit_live_dashboard': 'Visit Live Dashboard',
+    'product_sizes': 'Product Sizes',
+    'product_sizes_placeholder': 'e.g. S, M, L, XL (comma separated)',
+    'select_size': 'Select Size',
   },
   bn: {
     'menu': 'মেনু',
@@ -439,6 +442,9 @@ const translations = {
     'send_review': 'রিভিউ পাঠান',
     'review_sent_success': 'ধন্যবাদ! আপনার রিভিউটি মডারেশনের জন্য জমা দেওয়া হয়েছে।',
     'visit_live_dashboard': 'লাইভ ড্যাশবোর্ড ভিজিট করুন',
+    'product_sizes': 'পণ্যের সাইজ',
+    'product_sizes_placeholder': 'যেমন: S, M, L, XL (কমা দিয়ে আলাদা করুন)',
+    'select_size': 'সাইজ নির্বাচন করুন',
   }
 };
 

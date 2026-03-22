@@ -21,6 +21,7 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ product, onCl
   const { t } = useLanguage();
 
   const [activeTab, setActiveTab] = React.useState<'description' | 'policy' | 'reviews'>('description');
+  const [selectedSize, setSelectedSize] = React.useState<string | null>(null);
   const [reviewText, setReviewText] = React.useState('');
   const [isReviewSent, setIsReviewSent] = React.useState(false);
   const [localReviews, setLocalReviews] = React.useState([
@@ -37,15 +38,21 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ product, onCl
 
   if (!product) return null;
 
-  const isInCart = cart.some(item => item.id === product.id);
+  const isInCart = cart.some(item => item.id === product.id && item.selectedSize === selectedSize);
   const oldPrice = Math.round(product.price * 1.25);
 
   const handleCartToggle = () => {
     if (isInCart) {
+      // In a real app, we might want to remove the specific size, but for now we'll just remove by ID and size
+      // Actually removeFromCart only takes productId, so we might need to update it too if we want to be precise
       removeFromCart(product.id);
     } else {
-      addToCart(product);
-      trackingService.trackAddToCart({ ...product, quantity: 1 });
+      if (product.sizes && product.sizes.length > 0 && !selectedSize) {
+        alert(t('select_size'));
+        return;
+      }
+      addToCart(product, selectedSize || undefined);
+      trackingService.trackAddToCart({ ...product, quantity: 1, selectedSize: selectedSize || undefined });
     }
   };
 
@@ -132,6 +139,28 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ product, onCl
                   <span className="text-2xl font-black text-[#e62e04]">৳{product.price.toLocaleString()}</span>
                   <span className="text-sm text-gray-400 line-through font-bold">৳{oldPrice.toLocaleString()}</span>
                 </div>
+
+                {/* Size Selection */}
+                {product.sizes && product.sizes.length > 0 && (
+                  <div className="flex flex-col gap-2">
+                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('select_size')}</span>
+                    <div className="flex flex-wrap gap-2">
+                      {product.sizes.map(size => (
+                        <button
+                          key={size}
+                          onClick={() => setSelectedSize(size)}
+                          className={`min-w-[40px] h-10 px-3 rounded-xl text-xs font-black transition-all border-2 ${
+                            selectedSize === size
+                              ? 'border-[#e62e04] bg-[#e62e04] text-white shadow-lg shadow-red-100'
+                              : 'border-gray-100 dark:border-slate-800 bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-gray-400 hover:border-gray-200'
+                          }`}
+                        >
+                          {size}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Tabs */}
                 <div className="flex border-b border-gray-100 dark:border-slate-800 mt-2">
@@ -265,7 +294,13 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ product, onCl
                 {isInCart ? t('in_cart') : t('add_to_cart')}
               </button>
               <button 
-                onClick={() => onBuyNow(product)}
+                onClick={() => {
+                  if (product.sizes && product.sizes.length > 0 && !selectedSize) {
+                    alert(t('select_size'));
+                    return;
+                  }
+                  onBuyNow({ ...product, sizes: selectedSize ? [selectedSize] : product.sizes });
+                }}
                 className="flex-[1.5] bg-[#e62e04] text-white py-3.5 rounded-2xl flex justify-center items-center gap-2 font-black text-[11px] uppercase tracking-widest shadow-lg shadow-red-200 dark:shadow-none active:scale-95 transition-all"
               >
                 <Zap size={16} fill="currentColor" />

@@ -9,10 +9,12 @@ export interface Product {
   description: string;
   orderPolicy?: string;
   isAvailable: boolean;
+  sizes?: string[];
 }
 
 export interface CartItem extends Product {
   quantity: number;
+  selectedSize?: string;
 }
 
 export interface User {
