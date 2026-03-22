@@ -223,6 +223,7 @@ const translations = {
     'custom_api_key': 'Custom API Key',
     'save_api_key': 'Save API Key',
     'api_key_saved': 'API Key saved successfully!',
+    'twelvedata_api_key': 'Twelvedata API Key',
   },
   bn: {
     'menu': 'মেনু',
@@ -437,6 +438,7 @@ const translations = {
     'custom_api_key': 'কাস্টম এপিআই কী',
     'save_api_key': 'এপিআই কী সেভ করুন',
     'api_key_saved': 'এপিআই কী সফলভাবে সেভ করা হয়েছে!',
+    'twelvedata_api_key': 'টুয়েলভডেটা এপিআই কী',
   }
 };
 

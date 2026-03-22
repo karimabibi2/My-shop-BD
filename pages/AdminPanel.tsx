@@ -32,7 +32,8 @@ const AdminPanel: React.FC = () => {
     globalOrderPolicy, updateGlobalOrderPolicy,
     trackingConfig, updateTrackingConfig,
     visitorCount, trackingLogs,
-    customApiKey, updateCustomApiKey
+    customApiKey, updateCustomApiKey,
+    twelvedataApiKey, updateTwelvedataApiKey
   } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -77,6 +78,7 @@ const AdminPanel: React.FC = () => {
   const [newGlobalPolicy, setNewGlobalPolicy] = useState(globalOrderPolicy);
   const [localTracking, setLocalTracking] = useState(trackingConfig);
   const [localApiKey, setLocalApiKey] = useState(customApiKey);
+  const [localTwelvedataKey, setLocalTwelvedataKey] = useState(twelvedataApiKey);
   const [hasApiKey, setHasApiKey] = useState(false);
 
   useEffect(() => {
@@ -971,6 +973,28 @@ const AdminPanel: React.FC = () => {
                       <button 
                         onClick={() => {
                           updateCustomApiKey(localApiKey);
+                          alert(t('api_key_saved'));
+                        }}
+                        className="bg-[#e62e04] text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2"
+                      >
+                        <Save size={12} /> {t('save')}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-1 mt-2">
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{t('twelvedata_api_key')}</label>
+                    <div className="flex gap-2">
+                      <input 
+                        type="password" 
+                        value={localTwelvedataKey}
+                        onChange={(e) => setLocalTwelvedataKey(e.target.value)}
+                        className="flex-1 bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-[10px] font-bold dark:text-white"
+                        placeholder="Enter Twelvedata API key..."
+                      />
+                      <button 
+                        onClick={() => {
+                          updateTwelvedataApiKey(localTwelvedataKey);
                           alert(t('api_key_saved'));
                         }}
                         className="bg-[#e62e04] text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2"

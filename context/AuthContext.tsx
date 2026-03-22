@@ -47,6 +47,8 @@ interface AuthContextType {
   trackingLogs: any[];
   customApiKey: string;
   updateCustomApiKey: (key: string) => void;
+  twelvedataApiKey: string;
+  updateTwelvedataApiKey: (key: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -131,6 +133,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const [customApiKey, setCustomApiKey] = useState<string>(() => {
     const saved = localStorage.getItem('shopbd_custom_api_key');
+    return saved || '';
+  });
+
+  const [twelvedataApiKey, setTwelvedataApiKey] = useState<string>(() => {
+    const saved = localStorage.getItem('shopbd_twelvedata_api_key');
     return saved || '';
   });
 
@@ -228,6 +235,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     localStorage.setItem('shopbd_custom_api_key', customApiKey);
   }, [customApiKey]);
+
+  useEffect(() => {
+    localStorage.setItem('shopbd_twelvedata_api_key', twelvedataApiKey);
+  }, [twelvedataApiKey]);
 
   const login = (email: string) => {
     const isAdmin = email.toLowerCase() === 'admin@shopbd.com';
@@ -387,6 +398,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setCustomApiKey(key);
   };
 
+  const updateTwelvedataApiKey = (key: string) => {
+    setTwelvedataApiKey(key);
+  };
+
   return (
     <AuthContext.Provider value={{ 
       user, orders, allProducts, categories, addresses, shippingRates, bannerImage, whatsappNumber, 
@@ -399,7 +414,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       globalOrderPolicy, updateGlobalOrderPolicy,
       trackingConfig, updateTrackingConfig,
       visitorCount, trackingLogs,
-      customApiKey, updateCustomApiKey
+      customApiKey, updateCustomApiKey,
+      twelvedataApiKey, updateTwelvedataApiKey
     }}>
       {children}
     </AuthContext.Provider>
