@@ -245,6 +245,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
           
           <div className="flex items-center gap-1">
+            <NavLink to="/admin" className="p-2 text-gray-700 dark:text-gray-300 hover:text-[#e62e04] dark:hover:text-[#e62e04] hover:bg-gray-50 dark:hover:bg-slate-800 rounded-full transition-colors">
+              <ShieldAlert size={22} />
+            </NavLink>
             <button onClick={() => setIsNotificationsOpen(!isNotificationsOpen)} className="p-2 text-gray-700 dark:text-gray-300 relative hover:bg-gray-50 dark:hover:bg-slate-800 rounded-full transition-colors">
               <Bell size={22} />
               {unreadCount > 0 && (
@@ -295,6 +298,25 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       {/* Main Content */}
       <main className="flex-1 pb-20 overflow-y-auto no-scrollbar">
         {children}
+        
+        {/* Simple Footer with Admin Link */}
+        <footer className="mt-auto py-10 px-6 border-t border-gray-100 dark:border-slate-900 bg-white dark:bg-slate-900/50 flex flex-col items-center gap-4">
+          <div className="flex flex-col items-center leading-none mb-2">
+            <span className="text-xl font-black text-[#e62e04] tracking-tighter italic">MY SHOP</span>
+            <span className="text-[10px] font-bold text-gray-900 dark:text-white tracking-[0.2em] uppercase">BD</span>
+          </div>
+          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest text-center">
+            © {new Date().getFullYear()} MY shopBD. All Rights Reserved.
+          </p>
+          <div className="flex gap-6 mt-2">
+            <NavLink to="/admin" className="text-[10px] font-black text-gray-400 hover:text-[#e62e04] uppercase tracking-widest transition-colors">
+              {t('admin_panel')}
+            </NavLink>
+            <NavLink to="/profile" className="text-[10px] font-black text-gray-400 hover:text-[#e62e04] uppercase tracking-widest transition-colors">
+              {t('account')}
+            </NavLink>
+          </div>
+        </footer>
       </main>
 
       {/* Bottom Navigation */}

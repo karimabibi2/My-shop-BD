@@ -320,6 +320,22 @@ const Profile: React.FC = () => {
           <h4 className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] ml-1 mb-1">{t('activity_settings')}</h4>
           
           <button 
+            onClick={() => navigate('/admin')}
+            className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-xl shadow-sm hover:bg-gray-50 dark:hover:bg-slate-800 transition-all border border-gray-100 dark:border-slate-800"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-red-50 dark:bg-red-950/20 text-[#e62e04] rounded-xl flex items-center justify-center border border-red-100 dark:border-red-900/30">
+                <ShieldCheck size={20} />
+              </div>
+              <div className="flex flex-col items-start">
+                <span className="font-bold text-[13px] text-gray-800 dark:text-gray-200">{t('admin_panel')}</span>
+                <span className="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Management Access</span>
+              </div>
+            </div>
+            <ChevronRight size={18} className="text-gray-300 dark:text-gray-600" />
+          </button>
+
+          <button 
             onClick={() => navigate('/orders')}
             className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-xl shadow-sm hover:bg-gray-50 dark:hover:bg-slate-800 transition-all border border-gray-100 dark:border-slate-800"
           >
