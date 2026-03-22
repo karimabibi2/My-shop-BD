@@ -217,6 +217,9 @@ const translations = {
     'product_sizes': 'Product Sizes',
     'product_sizes_placeholder': 'e.g. S, M, L, XL (comma separated)',
     'select_size': 'Select Size',
+    'api_settings': 'API Settings',
+    'change_api_key': 'Change API Key',
+    'api_key_notice': 'This key is used for AI features like smart descriptions and search recommendations.',
   },
   bn: {
     'menu': 'মেনু',
@@ -425,6 +428,9 @@ const translations = {
     'product_sizes': 'পণ্যের সাইজ',
     'product_sizes_placeholder': 'যেমন: S, M, L, XL (কমা দিয়ে আলাদা করুন)',
     'select_size': 'সাইজ নির্বাচন করুন',
+    'api_settings': 'এপিআই সেটিংস',
+    'change_api_key': 'এপিআই কী পরিবর্তন করুন',
+    'api_key_notice': 'এই কীটি স্মার্ট বর্ণনা এবং সার্চ রিকমেন্ডেশনের মতো এআই ফিচারের জন্য ব্যবহৃত হয়।',
   }
 };
 

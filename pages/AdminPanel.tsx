@@ -75,6 +75,27 @@ const AdminPanel: React.FC = () => {
   const [newAdminPass, setNewAdminPass] = useState(adminPassword);
   const [newGlobalPolicy, setNewGlobalPolicy] = useState(globalOrderPolicy);
   const [localTracking, setLocalTracking] = useState(trackingConfig);
+  const [hasApiKey, setHasApiKey] = useState(false);
+
+  useEffect(() => {
+    const checkKey = async () => {
+      if ((window as any).aistudio?.hasSelectedApiKey) {
+        const hasKey = await (window as any).aistudio.hasSelectedApiKey();
+        setHasApiKey(hasKey);
+      }
+    };
+    checkKey();
+  }, []);
+
+  const handleOpenKeySelector = async () => {
+    if ((window as any).aistudio?.openSelectKey) {
+      await (window as any).aistudio.openSelectKey();
+      if ((window as any).aistudio?.hasSelectedApiKey) {
+        const hasKey = await (window as any).aistudio.hasSelectedApiKey();
+        setHasApiKey(hasKey);
+      }
+    }
+  };
 
   // Sync local rates if context rates change
   useEffect(() => {
@@ -895,6 +916,35 @@ const AdminPanel: React.FC = () => {
                   >
                     <Save size={14} /> {t('update_tracking')}
                   </button>
+                </div>
+              </div>
+
+              {/* API Settings */}
+              <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
+                <div className="flex items-center gap-2">
+                  <Key size={18} className="text-[#e62e04]" />
+                  <h4 className="text-[11px] font-black uppercase tracking-widest">{t('api_settings')}</h4>
+                </div>
+                
+                <div className="flex flex-col gap-3">
+                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tight leading-relaxed">
+                    {t('api_key_notice')}
+                  </p>
+                  
+                  <div className="flex items-center justify-between bg-gray-50 dark:bg-slate-800 p-3 rounded-xl">
+                    <div className="flex flex-col">
+                      <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Gemini API Status</span>
+                      <span className={`text-[10px] font-black uppercase ${hasApiKey ? 'text-green-500' : 'text-amber-500'}`}>
+                        {hasApiKey ? 'Key Selected' : 'No Key Selected'}
+                      </span>
+                    </div>
+                    <button 
+                      onClick={handleOpenKeySelector}
+                      className="bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest border border-gray-200 dark:border-slate-600 shadow-sm hover:bg-gray-50 transition-all"
+                    >
+                      {t('change_api_key')}
+                    </button>
+                  </div>
                 </div>
               </div>
 
