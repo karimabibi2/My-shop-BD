@@ -1227,6 +1227,28 @@ const AdminPanel: React.FC = () => {
                       className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-xs font-bold dark:text-white"
                       placeholder={t('product_sizes_placeholder')}
                     />
+                    <div className="flex gap-2 mt-1">
+                      {['M', 'L', 'LX'].map(size => (
+                        <button
+                          key={size}
+                          type="button"
+                          onClick={() => {
+                            const currentSizes = editingProduct.sizes || [];
+                            const newSizes = currentSizes.includes(size)
+                              ? currentSizes.filter(s => s !== size)
+                              : [...currentSizes, size];
+                            setEditingProduct({...editingProduct, sizes: newSizes});
+                          }}
+                          className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase transition-all ${
+                            editingProduct.sizes?.includes(size)
+                              ? 'bg-[#e62e04] text-white shadow-md shadow-red-100'
+                              : 'bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-gray-500 hover:bg-gray-200'
+                          }`}
+                        >
+                          Size {size}
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
                   <div className="flex items-center gap-2">
