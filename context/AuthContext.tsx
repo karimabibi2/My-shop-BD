@@ -41,8 +41,6 @@ interface AuthContextType {
   updateAdminCredentials: (username: string, password: string) => void;
   globalOrderPolicy: string;
   updateGlobalOrderPolicy: (policy: string) => void;
-  twelvedataApiKey: string;
-  updateTwelvedataApiKey: (key: string) => void;
   trackingConfig: TrackingConfig;
   updateTrackingConfig: (config: TrackingConfig) => void;
   visitorCount: number;
@@ -115,10 +113,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [globalOrderPolicy, setGlobalOrderPolicy] = useState<string>(() => {
     const saved = localStorage.getItem('shopbd_global_policy');
     return saved || 'Cash on delivery available all over Bangladesh.\nDelivery within 24-48 hours inside Dhaka.\n7 days easy return policy if product is damaged.\nCheck the product before paying the delivery man.';
-  });
-  const [twelvedataApiKey, setTwelvedataApiKey] = useState<string>(() => {
-    const saved = localStorage.getItem('shopbd_twelvedata_key');
-    return saved || '';
   });
   const [trackingConfig, setTrackingConfig] = useState<TrackingConfig>(() => {
     const saved = localStorage.getItem('shopbd_tracking');
@@ -219,10 +213,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     localStorage.setItem('shopbd_global_policy', globalOrderPolicy);
   }, [globalOrderPolicy]);
-
-  useEffect(() => {
-    localStorage.setItem('shopbd_twelvedata_key', twelvedataApiKey);
-  }, [twelvedataApiKey]);
 
   useEffect(() => {
     localStorage.setItem('shopbd_tracking', JSON.stringify(trackingConfig));
@@ -378,10 +368,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setGlobalOrderPolicy(policy);
   };
 
-  const updateTwelvedataApiKey = (key: string) => {
-    setTwelvedataApiKey(key);
-  };
-
   const updateTrackingConfig = (config: TrackingConfig) => {
     setTrackingConfig(config);
   };
@@ -396,7 +382,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       updateFacebookLink, updateYoutubeLink, updateTiktokLink,
       adminUsername, adminPassword, updateAdminCredentials,
       globalOrderPolicy, updateGlobalOrderPolicy,
-      twelvedataApiKey, updateTwelvedataApiKey,
       trackingConfig, updateTrackingConfig,
       visitorCount, trackingLogs
     }}>
