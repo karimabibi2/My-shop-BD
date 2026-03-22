@@ -293,6 +293,28 @@ const Profile: React.FC = () => {
           </button>
         </div>
 
+        {/* Admin Access - Only for Admins */}
+        {user.isAdmin && (
+          <div className="flex flex-col gap-2">
+            <h4 className="text-[10px] font-black text-red-500 dark:text-red-400 uppercase tracking-[0.2em] ml-1 mb-1">Administrative Access</h4>
+            <button 
+              onClick={() => navigate('/admin')}
+              className="flex items-center justify-between p-5 bg-gradient-to-r from-[#e62e04] to-red-500 text-white rounded-2xl shadow-lg shadow-red-100 dark:shadow-none hover:scale-[1.02] transition-all border border-red-400"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-white/20 backdrop-blur-md text-white rounded-xl flex items-center justify-center border border-white/30">
+                  <ShieldCheck size={24} />
+                </div>
+                <div className="flex flex-col items-start">
+                  <span className="font-black text-[15px] uppercase italic tracking-tighter">{t('admin_panel')}</span>
+                  <span className="text-[9px] font-bold opacity-80 uppercase tracking-widest">Manage Store & Settings</span>
+                </div>
+              </div>
+              <ArrowRight size={20} />
+            </button>
+          </div>
+        )}
+
         {/* Quick Actions */}
         <div className="flex flex-col gap-2">
           <h4 className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] ml-1 mb-1">{t('activity_settings')}</h4>
