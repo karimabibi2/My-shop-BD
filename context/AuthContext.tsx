@@ -45,6 +45,8 @@ interface AuthContextType {
   updateTrackingConfig: (config: TrackingConfig) => void;
   visitorCount: number;
   trackingLogs: any[];
+  customApiKey: string;
+  updateCustomApiKey: (key: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -125,6 +127,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       customScripts: '',
       isEnabled: false,
     };
+  });
+
+  const [customApiKey, setCustomApiKey] = useState<string>(() => {
+    const saved = localStorage.getItem('shopbd_custom_api_key');
+    return saved || '';
   });
 
   const [visitorCount, setVisitorCount] = useState<number>(() => {
@@ -217,6 +224,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     localStorage.setItem('shopbd_tracking', JSON.stringify(trackingConfig));
   }, [trackingConfig]);
+
+  useEffect(() => {
+    localStorage.setItem('shopbd_custom_api_key', customApiKey);
+  }, [customApiKey]);
 
   const login = (email: string) => {
     const isAdmin = email.toLowerCase() === 'admin@shopbd.com';
@@ -372,6 +383,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setTrackingConfig(config);
   };
 
+  const updateCustomApiKey = (key: string) => {
+    setCustomApiKey(key);
+  };
+
   return (
     <AuthContext.Provider value={{ 
       user, orders, allProducts, categories, addresses, shippingRates, bannerImage, whatsappNumber, 
@@ -383,7 +398,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       adminUsername, adminPassword, updateAdminCredentials,
       globalOrderPolicy, updateGlobalOrderPolicy,
       trackingConfig, updateTrackingConfig,
-      visitorCount, trackingLogs
+      visitorCount, trackingLogs,
+      customApiKey, updateCustomApiKey
     }}>
       {children}
     </AuthContext.Provider>

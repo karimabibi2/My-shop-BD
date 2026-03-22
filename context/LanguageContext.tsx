@@ -220,6 +220,9 @@ const translations = {
     'api_settings': 'API Settings',
     'change_api_key': 'Change API Key',
     'api_key_notice': 'This key is used for AI features like smart descriptions and search recommendations.',
+    'custom_api_key': 'Custom API Key',
+    'save_api_key': 'Save API Key',
+    'api_key_saved': 'API Key saved successfully!',
   },
   bn: {
     'menu': 'মেনু',
@@ -431,6 +434,9 @@ const translations = {
     'api_settings': 'এপিআই সেটিংস',
     'change_api_key': 'এপিআই কী পরিবর্তন করুন',
     'api_key_notice': 'এই কীটি স্মার্ট বর্ণনা এবং সার্চ রিকমেন্ডেশনের মতো এআই ফিচারের জন্য ব্যবহৃত হয়।',
+    'custom_api_key': 'কাস্টম এপিআই কী',
+    'save_api_key': 'এপিআই কী সেভ করুন',
+    'api_key_saved': 'এপিআই কী সফলভাবে সেভ করা হয়েছে!',
   }
 };
 

@@ -31,7 +31,8 @@ const AdminPanel: React.FC = () => {
     adminUsername, adminPassword, updateAdminCredentials,
     globalOrderPolicy, updateGlobalOrderPolicy,
     trackingConfig, updateTrackingConfig,
-    visitorCount, trackingLogs
+    visitorCount, trackingLogs,
+    customApiKey, updateCustomApiKey
   } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -75,6 +76,7 @@ const AdminPanel: React.FC = () => {
   const [newAdminPass, setNewAdminPass] = useState(adminPassword);
   const [newGlobalPolicy, setNewGlobalPolicy] = useState(globalOrderPolicy);
   const [localTracking, setLocalTracking] = useState(trackingConfig);
+  const [localApiKey, setLocalApiKey] = useState(customApiKey);
   const [hasApiKey, setHasApiKey] = useState(false);
 
   useEffect(() => {
@@ -954,6 +956,28 @@ const AdminPanel: React.FC = () => {
                     >
                       {t('change_api_key')}
                     </button>
+                  </div>
+
+                  <div className="flex flex-col gap-1 mt-2">
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{t('custom_api_key')}</label>
+                    <div className="flex gap-2">
+                      <input 
+                        type="password" 
+                        value={localApiKey}
+                        onChange={(e) => setLocalApiKey(e.target.value)}
+                        className="flex-1 bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-[10px] font-bold dark:text-white"
+                        placeholder="Enter your API key here..."
+                      />
+                      <button 
+                        onClick={() => {
+                          updateCustomApiKey(localApiKey);
+                          alert(t('api_key_saved'));
+                        }}
+                        className="bg-[#e62e04] text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2"
+                      >
+                        <Save size={12} /> {t('save')}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
