@@ -8,14 +8,20 @@ const AdminLogin: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { adminLogin } = useAuth();
+  const { adminLogin, user } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  React.useEffect(() => {
+    if (user && user.isAdmin) {
+      navigate('/admin');
+    }
+  }, [user, navigate]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     
-    const success = adminLogin(username, password);
+    const success = await adminLogin(username, password);
     if (success) {
       navigate('/admin');
     } else {

@@ -11,8 +11,20 @@ import { trackingService } from '../services/TrackingService';
 
 const Checkout: React.FC = () => {
   const { totalPrice: cartTotalPrice, cart: cartItems, clearCart } = useCart();
-  const { user, addOrder, addresses, shippingRates } = useAuth();
+  const { user, addOrder, addresses, shippingRates, isAuthReady } = useAuth();
   const { t } = useLanguage();
+
+  if (!isAuthReady) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center py-20">
+          <div className="animate-spin text-[#e62e04]">
+            <CheckCircle size={40} />
+          </div>
+        </div>
+      </Layout>
+    );
+  }
   const navigate = useNavigate();
   const location = useLocation();
   const buyNowProduct = location.state?.buyNowProduct;

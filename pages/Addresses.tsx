@@ -7,8 +7,37 @@ import { useNavigate } from 'react-router-dom';
 import { BD_LOCATIONS } from '../constants';
 
 const Addresses: React.FC = () => {
-  const { addresses, addAddress, removeAddress, user } = useAuth();
+  const { addresses, addAddress, removeAddress, user, isAuthReady } = useAuth();
   const navigate = useNavigate();
+
+  if (!isAuthReady) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center py-20">
+          <MapPin className="animate-spin text-[#e62e04]" size={40} />
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!user) {
+    return (
+      <Layout>
+        <div className="flex flex-col items-center justify-center gap-6 py-20 text-center px-6">
+          <div className="w-20 h-20 bg-gray-100 dark:bg-slate-900 rounded-full flex items-center justify-center text-gray-300 dark:text-gray-700">
+            <MapPin size={40} />
+          </div>
+          <div className="flex flex-col gap-2">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Sign in to see addresses</h2>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">Manage your delivery locations</p>
+          </div>
+          <button onClick={() => navigate('/profile')} className="bg-[#e62e04] text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-red-100 dark:shadow-none active:scale-95 transition-all uppercase tracking-widest text-xs">
+            GO TO PROFILE
+          </button>
+        </div>
+      </Layout>
+    );
+  }
   const [showAddForm, setShowAddForm] = useState(false);
   const [formData, setFormData] = useState({
     label: 'Home',

@@ -34,17 +34,18 @@ const AdminPanel: React.FC = () => {
     trackingConfig, updateTrackingConfig, clearTrackingLogs,
     visitorCount, trackingLogs,
     customApiKey, updateCustomApiKey,
-    twelvedataApiKey, updateTwelvedataApiKey
+    twelvedataApiKey, updateTwelvedataApiKey,
+    isAuthReady
   } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'orders' | 'settings' | 'categories'>('dashboard');
 
   useEffect(() => {
-    if (!user) {
+    if (isAuthReady && (!user || !user.isAdmin)) {
       navigate('/admin/login');
     }
-  }, [user, navigate]);
+  }, [user, navigate, isAuthReady]);
 
   // Sync activeTab with URL query param
   useEffect(() => {

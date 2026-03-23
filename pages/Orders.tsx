@@ -7,8 +7,20 @@ import { Package, ShoppingBag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Orders: React.FC = () => {
-  const { user, orders } = useAuth();
+  const { user, orders, isAuthReady } = useAuth();
   const { t } = useLanguage();
+
+  if (!isAuthReady) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center py-20">
+          <div className="animate-spin text-[#e62e04]">
+            <Package size={40} />
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   if (!user) {
     return (

@@ -23,6 +23,7 @@ export interface User {
   email: string;
   avatar?: string;
   isAdmin?: boolean;
+  role?: 'admin' | 'client';
 }
 
 export interface Address {
@@ -45,6 +46,7 @@ export interface Order {
   customerName?: string;
   phone?: string;
   paymentMethod?: 'COD' | 'bKash' | 'Nagad';
+  uid?: string;
 }
 
 export type CategoryType = string;

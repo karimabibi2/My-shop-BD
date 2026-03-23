@@ -11,39 +11,96 @@ import {
 import { useNavigate } from 'react-router-dom';
 
 const Profile: React.FC = () => {
-  const { user, login, logout, orders, addresses, updateUser } = useAuth();
+  const { user, login, signup, logout, orders, addresses, updateUser, isAuthReady, signInWithGoogle, resetPassword } = useAuth();
   const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [otp, setOtp] = useState('');
   const [activeTab, setActiveTab] = useState<'login' | 'signup'>('login');
-  const [isOtpSent, setIsOtpSent] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [newName, setNewName] = useState(user?.name || '');
   const [newAvatar, setNewAvatar] = useState(user?.avatar || '');
   const navigate = useNavigate();
 
-  const handleAuth = (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    setAuthError(null);
     
-    if (activeTab === 'signup') {
-      if (!isOtpSent) {
-        handleSendCode();
-        return;
-      }
-      if (otp.length !== 6) {
-        alert('Please enter the 6-digit Gmail verification code.');
-        return;
-      }
+    if (!email || !password) {
+      setAuthError('Please enter both email and password.');
+      return;
     }
 
     setIsLoading(true);
-    // Mocking a network delay for login/signup
-    setTimeout(() => {
-      login(email || 'guest@example.com');
+    try {
+      if (activeTab === 'signup') {
+        await signup(email, password, email.split('@')[0]);
+      } else {
+        await login(email, password);
+      }
+    } catch (error: any) {
+      console.error("Auth error:", error);
+      let message = "প্রবেশ করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।";
+      
+      const errorCode = error.code || (error.message && error.message.includes('auth/') ? error.message.match(/auth\/[a-z-]+/)?.[0] : null);
+
+      if (errorCode === 'auth/email-already-in-use') {
+        message = "এই ইমেলটি দিয়ে ইতিমধ্যে একটি অ্যাকাউন্ট খোলা আছে। দয়া করে লগইন করুন।";
+      } else if (errorCode === 'auth/invalid-email') {
+        message = "ইমেল ফরম্যাটটি সঠিক নয়।";
+      } else if (errorCode === 'auth/weak-password') {
+        message = "পাসওয়ার্ডটি অন্তত ৬ অক্ষরের হতে হবে।";
+      } else if (errorCode === 'auth/user-not-found') {
+        message = "এই ইমেল দিয়ে কোনো অ্যাকাউন্ট পাওয়া যায়নি।";
+      } else if (errorCode === 'auth/wrong-password') {
+        message = "ভুল পাসওয়ার্ড। আবার চেষ্টা করুন।";
+      } else if (errorCode === 'auth/too-many-requests') {
+        message = "অনেকবার ভুল চেষ্টা করা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।";
+      } else if (error.message) {
+        try {
+          const parsed = JSON.parse(error.message);
+          if (parsed.error) message = parsed.error;
+          else message = error.message;
+        } catch {
+          message = error.message;
+        }
+      }
+      setAuthError(message);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true);
+    setAuthError(null);
+    try {
+      await signInWithGoogle();
+    } catch (error: any) {
+      console.error("Google Sign-in error:", error);
+      setAuthError(error.message || "Google Sign-in failed");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      setAuthError("পাসওয়ার্ড রিসেট করতে দয়া করে আপনার ইমেল দিন।");
+      return;
+    }
+    setIsLoading(true);
+    setAuthError(null);
+    try {
+      await resetPassword(email);
+      setAuthError("পাসওয়ার্ড রিসেট করার লিঙ্ক আপনার ইমেলে পাঠানো হয়েছে।");
+    } catch (error: any) {
+      console.error("Reset password error:", error);
+      setAuthError("পাসওয়ার্ড রিসেট করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleUpdateProfile = (e: React.FormEvent) => {
@@ -65,26 +122,21 @@ const Profile: React.FC = () => {
     }
   };
 
-  const handleSendCode = () => {
-    if (!email || !email.includes('@')) {
-      alert('Please enter a valid Gmail address first.');
-      return;
-    }
-    
-    setIsLoading(true);
-    // Mocking sending code via API
-    setTimeout(() => {
-      setIsOtpSent(true);
-      setIsLoading(false);
-    }, 1200);
-  };
-
   const resetForm = (tab: 'login' | 'signup') => {
     setActiveTab(tab);
-    setIsOtpSent(false);
-    setOtp('');
     setIsLoading(false);
+    setAuthError(null);
   };
+
+  if (!isAuthReady) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center py-20">
+          <RefreshCw className="animate-spin text-[#e62e04]" size={40} />
+        </div>
+      </Layout>
+    );
+  }
 
   if (!user) {
     return (
@@ -125,74 +177,34 @@ const Profile: React.FC = () => {
             </div>
 
             <form onSubmit={handleAuth} className="p-6 flex flex-col gap-5">
+              {authError && (
+                <div className={`${
+                  authError.includes('পাঠানো হয়েছে') 
+                  ? 'bg-green-50 dark:bg-green-950/20 border-green-100 dark:border-green-900/30 text-green-600' 
+                  : 'bg-red-50 dark:bg-red-950/20 border-red-100 dark:border-red-900/30 text-red-600'
+                } border p-3 rounded-xl flex items-center gap-3 animate-shake`}>
+                  {authError.includes('পাঠানো হয়েছে') ? <RefreshCw size={18} className="text-green-500" /> : <XCircle size={18} className="text-red-500" />}
+                  <span className="text-[10px] font-bold uppercase tracking-wider">{authError}</span>
+                </div>
+              )}
               <div className="flex flex-col gap-4">
-                {/* Email Field with inline Send Code button */}
+                {/* Email Field */}
                 <div className="flex flex-col gap-1.5">
                   <label className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    {t('gmail_address')}
+                    {t('email')}
                   </label>
-                  <div className="flex gap-2">
-                    <div className="relative flex-1">
-                      <input 
-                        type="email" 
-                        required
-                        disabled={isOtpSent}
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className={`w-full bg-gray-50 dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-xl py-3.5 pl-11 pr-4 focus:border-[#e62e04] focus:ring-0 text-sm dark:text-white transition-all ${isOtpSent ? 'opacity-60 cursor-not-allowed' : ''}`}
-                        placeholder="example@gmail.com"
-                      />
-                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                    </div>
-                    {activeTab === 'signup' && (
-                      <button 
-                        type="button"
-                        onClick={isOtpSent ? () => setIsOtpSent(false) : handleSendCode}
-                        disabled={isLoading && !isOtpSent}
-                        className={`px-4 rounded-xl text-[10px] font-black uppercase tracking-tighter transition-all flex items-center justify-center min-w-[90px] border ${
-                          isOtpSent 
-                          ? 'bg-red-50 dark:bg-red-950/20 text-[#e62e04] border-red-100 dark:border-red-900/30' 
-                          : 'bg-[#e62e04] text-white border-transparent hover:bg-[#c42704]'
-                        }`}
-                      >
-                        {isLoading && !isOtpSent ? <RefreshCw className="animate-spin" size={14} /> : (isOtpSent ? t('change') : t('send_code'))}
-                      </button>
-                    )}
+                  <div className="relative">
+                    <input 
+                      type="email" 
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full bg-gray-50 dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-xl py-3.5 pl-11 pr-4 focus:border-[#e62e04] focus:ring-0 text-sm dark:text-white transition-all"
+                      placeholder="example@gmail.com"
+                    />
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                   </div>
                 </div>
-
-                {/* OTP Field - "Gmail Verification Code" explicitly below email */}
-                {activeTab === 'signup' && (
-                  <div className={`flex flex-col gap-1.5 transition-all duration-300 ${isOtpSent ? 'opacity-100 translate-y-0' : 'opacity-40 pointer-events-none'}`}>
-                    <div className="flex justify-between items-center mb-0.5">
-                      <label className="text-[10px] font-black text-gray-700 dark:text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
-                        {isOtpSent && <CheckCircle2 size={12} className="text-green-500" />}
-                        {t('verification_code')}
-                      </label>
-                      {isOtpSent && (
-                        <button type="button" onClick={handleSendCode} className="text-[9px] font-black text-[#e62e04] uppercase tracking-tighter">
-                          {t('resend')}
-                        </button>
-                      )}
-                    </div>
-                    <div className="relative">
-                      <input 
-                        type="text" 
-                        maxLength={6}
-                        required={activeTab === 'signup' && isOtpSent}
-                        disabled={!isOtpSent}
-                        value={otp}
-                        onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                        className="w-full bg-gray-50 dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-xl py-4 pl-11 pr-4 focus:border-green-500 focus:ring-0 text-lg dark:text-white transition-all tracking-[0.5em] font-black"
-                        placeholder="000000"
-                      />
-                      <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                    </div>
-                    {!isOtpSent && activeTab === 'signup' && (
-                       <p className="text-[8px] text-gray-400 font-bold uppercase tracking-widest text-right">Send code to enable this field</p>
-                    )}
-                  </div>
-                )}
 
                 {/* Password Field */}
                 <div className="flex flex-col gap-1.5">
@@ -212,7 +224,12 @@ const Profile: React.FC = () => {
 
                 {activeTab === 'login' && (
                   <div className="flex justify-end">
-                    <button type="button" className="text-[10px] font-bold text-[#e62e04] hover:underline uppercase tracking-wider">
+                    <button 
+                      type="button" 
+                      onClick={handleForgotPassword}
+                      disabled={isLoading}
+                      className="text-[10px] font-bold text-[#e62e04] hover:underline uppercase tracking-wider disabled:opacity-50"
+                    >
                       {t('forgot_password')}
                     </button>
                   </div>
@@ -228,14 +245,14 @@ const Profile: React.FC = () => {
                   <RefreshCw className="animate-spin" size={20} />
                 ) : (
                   <>
-                    {activeTab === 'login' ? t('secure_login') : (isOtpSent ? t('verify_create') : t('create_account'))}
+                    {activeTab === 'login' ? t('secure_login') : t('create_account')}
                     <ArrowRight size={18} />
                   </>
                 )}
               </button>
               
               <p className="text-center text-[9px] text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] px-4 leading-relaxed">
-                {activeTab === 'signup' && isOtpSent ? t('check_inbox') : t('trusted_network')}
+                {t('trusted_network')}
               </p>
             </form>
           </div>
@@ -243,7 +260,11 @@ const Profile: React.FC = () => {
           <div className="mt-4 flex flex-col gap-4">
             <p className="text-center text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest">{t('connect_with')}</p>
             <div className="flex gap-3">
-              <button className="flex-1 py-3 border border-gray-200 dark:border-slate-800 rounded-xl flex items-center justify-center text-xs font-black dark:text-white hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors">
+              <button 
+                onClick={handleGoogleSignIn}
+                disabled={isLoading}
+                className="flex-1 py-3 border border-gray-200 dark:border-slate-800 rounded-xl flex items-center justify-center text-xs font-black dark:text-white hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
+              >
                 GOOGLE
               </button>
               <button className="flex-1 py-3 border border-gray-200 dark:border-slate-800 rounded-xl flex items-center justify-center text-xs font-black dark:text-white hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors">
@@ -329,21 +350,23 @@ const Profile: React.FC = () => {
         <div className="flex flex-col gap-2">
           <h4 className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] ml-1 mb-1">{t('activity_settings')}</h4>
           
-          <button 
-            onClick={() => navigate('/admin')}
-            className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-xl shadow-sm hover:bg-gray-50 dark:hover:bg-slate-800 transition-all border border-gray-100 dark:border-slate-800"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-red-50 dark:bg-red-950/20 text-[#e62e04] rounded-xl flex items-center justify-center border border-red-100 dark:border-red-900/30">
-                <ShieldCheck size={20} />
+          {user.isAdmin && (
+            <button 
+              onClick={() => navigate('/admin')}
+              className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-xl shadow-sm hover:bg-gray-50 dark:hover:bg-slate-800 transition-all border border-gray-100 dark:border-slate-800"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-red-50 dark:bg-red-950/20 text-[#e62e04] rounded-xl flex items-center justify-center border border-red-100 dark:border-red-900/30">
+                  <ShieldCheck size={20} />
+                </div>
+                <div className="flex flex-col items-start">
+                  <span className="font-bold text-[13px] text-gray-800 dark:text-gray-200">{t('admin_panel')}</span>
+                  <span className="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Management Access</span>
+                </div>
               </div>
-              <div className="flex flex-col items-start">
-                <span className="font-bold text-[13px] text-gray-800 dark:text-gray-200">{t('admin_panel')}</span>
-                <span className="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Management Access</span>
-              </div>
-            </div>
-            <ChevronRight size={18} className="text-gray-300 dark:text-gray-600" />
-          </button>
+              <ChevronRight size={18} className="text-gray-300 dark:text-gray-600" />
+            </button>
+          )}
 
           <button 
             onClick={() => navigate('/orders')}
@@ -387,15 +410,17 @@ const Profile: React.FC = () => {
             <ChevronRight size={18} className="text-gray-300 dark:text-gray-600" />
           </button>
 
-          <button className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-xl shadow-sm hover:bg-gray-50 dark:hover:bg-slate-800 transition-all border border-gray-100 dark:border-slate-800">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gray-50 dark:bg-slate-800 text-gray-500 rounded-xl flex items-center justify-center border border-gray-200 dark:border-slate-700">
-                <Settings size={20} />
+          {user.isAdmin && (
+            <button className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-xl shadow-sm hover:bg-gray-50 dark:hover:bg-slate-800 transition-all border border-gray-100 dark:border-slate-800">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gray-50 dark:bg-slate-800 text-gray-500 rounded-xl flex items-center justify-center border border-gray-200 dark:border-slate-700">
+                  <Settings size={20} />
+                </div>
+                <span className="font-bold text-[13px] text-gray-800 dark:text-gray-200">{t('store_settings')}</span>
               </div>
-              <span className="font-bold text-[13px] text-gray-800 dark:text-gray-200">{t('store_settings')}</span>
-            </div>
-            <ChevronRight size={18} className="text-gray-300 dark:text-gray-600" />
-          </button>
+              <ChevronRight size={18} className="text-gray-300 dark:text-gray-600" />
+            </button>
+          )}
         </div>
 
         <div className="mt-6">

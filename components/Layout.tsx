@@ -142,22 +142,24 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </NavLink>
 
               {/* Admin Link - More prominent for easy access */}
-              <div className="mt-auto pt-6 pb-6 px-6 border-t border-gray-100 dark:border-slate-800/50 bg-gray-50/50 dark:bg-slate-800/20">
-                <NavLink 
-                  to="/admin" 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsMenuOpen(false);
-                  }} 
-                  className="flex items-center justify-center gap-3 w-full py-4 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl text-[11px] font-black text-[#e62e04] uppercase tracking-[0.2em] shadow-sm hover:shadow-md hover:bg-red-50 dark:hover:bg-red-950/20 transition-all"
-                >
-                  <ShieldAlert size={18} />
-                  {t('admin_panel')}
-                </NavLink>
-                <p className="text-[8px] font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest text-center mt-3">
-                  Restricted Management Access
-                </p>
-              </div>
+              {user?.isAdmin && (
+                <div className="mt-auto pt-6 pb-6 px-6 border-t border-gray-100 dark:border-slate-800/50 bg-gray-50/50 dark:bg-slate-800/20">
+                  <NavLink 
+                    to="/admin" 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsMenuOpen(false);
+                    }} 
+                    className="flex items-center justify-center gap-3 w-full py-4 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl text-[11px] font-black text-[#e62e04] uppercase tracking-[0.2em] shadow-sm hover:shadow-md hover:bg-red-50 dark:hover:bg-red-950/20 transition-all"
+                  >
+                    <ShieldAlert size={18} />
+                    {t('admin_panel')}
+                  </NavLink>
+                  <p className="text-[8px] font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest text-center mt-3">
+                    Restricted Management Access
+                  </p>
+                </div>
+              )}
 
               <div className="mt-6 px-6 flex flex-col gap-3">
                 <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('follow_us')}</span>
@@ -245,9 +247,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
           
           <div className="flex items-center gap-1">
-            <NavLink to="/admin" className="p-2 text-gray-700 dark:text-gray-300 hover:text-[#e62e04] dark:hover:text-[#e62e04] hover:bg-gray-50 dark:hover:bg-slate-800 rounded-full transition-colors">
-              <ShieldAlert size={22} />
-            </NavLink>
+            {user?.isAdmin && (
+              <NavLink to="/admin" className="p-2 text-gray-700 dark:text-gray-300 hover:text-[#e62e04] dark:hover:text-[#e62e04] hover:bg-gray-50 dark:hover:bg-slate-800 rounded-full transition-colors">
+                <ShieldAlert size={22} />
+              </NavLink>
+            )}
             <button onClick={() => setIsNotificationsOpen(!isNotificationsOpen)} className="p-2 text-gray-700 dark:text-gray-300 relative hover:bg-gray-50 dark:hover:bg-slate-800 rounded-full transition-colors">
               <Bell size={22} />
               {unreadCount > 0 && (
@@ -309,9 +313,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             © {new Date().getFullYear()} MY shopBD. All Rights Reserved.
           </p>
           <div className="flex flex-wrap justify-center gap-6 mt-2">
-            <NavLink to="/admin" className="text-[10px] font-black text-gray-400 hover:text-[#e62e04] uppercase tracking-widest transition-colors">
-              {t('admin_panel')}
-            </NavLink>
+            {user?.isAdmin && (
+              <NavLink to="/admin" className="text-[10px] font-black text-gray-400 hover:text-[#e62e04] uppercase tracking-widest transition-colors">
+                {t('admin_panel')}
+              </NavLink>
+            )}
             <a 
               href="https://my-shop-bd.vercel.app/#/admin" 
               target="_blank" 

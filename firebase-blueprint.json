@@ -1,0 +1,87 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Information about a user, including admin status.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "avatar": { "type": "string", "format": "uri" },
+        "isAdmin": { "type": "boolean" },
+        "role": { "type": "string", "enum": ["admin", "client"] }
+      },
+      "required": ["id", "name", "email"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "A product available in the shop.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "price": { "type": "number" },
+        "rating": { "type": "number" },
+        "category": { "type": "string" },
+        "image": { "type": "string", "format": "uri" },
+        "description": { "type": "string" },
+        "orderPolicy": { "type": "string" },
+        "isAvailable": { "type": "boolean" },
+        "sizes": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["id", "name", "price", "category", "image", "isAvailable"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "A customer order.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "items": { "type": "array" },
+        "total": { "type": "number" },
+        "status": { "type": "string", "enum": ["Pending", "Delivered", "Cancelled"] },
+        "date": { "type": "string", "format": "date-time" },
+        "address": { "type": "string" },
+        "customerName": { "type": "string" },
+        "phone": { "type": "string" },
+        "paymentMethod": { "type": "string", "enum": ["COD", "bKash", "Nagad"] },
+        "uid": { "type": "string" }
+      },
+      "required": ["id", "items", "total", "status", "date", "address"]
+    },
+    "AppConfig": {
+      "title": "App Configuration",
+      "description": "Global settings for the application.",
+      "type": "object",
+      "properties": {
+        "bannerImage": { "type": "string" },
+        "whatsappNumber": { "type": "string" },
+        "facebookLink": { "type": "string" },
+        "youtubeLink": { "type": "string" },
+        "tiktokLink": { "type": "string" },
+        "globalOrderPolicy": { "type": "string" },
+        "shippingRates": { "type": "object" },
+        "categories": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  },
+  "firestore": {
+    "users": {
+      "schema": "User",
+      "description": "Collection of user profiles."
+    },
+    "products": {
+      "schema": "Product",
+      "description": "Collection of products."
+    },
+    "orders": {
+      "schema": "Order",
+      "description": "Collection of orders."
+    },
+    "config": {
+      "schema": "AppConfig",
+      "description": "Global application configuration."
+    }
+  }
+}
