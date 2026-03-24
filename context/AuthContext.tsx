@@ -127,9 +127,9 @@ interface AuthContextType {
   visitorCount: number;
   trackingLogs: any[];
   customApiKey: string;
-  updateCustomApiKey: (key: string) => void;
+  updateCustomApiKey: (key: string) => Promise<void>;
   twelvedataApiKey: string;
-  updateTwelvedataApiKey: (key: string) => void;
+  updateTwelvedataApiKey: (key: string) => Promise<void>;
   isAuthReady: boolean;
 }
 
@@ -188,7 +188,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         // Fetch user profile from Firestore
         const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
         if (userDoc.exists()) {
-          setUser(userDoc.data() as User);
+          const userData = userDoc.data() as User;
+          setUser({ ...userData, id: userDoc.id });
         } else {
           // Fallback if doc doesn't exist yet (should be created on login/signup)
           const isOwner = firebaseUser.email === 'mstkarimabibi45@gmail.com';
@@ -232,9 +233,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       
       unsubscribeOrders = onSnapshot(ordersQuery, (snapshot) => {
         let ordersData = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })) as Order[];
-        if (!user.isAdmin) {
-          ordersData = ordersData.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-        }
+        // Sort client-side to avoid needing composite indexes
+        ordersData = ordersData.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
         setOrders(ordersData);
       }, (error) => handleFirestoreError(error, OperationType.LIST, 'orders'));
     } else {
@@ -257,6 +257,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (data.adminUsername) setAdminUsername(data.adminUsername);
         if (data.adminPassword) setAdminPassword(data.adminPassword);
         if (data.visitorCount) setVisitorCount(data.visitorCount);
+        if (data.customApiKey) setCustomApiKey(data.customApiKey);
+        if (data.twelvedataApiKey) setTwelvedataApiKey(data.twelvedataApiKey);
       }
     }, (error) => handleFirestoreError(error, OperationType.GET, 'config/global'));
 
@@ -392,14 +394,35 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(null);
   };
 
+  const sanitizeData = (data: any): any => {
+    if (data === null || typeof data !== 'object') {
+      return data;
+    }
+    if (data instanceof Date) {
+      return data.toISOString();
+    }
+    if (Array.isArray(data)) {
+      return data.map(sanitizeData);
+    }
+    const sanitized: any = {};
+    Object.keys(data).forEach(key => {
+      const value = data[key];
+      if (value !== undefined) {
+        sanitized[key] = sanitizeData(value);
+      }
+    });
+    return sanitized;
+  };
+
   const addOrder = async (order: Order) => {
     const path = 'orders';
     try {
-      const orderWithCustomer = { 
+      const orderWithCustomer = sanitizeData({ 
         ...order, 
-        customerName: user?.name || 'Guest',
-        uid: auth.currentUser?.uid || 'guest'
-      };
+        customerName: order.customerName || user?.name || 'Guest',
+        uid: auth.currentUser?.uid || user?.id || 'guest',
+        date: new Date().toISOString()
+      });
       await addDoc(collection(db, path), orderWithCustomer);
     } catch (error) {
       handleFirestoreError(error, OperationType.CREATE, path);
@@ -418,7 +441,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const updateProduct = async (product: Product) => {
     const path = `products/${product.id}`;
     try {
-      await setDoc(doc(db, 'products', product.id), product);
+      await setDoc(doc(db, 'products', product.id), sanitizeData(product));
     } catch (error) {
       handleFirestoreError(error, OperationType.UPDATE, path);
     }
@@ -436,7 +459,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const addProduct = async (product: Product) => {
     const path = 'products';
     try {
-      await setDoc(doc(db, 'products', product.id), product);
+      await setDoc(doc(db, 'products', product.id), sanitizeData(product));
     } catch (error) {
       handleFirestoreError(error, OperationType.CREATE, path);
     }
@@ -575,12 +598,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setTrackingLogs([]);
   };
 
-  const updateCustomApiKey = (key: string) => {
-    setCustomApiKey(key);
+  const updateCustomApiKey = async (key: string) => {
+    const path = 'config/global';
+    try {
+      await updateDoc(doc(db, 'config', 'global'), { customApiKey: key });
+      setCustomApiKey(key);
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, path);
+    }
   };
 
-  const updateTwelvedataApiKey = (key: string) => {
-    setTwelvedataApiKey(key);
+  const updateTwelvedataApiKey = async (key: string) => {
+    const path = 'config/global';
+    try {
+      await updateDoc(doc(db, 'config', 'global'), { twelvedataApiKey: key });
+      setTwelvedataApiKey(key);
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, path);
+    }
   };
 
   return (

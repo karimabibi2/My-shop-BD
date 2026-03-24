@@ -205,11 +205,11 @@ const AdminPanel: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex flex-col">
             <h1 className="text-3xl font-black text-gray-900 dark:text-white uppercase italic tracking-tighter">
-              {activeTab === 'dashboard' && 'Overview'}
-              {activeTab === 'products' && 'Inventory'}
-              {activeTab === 'orders' && 'Sales Orders'}
-              {activeTab === 'categories' && 'Categories'}
-              {activeTab === 'settings' && 'Store Settings'}
+              {activeTab === 'dashboard' && t('overview')}
+              {activeTab === 'products' && t('inventory')}
+              {activeTab === 'orders' && t('sales_orders')}
+              {activeTab === 'categories' && t('categories')}
+              {activeTab === 'settings' && t('store_settings')}
             </h1>
             <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
               {t('store_management')} — {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
@@ -228,7 +228,7 @@ const AdminPanel: React.FC = () => {
             </a>
             <div className="bg-red-50 dark:bg-red-950/20 px-4 py-1.5 rounded-full border border-red-100 dark:border-red-900 flex items-center gap-2">
               <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-              <span className="text-[10px] font-black text-[#e62e04] uppercase tracking-widest">System Live</span>
+              <span className="text-[10px] font-black text-[#e62e04] uppercase tracking-widest">{t('system_live')}</span>
             </div>
           </div>
         </div>
@@ -285,7 +285,7 @@ const AdminPanel: React.FC = () => {
             <div className="flex justify-between items-center px-1">
               <h3 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-widest">{t('store_inventory')}</h3>
               <button 
-                onClick={() => setEditingProduct({ id: 'new-' + Date.now(), name: '', price: 0, category: categories[0], isAvailable: true, image: 'https://picsum.photos/400', description: '', orderPolicy: '', sizes: [] })}
+                onClick={() => setEditingProduct({ id: 'new-' + Date.now(), name: '', price: 0, rating: 5, category: categories[0], isAvailable: true, image: 'https://picsum.photos/400', description: '', orderPolicy: '', sizes: [] })}
                 className="bg-green-500 text-white p-2 rounded-lg"
               >
                 <Plus size={18} />
@@ -331,7 +331,16 @@ const AdminPanel: React.FC = () => {
                       <FileText size={12} /> {t('order_policy')}
                     </button>
                     <button 
-                      onClick={() => deleteProduct(product.id)} 
+                      onClick={async () => {
+                        if (window.confirm(t('confirm_delete_product'))) {
+                          try {
+                            await deleteProduct(product.id);
+                            alert(t('product_deleted'));
+                          } catch (e) {
+                            alert(t('failed_to_delete_product'));
+                          }
+                        }
+                      }} 
                       className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg"
                     >
                       <Trash2 size={14} />
@@ -373,14 +382,18 @@ const AdminPanel: React.FC = () => {
                       <Edit2 size={14} /> {t('edit')}
                     </button>
                     <button 
-                      onClick={() => {
+                      onClick={async () => {
                         if (category === 'Uncategorized') {
                           alert('The "Uncategorized" category cannot be deleted.');
                           return;
                         }
-                        if (window.confirm(`Are you sure you want to delete "${category}"? All products in this category will be moved to "Uncategorized".`)) {
-                          deleteCategory(category);
-                          alert(`Category "${category}" has been deleted.`);
+                        if (window.confirm(t('confirm_delete_category'))) {
+                          try {
+                            await deleteCategory(category);
+                            alert(t('category_deleted'));
+                          } catch (e) {
+                            alert(t('failed_to_delete_category'));
+                          }
                         }
                       }}
                       disabled={category === 'Uncategorized'}
@@ -411,9 +424,12 @@ const AdminPanel: React.FC = () => {
                    <div key={order.id} className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-3">
                      <div className="flex justify-between items-start">
                        <div>
-                         <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Order ID: #{order.id}</span>
+                         <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">{t('order_id')}: #{order.id}</span>
+                         <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">
+                           {new Date(order.date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                         </p>
                          <h4 className="text-xs font-black text-gray-800 dark:text-white mt-1 uppercase">{order.customerName}</h4>
-                         <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mt-1">Payment: {order.paymentMethod || 'COD'}</p>
+                         <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mt-1">{t('payment')}: {order.paymentMethod || 'COD'}</p>
                           {order.phone && (
                             <p className="text-[10px] font-bold text-[#e62e04] mt-0.5">{order.phone}</p>
                           )}
@@ -425,7 +441,7 @@ const AdminPanel: React.FC = () => {
 
                      {/* Ordered Product Images */}
                      <div className="flex flex-col gap-1.5">
-                       <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Ordered Items:</span>
+                       <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">{t('ordered_items')}:</span>
                        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
                          {order.items.map((item, idx) => (
                            <div key={idx} className="relative flex-shrink-0 group">
@@ -462,14 +478,28 @@ const AdminPanel: React.FC = () => {
                         <div className="flex gap-2">
                           {order.status === 'Pending' && (
                             <button 
-                              onClick={() => updateOrderStatus(order.id, 'Delivered')}
+                              onClick={async () => {
+                                try {
+                                  await updateOrderStatus(order.id, 'Delivered');
+                                  alert(t('order_delivered'));
+                                } catch (e) {
+                                  alert(t('failed_to_update_order'));
+                                }
+                              }}
                               className="bg-green-500 text-white p-1.5 rounded-lg text-[8px] font-black uppercase flex items-center gap-1"
                             >
                               <CheckCircle size={12} /> Mark Delivered
                             </button>
                           )}
                           <button 
-                            onClick={() => updateOrderStatus(order.id, 'Cancelled')}
+                            onClick={async () => {
+                              try {
+                                await updateOrderStatus(order.id, 'Cancelled');
+                                alert(t('order_cancelled'));
+                              } catch (e) {
+                                alert(t('failed_to_update_order'));
+                              }
+                            }}
                             className="text-red-500 p-1.5 rounded-lg text-[8px] font-black uppercase"
                           >
                             Cancel
@@ -489,23 +519,27 @@ const AdminPanel: React.FC = () => {
             <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
               <div className="flex items-center gap-2">
                 <MessageCircle size={18} className="text-[#25D366]" />
-                <h4 className="text-[11px] font-black uppercase tracking-widest">WhatsApp Settings</h4>
+                <h4 className="text-[11px] font-black uppercase tracking-widest">{t('whatsapp_settings')}</h4>
               </div>
               
               <div className="flex flex-col gap-1.5">
-                <label className="text-[9px] font-black text-gray-400 uppercase">WhatsApp Number (with country code)</label>
+                <label className="text-[9px] font-black text-gray-400 uppercase">{t('whatsapp_number_label')}</label>
                 <div className="flex gap-2">
                   <input 
                     type="text" 
                     value={newWhatsappNumber}
                     onChange={(e) => setNewWhatsappNumber(e.target.value)}
                     className="flex-1 bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-[10px] font-bold dark:text-white"
-                    placeholder="e.g. 8801304881109"
+                    placeholder={t('whatsapp_number_placeholder')}
                   />
                   <button 
-                    onClick={() => {
-                      updateWhatsappNumber(newWhatsappNumber);
-                      alert(t('whatsapp_updated'));
+                    onClick={async () => {
+                      try {
+                        await updateWhatsappNumber(newWhatsappNumber);
+                        alert(t('whatsapp_updated'));
+                      } catch (e) {
+                        alert(t('failed_to_update_settings'));
+                      }
                     }}
                     className="bg-[#25D366] text-white px-4 rounded-xl text-[10px] font-black uppercase tracking-widest"
                   >
@@ -513,7 +547,7 @@ const AdminPanel: React.FC = () => {
                   </button>
                 </div>
                 <p className="text-[8px] text-gray-400 font-bold uppercase leading-tight px-1">
-                  This number will be used for all WhatsApp contact buttons on the site.
+                  {t('whatsapp_number_desc')}
                 </p>
               </div>
             </div>
@@ -564,9 +598,13 @@ const AdminPanel: React.FC = () => {
               </div>
 
               <button 
-                onClick={() => {
-                  updateShippingRates(rates);
-                  alert(t('shipping_rates_updated'));
+                onClick={async () => {
+                  try {
+                    await updateShippingRates(rates);
+                    alert(t('shipping_rates_updated'));
+                  } catch (e) {
+                    alert(t('failed_to_update_settings'));
+                  }
                 }}
                 className="w-full bg-[#e62e04] text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest mt-2 flex items-center justify-center gap-2"
               >
@@ -595,9 +633,13 @@ const AdminPanel: React.FC = () => {
                       placeholder="https://facebook.com/yourpage"
                     />
                     <button 
-                      onClick={() => {
-                        updateFacebookLink(newFacebookLink);
-                        alert(t('facebook_link_updated'));
+                      onClick={async () => {
+                        try {
+                          await updateFacebookLink(newFacebookLink);
+                          alert(t('facebook_link_updated'));
+                        } catch (e) {
+                          alert(t('failed_to_update_settings'));
+                        }
                       }}
                       className="bg-blue-600 text-white px-3 rounded-xl text-[10px] font-black uppercase"
                     >
@@ -620,9 +662,13 @@ const AdminPanel: React.FC = () => {
                       placeholder="https://youtube.com/@yourchannel"
                     />
                     <button 
-                      onClick={() => {
-                        updateYoutubeLink(newYoutubeLink);
-                        alert(t('youtube_link_updated'));
+                      onClick={async () => {
+                        try {
+                          await updateYoutubeLink(newYoutubeLink);
+                          alert(t('youtube_link_updated'));
+                        } catch (e) {
+                          alert(t('failed_to_update_settings'));
+                        }
                       }}
                       className="bg-red-600 text-white px-3 rounded-xl text-[10px] font-black uppercase"
                     >
@@ -647,9 +693,13 @@ const AdminPanel: React.FC = () => {
                       placeholder="https://tiktok.com/@yourprofile"
                     />
                     <button 
-                      onClick={() => {
-                        updateTiktokLink(newTiktokLink);
-                        alert(t('tiktok_link_updated'));
+                      onClick={async () => {
+                        try {
+                          await updateTiktokLink(newTiktokLink);
+                          alert(t('tiktok_link_updated'));
+                        } catch (e) {
+                          alert(t('failed_to_update_settings'));
+                        }
                       }}
                       className="bg-black text-white px-3 rounded-xl text-[10px] font-black uppercase"
                     >
@@ -686,7 +736,7 @@ const AdminPanel: React.FC = () => {
               </div>
               <div className="flex flex-col gap-3">
                 <p className="text-[9px] font-bold text-gray-400 uppercase leading-tight">
-                  Manage your administrative access and security settings.
+                  {t('security_desc')}
                 </p>
                 
                 <div className="flex flex-col gap-3 mt-2">
@@ -697,7 +747,7 @@ const AdminPanel: React.FC = () => {
                       value={newAdminUser}
                       onChange={(e) => setNewAdminUser(e.target.value)}
                       className="bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-[10px] font-bold dark:text-white"
-                      placeholder="Admin Username"
+                      placeholder={t('admin_username')}
                     />
                   </div>
                   <div className="flex flex-col gap-1">
@@ -707,16 +757,20 @@ const AdminPanel: React.FC = () => {
                       value={newAdminPass}
                       onChange={(e) => setNewAdminPass(e.target.value)}
                       className="bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-[10px] font-bold dark:text-white"
-                      placeholder="Admin Password"
+                      placeholder={t('admin_password')}
                     />
                   </div>
                   <button 
-                    onClick={() => {
-                      if (newAdminUser.trim() && newAdminPass.trim()) {
-                        updateAdminCredentials(newAdminUser, newAdminPass);
-                        alert(t('admin_credentials_updated'));
-                      } else {
-                        alert(t('empty_credentials_error'));
+                    onClick={async () => {
+                      try {
+                        if (newAdminUser.trim() && newAdminPass.trim()) {
+                          await updateAdminCredentials(newAdminUser, newAdminPass);
+                          alert(t('admin_credentials_updated'));
+                        } else {
+                          alert(t('empty_credentials_error'));
+                        }
+                      } catch (e) {
+                        alert(t('failed_to_update_settings'));
                       }
                     }}
                     className="bg-[#e62e04] text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
@@ -756,7 +810,7 @@ const AdminPanel: React.FC = () => {
                     }}
                   />
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest bg-white/80 dark:bg-slate-900/80 px-2 py-1 rounded">Preview</span>
+                    <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest bg-white/80 dark:bg-slate-900/80 px-2 py-1 rounded">{t('preview')}</span>
                   </div>
                 </div>
 
@@ -771,9 +825,13 @@ const AdminPanel: React.FC = () => {
                       placeholder="https://example.com/banner.jpg"
                     />
                     <button 
-                      onClick={() => {
-                        updateBannerImage(newBannerUrl);
-                        alert(t('banner_updated'));
+                      onClick={async () => {
+                        try {
+                          await updateBannerImage(newBannerUrl);
+                          alert(t('banner_updated'));
+                        } catch (e) {
+                          alert(t('failed_to_update_settings'));
+                        }
                       }}
                       className="bg-[#e62e04] text-white px-4 rounded-xl text-[10px] font-black uppercase tracking-widest"
                     >
@@ -783,25 +841,25 @@ const AdminPanel: React.FC = () => {
                 </div>
                 
                 <div className="flex flex-col gap-2">
-                  <span className="text-[8px] font-bold text-gray-400 uppercase">Quick Presets:</span>
+                  <span className="text-[8px] font-bold text-gray-400 uppercase">{t('quick_presets')}:</span>
                   <div className="flex gap-2">
                     <button 
                       onClick={() => setNewBannerUrl('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&q=80')}
                       className="text-[8px] font-black text-[#e62e04] uppercase border border-red-100 dark:border-red-900 px-2 py-1 rounded hover:bg-red-50"
                     >
-                      Sale
+                      {t('sale')}
                     </button>
                     <button 
                       onClick={() => setNewBannerUrl('https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80')}
                       className="text-[8px] font-black text-[#e62e04] uppercase border border-red-100 dark:border-red-900 px-2 py-1 rounded hover:bg-red-50"
                     >
-                      Store
+                      {t('store')}
                     </button>
                     <button 
                       onClick={() => setNewBannerUrl('https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80')}
                       className="text-[8px] font-black text-[#e62e04] uppercase border border-red-100 dark:border-red-900 px-2 py-1 rounded hover:bg-red-50"
                     >
-                      Fashion
+                      {t('fashion')}
                     </button>
                   </div>
                 </div>
@@ -829,9 +887,13 @@ const AdminPanel: React.FC = () => {
                       placeholder={t('order_policy_placeholder')}
                     />
                     <button 
-                      onClick={() => {
-                        updateGlobalOrderPolicy(newGlobalPolicy);
-                        alert(t('update_success'));
+                      onClick={async () => {
+                        try {
+                          await updateGlobalOrderPolicy(newGlobalPolicy);
+                          alert(t('update_success'));
+                        } catch (e) {
+                          alert(t('failed_to_update_settings'));
+                        }
                       }}
                       className="bg-[#e62e04] text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
                     >
@@ -934,9 +996,13 @@ const AdminPanel: React.FC = () => {
                   </div>
                   
                   <button 
-                    onClick={() => {
-                      updateTrackingConfig(localTracking);
-                      alert(t('tracking_updated'));
+                    onClick={async () => {
+                      try {
+                        await updateTrackingConfig(localTracking);
+                        alert(t('tracking_updated'));
+                      } catch (e) {
+                        alert(t('failed_to_update_settings'));
+                      }
                     }}
                     className="bg-[#e62e04] text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
                   >
@@ -983,9 +1049,13 @@ const AdminPanel: React.FC = () => {
                         placeholder="Enter your API key here..."
                       />
                       <button 
-                        onClick={() => {
-                          updateCustomApiKey(localApiKey);
-                          alert(t('api_key_saved'));
+                        onClick={async () => {
+                          try {
+                            await updateCustomApiKey(localApiKey);
+                            alert(t('api_key_saved'));
+                          } catch (e) {
+                            alert(t('failed_to_update_settings'));
+                          }
                         }}
                         className="bg-[#e62e04] text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2"
                       >
@@ -1005,9 +1075,13 @@ const AdminPanel: React.FC = () => {
                         placeholder="Enter Twelvedata API key..."
                       />
                       <button 
-                        onClick={() => {
-                          updateTwelvedataApiKey(localTwelvedataKey);
-                          alert(t('api_key_saved'));
+                        onClick={async () => {
+                          try {
+                            await updateTwelvedataApiKey(localTwelvedataKey);
+                            alert(t('api_key_saved'));
+                          } catch (e) {
+                            alert(t('failed_to_update_settings'));
+                          }
                         }}
                         className="bg-[#e62e04] text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2"
                       >
@@ -1044,7 +1118,7 @@ const AdminPanel: React.FC = () => {
                       <span className="text-[9px] font-black text-gray-400 uppercase">Total Sales</span>
                     </div>
                     <p className="text-xl font-black">
-                      {orders.filter(o => o.status === 'delivered').length}
+                      {orders.filter(o => o.status === 'Delivered').length}
                     </p>
                   </div>
                   <div className="bg-gray-50 dark:bg-slate-800 p-4 rounded-xl">
@@ -1062,7 +1136,7 @@ const AdminPanel: React.FC = () => {
                       <span className="text-[9px] font-black text-gray-400 uppercase">Total Revenue</span>
                     </div>
                     <p className="text-xl font-black">
-                      ৳{orders.filter(o => o.status === 'delivered').reduce((acc, curr) => acc + curr.total, 0)}
+                      ৳{orders.filter(o => o.status === 'Delivered').reduce((acc, curr) => acc + curr.total, 0)}
                     </p>
                   </div>
                 </div>
@@ -1165,6 +1239,18 @@ const AdminPanel: React.FC = () => {
                       >
                         {categories.map(c => <option key={c} value={c}>{c}</option>)}
                       </select>
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[9px] font-black text-gray-400 uppercase">{t('rating')} (1-5)</label>
+                      <input 
+                        type="number" 
+                        min="1"
+                        max="5"
+                        step="0.1"
+                        value={editingProduct.rating}
+                        onChange={(e) => setEditingProduct({...editingProduct, rating: parseFloat(e.target.value)})}
+                        className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-xs font-bold dark:text-white"
+                      />
                     </div>
                   </div>
 
@@ -1294,13 +1380,19 @@ const AdminPanel: React.FC = () => {
                   </div>
 
                   <button 
-                    onClick={() => {
-                      if (editingProduct.id.toString().startsWith('new')) {
-                        addProduct({ ...editingProduct, id: 'prod-' + Date.now() });
-                      } else {
-                        updateProduct(editingProduct);
+                    onClick={async () => {
+                      try {
+                        if (editingProduct.id.toString().startsWith('new')) {
+                          await addProduct({ ...editingProduct, id: 'prod-' + Date.now() });
+                          alert(t('product_added'));
+                        } else {
+                          await updateProduct(editingProduct);
+                          alert(t('product_updated'));
+                        }
+                        setEditingProduct(null);
+                      } catch (e) {
+                        alert(t('failed_to_save_product'));
                       }
-                      setEditingProduct(null);
                     }}
                     className="w-full bg-[#e62e04] text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 mt-4 text-xs"
                   >
@@ -1333,11 +1425,16 @@ const AdminPanel: React.FC = () => {
                   </div>
 
                   <button 
-                    onClick={() => {
+                    onClick={async () => {
                       if (newCategoryName.trim()) {
-                        addCategory(newCategoryName.trim());
-                        setNewCategoryName('');
-                        setIsAddingCategory(false);
+                        try {
+                          await addCategory(newCategoryName.trim());
+                          alert(t('category_added'));
+                          setNewCategoryName('');
+                          setIsAddingCategory(false);
+                        } catch (e) {
+                          alert(t('failed_to_add_category'));
+                        }
                       }
                     }}
                     className="w-full bg-green-500 text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-green-100 mt-2 text-xs"
@@ -1375,9 +1472,14 @@ const AdminPanel: React.FC = () => {
                   </p>
 
                   <button 
-                    onClick={() => {
-                      updateCategory(editingCategory.oldName, editingCategory.newName);
-                      setEditingCategory(null);
+                    onClick={async () => {
+                      try {
+                        await updateCategory(editingCategory.oldName, editingCategory.newName);
+                        alert(t('category_updated'));
+                        setEditingCategory(null);
+                      } catch (e) {
+                        alert(t('failed_to_update_category'));
+                      }
                     }}
                     className="w-full bg-[#e62e04] text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 mt-2 text-xs"
                   >

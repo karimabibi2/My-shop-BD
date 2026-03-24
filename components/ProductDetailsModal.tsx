@@ -192,7 +192,7 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ product, onCl
                       className="flex flex-col gap-2"
                     >
                       <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
-                        {product.description || "No description available for this product."}
+                        {product.description || t('no_description')}
                       </p>
                     </motion.div>
                   )}

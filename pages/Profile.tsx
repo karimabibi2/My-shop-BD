@@ -28,7 +28,7 @@ const Profile: React.FC = () => {
     setAuthError(null);
     
     if (!email || !password) {
-      setAuthError('Please enter both email and password.');
+      setAuthError(t('enter_email_password'));
       return;
     }
 
@@ -41,22 +41,22 @@ const Profile: React.FC = () => {
       }
     } catch (error: any) {
       console.error("Auth error:", error);
-      let message = "প্রবেশ করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।";
+      let message = t('auth_error_default');
       
       const errorCode = error.code || (error.message && error.message.includes('auth/') ? error.message.match(/auth\/[a-z-]+/)?.[0] : null);
 
       if (errorCode === 'auth/email-already-in-use') {
-        message = "এই ইমেলটি দিয়ে ইতিমধ্যে একটি অ্যাকাউন্ট খোলা আছে। দয়া করে লগইন করুন।";
+        message = t('auth_error_email_in_use');
       } else if (errorCode === 'auth/invalid-email') {
-        message = "ইমেল ফরম্যাটটি সঠিক নয়।";
+        message = t('auth_error_invalid_email');
       } else if (errorCode === 'auth/weak-password') {
-        message = "পাসওয়ার্ডটি অন্তত ৬ অক্ষরের হতে হবে।";
+        message = t('auth_error_weak_password');
       } else if (errorCode === 'auth/user-not-found') {
-        message = "এই ইমেল দিয়ে কোনো অ্যাকাউন্ট পাওয়া যায়নি।";
+        message = t('auth_error_user_not_found');
       } else if (errorCode === 'auth/wrong-password') {
-        message = "ভুল পাসওয়ার্ড। আবার চেষ্টা করুন।";
+        message = t('auth_error_wrong_password');
       } else if (errorCode === 'auth/too-many-requests') {
-        message = "অনেকবার ভুল চেষ্টা করা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।";
+        message = t('auth_error_too_many_requests');
       } else if (error.message) {
         try {
           const parsed = JSON.parse(error.message);
@@ -79,7 +79,7 @@ const Profile: React.FC = () => {
       await signInWithGoogle();
     } catch (error: any) {
       console.error("Google Sign-in error:", error);
-      setAuthError(error.message || "Google Sign-in failed");
+      setAuthError(error.message || t('google_signin_failed'));
     } finally {
       setIsLoading(false);
     }
@@ -87,17 +87,17 @@ const Profile: React.FC = () => {
 
   const handleForgotPassword = async () => {
     if (!email) {
-      setAuthError("পাসওয়ার্ড রিসেট করতে দয়া করে আপনার ইমেল দিন।");
+      setAuthError(t('reset_password_email_required'));
       return;
     }
     setIsLoading(true);
     setAuthError(null);
     try {
       await resetPassword(email);
-      setAuthError("পাসওয়ার্ড রিসেট করার লিঙ্ক আপনার ইমেলে পাঠানো হয়েছে।");
+      setAuthError(t('reset_password_success'));
     } catch (error: any) {
       console.error("Reset password error:", error);
-      setAuthError("পাসওয়ার্ড রিসেট করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।");
+      setAuthError(t('reset_password_error'));
     } finally {
       setIsLoading(false);
     }
@@ -317,7 +317,7 @@ const Profile: React.FC = () => {
         {/* Admin Access - Only for Admins */}
         {user.isAdmin && (
           <div className="flex flex-col gap-3">
-            <h4 className="text-[10px] font-black text-red-500 dark:text-red-400 uppercase tracking-[0.2em] ml-1 mb-1">Administrative Access</h4>
+            <h4 className="text-[10px] font-black text-red-500 dark:text-red-400 uppercase tracking-[0.2em] ml-1 mb-1">{t('administrative_access')}</h4>
             <button 
               onClick={() => navigate('/admin')}
               className="flex items-center justify-between p-5 bg-gradient-to-r from-[#e62e04] to-red-500 text-white rounded-2xl shadow-lg shadow-red-100 dark:shadow-none hover:scale-[1.02] transition-all border border-red-400"
@@ -328,7 +328,7 @@ const Profile: React.FC = () => {
                 </div>
                 <div className="flex flex-col items-start">
                   <span className="font-black text-[15px] uppercase italic tracking-tighter">{t('admin_panel')}</span>
-                  <span className="text-[9px] font-bold opacity-80 uppercase tracking-widest">Manage Store & Settings</span>
+                  <span className="text-[9px] font-bold opacity-80 uppercase tracking-widest">{t('manage_store_settings')}</span>
                 </div>
               </div>
               <ArrowRight size={20} />
@@ -361,7 +361,7 @@ const Profile: React.FC = () => {
                 </div>
                 <div className="flex flex-col items-start">
                   <span className="font-bold text-[13px] text-gray-800 dark:text-gray-200">{t('admin_panel')}</span>
-                  <span className="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Management Access</span>
+                  <span className="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t('management_access')}</span>
                 </div>
               </div>
               <ChevronRight size={18} className="text-gray-300 dark:text-gray-600" />

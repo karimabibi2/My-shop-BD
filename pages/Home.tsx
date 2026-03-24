@@ -77,10 +77,10 @@ const Home: React.FC = () => {
               className="w-full h-full object-cover opacity-30"
             />
             <div className="absolute inset-0 flex flex-col justify-center px-6 text-white">
-              <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-80 mb-1">Premium Collection</span>
+              <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-80 mb-1">{t('premium_collection')}</span>
               <h2 className="text-2xl font-black italic tracking-tighter leading-none mb-2 text-white">MY shopBD</h2>
               <div className="flex items-center gap-2">
-                <span className="bg-white text-[#e62e04] text-[9px] font-bold px-2 py-0.5 rounded-full uppercase">Best Prices</span>
+                <span className="bg-white text-[#e62e04] text-[9px] font-bold px-2 py-0.5 rounded-full uppercase">{t('best_prices')}</span>
               </div>
             </div>
           </div>
@@ -90,7 +90,7 @@ const Home: React.FC = () => {
         {(activeCategory !== 'All' || searchQuery) && (
           <div className="flex items-center justify-between bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 px-4 py-2.5 rounded-xl shadow-sm">
             <div className="flex items-center gap-2 overflow-hidden">
-              <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest whitespace-nowrap">Filter:</span>
+              <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest whitespace-nowrap">{t('filter')}</span>
               <div className="flex gap-1 overflow-x-auto no-scrollbar">
                 {activeCategory !== 'All' && (
                   <span className="bg-red-50 dark:bg-red-950/30 text-[#e62e04] text-[10px] font-black px-2 py-0.5 rounded-md border border-red-100 dark:border-red-900 uppercase whitespace-nowrap">
@@ -108,7 +108,7 @@ const Home: React.FC = () => {
               onClick={() => { setActiveCategory('All'); setSearchQuery(''); }} 
               className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase hover:text-[#e62e04] ml-2"
             >
-              Clear
+              {t('clear')}
             </button>
           </div>
         )}
@@ -116,10 +116,10 @@ const Home: React.FC = () => {
         {/* Grid Title */}
         <div className="flex justify-between items-center px-1">
           <h3 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-widest">
-            {activeCategory === 'All' ? 'Latest Products' : activeCategory}
+            {activeCategory === 'All' ? t('latest_products') : activeCategory}
           </h3>
           <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
-            {filteredProducts.length} Items
+            {filteredProducts.length} {t('items')}
           </span>
         </div>
 
@@ -137,12 +137,12 @@ const Home: React.FC = () => {
               <div className="w-16 h-16 bg-gray-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300 dark:text-gray-600">
                 <Search size={32} />
               </div>
-              <p className="text-sm font-bold text-gray-500 dark:text-gray-400">No items matched your criteria.</p>
+              <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('no_items_matched')}</p>
               <button 
                 onClick={() => { setActiveCategory('All'); setSearchQuery(''); }} 
                 className="mt-4 text-[#e62e04] text-[10px] font-black uppercase tracking-widest border border-red-100 dark:border-red-900 px-4 py-2 rounded-full hover:bg-red-50 dark:hover:bg-red-950/20"
               >
-                Reset Filter
+                {t('reset_filter')}
               </button>
             </div>
           )}

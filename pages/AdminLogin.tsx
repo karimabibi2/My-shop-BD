@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { Lock, User, ShieldAlert, ArrowLeft } from 'lucide-react';
 
 const AdminLogin: React.FC = () => {
@@ -9,6 +10,7 @@ const AdminLogin: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { adminLogin, user } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   React.useEffect(() => {
@@ -25,7 +27,7 @@ const AdminLogin: React.FC = () => {
     if (success) {
       navigate('/admin');
     } else {
-      setError('Invalid administrator credentials');
+      setError(t('invalid_admin_credentials'));
     }
   };
 
@@ -36,8 +38,8 @@ const AdminLogin: React.FC = () => {
           <div className="w-16 h-16 bg-red-50 dark:bg-red-950/20 text-[#e62e04] rounded-2xl flex items-center justify-center mb-4 border border-red-100 dark:border-red-900/30">
             <ShieldAlert size={32} />
           </div>
-          <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase italic tracking-tighter">Admin Access</h2>
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Restricted Management Area</p>
+          <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase italic tracking-tighter">{t('admin_access')}</h2>
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">{t('restricted_management_area')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
@@ -49,7 +51,7 @@ const AdminLogin: React.FC = () => {
           )}
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Username</label>
+            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">{t('username')}</label>
             <div className="relative">
               <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
               <input 
@@ -64,7 +66,7 @@ const AdminLogin: React.FC = () => {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Password</label>
+            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">{t('password')}</label>
             <div className="relative">
               <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
               <input 
@@ -82,7 +84,7 @@ const AdminLogin: React.FC = () => {
             type="submit"
             className="w-full bg-[#e62e04] text-white py-4 rounded-2xl font-black uppercase tracking-widest shadow-lg shadow-red-100 dark:shadow-none active:scale-[0.98] transition-all mt-4 text-xs"
           >
-            Authenticate
+            {t('authenticate')}
           </button>
 
           <button 
@@ -91,13 +93,13 @@ const AdminLogin: React.FC = () => {
             className="flex items-center justify-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest mt-2 hover:text-gray-600 transition-colors"
           >
             <ArrowLeft size={14} />
-            Back to Store
+            {t('back_to_store')}
           </button>
         </form>
       </div>
       
       <div className="mt-8 text-center">
-        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.3em]">Powered by MY shopBD Engine</p>
+        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.3em]">{t('powered_by')}</p>
       </div>
     </div>
   );

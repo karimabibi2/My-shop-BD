@@ -56,7 +56,9 @@ const Orders: React.FC = () => {
                   </div>
                   <div>
                     <h4 className="text-[11px] font-black text-gray-800 dark:text-white uppercase tracking-wider">{t('order_id')}{order.id}</h4>
-                    <p className="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-[0.2em]">{order.date}</p>
+                    <p className="text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-[0.2em]">
+                      {new Date(order.date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                    </p>
                   </div>
                 </div>
                 <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${

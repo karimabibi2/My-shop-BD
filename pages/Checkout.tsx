@@ -69,7 +69,7 @@ const Checkout: React.FC = () => {
 
   const totalPayable = checkoutSubtotal + currentShipping;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     let finalAddressString = "";
@@ -100,16 +100,21 @@ const Checkout: React.FC = () => {
       paymentMethod
     };
 
-    addOrder(orderData);
-    trackingService.trackPurchase(orderData.id, orderData.total, orderData.items);
-    
-    setIsOrdered(true);
-    setTimeout(() => {
-      if (!buyNowProduct) {
-        clearCart();
-      }
-      navigate('/orders');
-    }, 2500);
+    try {
+      await addOrder(orderData);
+      trackingService.trackPurchase(orderData.id, orderData.total, orderData.items);
+      
+      setIsOrdered(true);
+      setTimeout(() => {
+        if (!buyNowProduct) {
+          clearCart();
+        }
+        navigate('/orders');
+      }, 2500);
+    } catch (error) {
+      console.error("Failed to place order:", error);
+      alert("Failed to place order. Please try again.");
+    }
   };
 
   if (isOrdered) {

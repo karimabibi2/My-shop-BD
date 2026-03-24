@@ -156,7 +156,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     {t('admin_panel')}
                   </NavLink>
                   <p className="text-[8px] font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest text-center mt-3">
-                    Restricted Management Access
+                    {t('restricted_access')}
                   </p>
                 </div>
               )}
@@ -310,7 +310,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <span className="text-[10px] font-bold text-gray-900 dark:text-white tracking-[0.2em] uppercase">BD</span>
           </div>
           <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest text-center">
-            © {new Date().getFullYear()} MY shopBD. All Rights Reserved.
+            © {new Date().getFullYear()} MY shopBD. {t('all_rights_reserved')}
           </p>
           <div className="flex flex-wrap justify-center gap-6 mt-2">
             {user?.isAdmin && (
