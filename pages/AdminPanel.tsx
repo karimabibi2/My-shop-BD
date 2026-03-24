@@ -8,8 +8,9 @@ import {
   XCircle, ArrowLeft, Save, Globe, Truck, ShieldAlert,
   Image as ImageIcon, Upload, Link as LinkIcon,
   Layers, MessageCircle, Youtube, Facebook, Lock, Key, FileText,
-  Users, Activity, Terminal
+  Users, Activity, Terminal, RefreshCw
 } from 'lucide-react';
+import { resizeImage } from '../utils/imageUtils';
 import { 
   LineChart, Line, XAxis, YAxis, CartesianGrid, 
   Tooltip, ResponsiveContainer,
@@ -27,6 +28,7 @@ const AdminPanel: React.FC = () => {
     user, orders, allProducts, updateOrderStatus, 
     updateProduct, deleteProduct, addProduct, logout,
     shippingRates, updateShippingRates, categories, updateCategory, deleteCategory, addCategory,
+    syncProducts, syncCategories,
     bannerImage, updateBannerImage, whatsappNumber, updateWhatsappNumber,
     facebookLink, updateFacebookLink, youtubeLink, updateYoutubeLink, tiktokLink, updateTiktokLink,
     adminUsername, adminPassword, updateAdminCredentials,
@@ -158,8 +160,15 @@ const AdminPanel: React.FC = () => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setEditingProduct({ ...editingProduct, image: reader.result as string });
+      reader.onloadend = async () => {
+        const base64 = reader.result as string;
+        try {
+          const resized = await resizeImage(base64, 400, 400);
+          setEditingProduct({ ...editingProduct, image: resized });
+        } catch (error) {
+          console.error("Image resize failed:", error);
+          setEditingProduct({ ...editingProduct, image: base64 });
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -265,6 +274,69 @@ const AdminPanel: React.FC = () => {
               <h3 className="text-lg font-black text-amber-500 mt-1">{stats.pendingOrders} {t('orders')}</h3>
             </div>
 
+            {/* Sales Chart */}
+            <div className="col-span-1 sm:col-span-2 bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h4 className="text-[11px] font-black uppercase tracking-widest text-gray-900 dark:text-white">{t('sales_overview')}</h4>
+                  <p className="text-[9px] text-gray-400 font-bold uppercase mt-1">{t('last_7_days')}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-[#e62e04] rounded-full" />
+                  <span className="text-[9px] font-black uppercase tracking-widest text-gray-500">{t('revenue')}</span>
+                </div>
+              </div>
+              
+              <div className="h-64 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={[
+                    { name: t('mon'), sales: 4000 },
+                    { name: t('tue'), sales: 3000 },
+                    { name: t('wed'), sales: 2000 },
+                    { name: t('thu'), sales: 2780 },
+                    { name: t('fri'), sales: 1890 },
+                    { name: t('sat'), sales: 2390 },
+                    { name: t('sun'), sales: 3490 },
+                  ]}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis 
+                      dataKey="name" 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }}
+                      dy={10}
+                    />
+                    <YAxis 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }}
+                      tickFormatter={(value) => `৳${value}`}
+                    />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: '#1e293b', 
+                        border: 'none', 
+                        borderRadius: '12px',
+                        color: '#fff',
+                        fontSize: '10px',
+                        fontWeight: '900',
+                        textTransform: 'uppercase'
+                      }}
+                      itemStyle={{ color: '#fff' }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="sales" 
+                      stroke="#e62e04" 
+                      strokeWidth={4} 
+                      dot={{ r: 4, fill: '#e62e04', strokeWidth: 2, stroke: '#fff' }}
+                      activeDot={{ r: 6, strokeWidth: 0 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
             <div className="col-span-1 sm:col-span-2 bg-gradient-to-r from-[#e62e04] to-red-400 p-5 rounded-2xl shadow-lg text-white">
               <h4 className="text-sm font-black uppercase italic mb-1">{t('quick_action')}</h4>
               <p className="text-[11px] opacity-90 mb-4">{t('add_trending_desc')}</p>
@@ -336,8 +408,8 @@ const AdminPanel: React.FC = () => {
                           try {
                             await deleteProduct(product.id);
                             alert(t('product_deleted'));
-                          } catch (e) {
-                            alert(t('failed_to_delete_product'));
+                          } catch (e: any) {
+                            alert(e.message || t('failed_to_delete_product'));
                           }
                         }
                       }} 
@@ -549,6 +621,42 @@ const AdminPanel: React.FC = () => {
                 <p className="text-[8px] text-gray-400 font-bold uppercase leading-tight px-1">
                   {t('whatsapp_number_desc')}
                 </p>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                <RefreshCw size={18} className="text-blue-500" />
+                <h4 className="text-[11px] font-black uppercase tracking-widest">{t('data_management')}</h4>
+              </div>
+              <div className="flex flex-col gap-3">
+                <p className="text-[9px] text-gray-400 font-bold uppercase leading-tight px-1">
+                  {t('sync_data_desc')}
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  <button 
+                    onClick={() => {
+                      if (window.confirm(t('confirm_sync_products'))) {
+                        syncProducts();
+                        alert(t('products_synced'));
+                      }
+                    }}
+                    className="flex items-center justify-center gap-2 py-3 bg-blue-50 dark:bg-blue-950/20 text-blue-600 rounded-xl text-[10px] font-black uppercase tracking-widest border border-blue-100 dark:border-blue-900/30"
+                  >
+                    <RefreshCw size={14} /> {t('sync_products')}
+                  </button>
+                  <button 
+                    onClick={() => {
+                      if (window.confirm(t('confirm_sync_categories'))) {
+                        syncCategories();
+                        alert(t('categories_synced'));
+                      }
+                    }}
+                    className="flex items-center justify-center gap-2 py-3 bg-orange-50 dark:bg-orange-950/20 text-orange-600 rounded-xl text-[10px] font-black uppercase tracking-widest border border-orange-100 dark:border-orange-900/30"
+                  >
+                    <RefreshCw size={14} /> {t('sync_categories')}
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -1097,10 +1205,10 @@ const AdminPanel: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Activity size={18} className="text-[#e62e04]" />
-                    <h4 className="text-[11px] font-black uppercase tracking-widest">Conversion Dashboard</h4>
+                    <h4 className="text-[11px] font-black uppercase tracking-widest">{t('conversion_dashboard')}</h4>
                   </div>
                   <div className="bg-green-50 dark:bg-green-900/20 text-green-600 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest">
-                    Live
+                    {t('live')}
                   </div>
                 </div>
 
@@ -1108,14 +1216,14 @@ const AdminPanel: React.FC = () => {
                   <div className="bg-gray-50 dark:bg-slate-800 p-4 rounded-xl">
                     <div className="flex items-center gap-2 mb-1">
                       <Users size={14} className="text-blue-500" />
-                      <span className="text-[9px] font-black text-gray-400 uppercase">Total Visitors</span>
+                      <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{t('total_visitors')}</span>
                     </div>
                     <p className="text-xl font-black">{visitorCount}</p>
                   </div>
                   <div className="bg-gray-50 dark:bg-slate-800 p-4 rounded-xl">
                     <div className="flex items-center gap-2 mb-1">
                       <ShoppingCart size={14} className="text-orange-500" />
-                      <span className="text-[9px] font-black text-gray-400 uppercase">Total Sales</span>
+                      <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{t('total_sales')}</span>
                     </div>
                     <p className="text-xl font-black">
                       {orders.filter(o => o.status === 'Delivered').length}
@@ -1124,7 +1232,7 @@ const AdminPanel: React.FC = () => {
                   <div className="bg-gray-50 dark:bg-slate-800 p-4 rounded-xl">
                     <div className="flex items-center gap-2 mb-1">
                       <BarChart3 size={14} className="text-purple-500" />
-                      <span className="text-[9px] font-black text-gray-400 uppercase">Conv. Rate</span>
+                      <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{t('conv_rate')}</span>
                     </div>
                     <p className="text-xl font-black">
                       {visitorCount > 0 ? ((orders.length / visitorCount) * 100).toFixed(1) : 0}%
@@ -1133,7 +1241,7 @@ const AdminPanel: React.FC = () => {
                   <div className="bg-gray-50 dark:bg-slate-800 p-4 rounded-xl">
                     <div className="flex items-center gap-2 mb-1">
                       <Package size={14} className="text-green-500" />
-                      <span className="text-[9px] font-black text-gray-400 uppercase">Total Revenue</span>
+                      <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{t('total_revenue')}</span>
                     </div>
                     <p className="text-xl font-black">
                       ৳{orders.filter(o => o.status === 'Delivered').reduce((acc, curr) => acc + curr.total, 0)}
@@ -1147,7 +1255,7 @@ const AdminPanel: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Terminal size={18} className="text-[#e62e04]" />
-                    <h4 className="text-[11px] font-black uppercase tracking-widest">Pixel Debug Tool</h4>
+                    <h4 className="text-[11px] font-black uppercase tracking-widest">{t('pixel_debug_tool')}</h4>
                   </div>
                   <div className="flex gap-2">
                     <button 
@@ -1390,8 +1498,8 @@ const AdminPanel: React.FC = () => {
                           alert(t('product_updated'));
                         }
                         setEditingProduct(null);
-                      } catch (e) {
-                        alert(t('failed_to_save_product'));
+                      } catch (e: any) {
+                        alert(e.message || t('failed_to_save_product'));
                       }
                     }}
                     className="w-full bg-[#e62e04] text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 mt-4 text-xs"

@@ -1,85 +1,7 @@
-
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { User, Order, Address, Product } from '../types';
 import { MOCK_PRODUCTS, DELIVERY_RATES, CATEGORIES } from '../constants';
 import { trackingService, TrackingConfig } from '../services/TrackingService';
-import { auth, db } from '../firebase';
-import { 
-  onAuthStateChanged, 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword,
-  updateProfile,
-  signOut,
-  signInWithPopup,
-  GoogleAuthProvider,
-  sendPasswordResetEmail,
-  User as FirebaseUser
-} from 'firebase/auth';
-import { 
-  doc, 
-  setDoc, 
-  getDoc, 
-  onSnapshot, 
-  collection, 
-  query, 
-  orderBy, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc,
-  getDocFromServer,
-  where
-} from 'firebase/firestore';
-
-enum OperationType {
-  CREATE = 'create',
-  UPDATE = 'update',
-  DELETE = 'delete',
-  LIST = 'list',
-  GET = 'get',
-  WRITE = 'write',
-}
-
-interface FirestoreErrorInfo {
-  error: string;
-  operationType: OperationType;
-  path: string | null;
-  authInfo: {
-    userId: string | undefined;
-    email: string | null | undefined;
-    emailVerified: boolean | undefined;
-    isAnonymous: boolean | undefined;
-    tenantId: string | null | undefined;
-    providerInfo: {
-      providerId: string;
-      displayName: string | null;
-      email: string | null;
-      photoUrl: string | null;
-    }[];
-  }
-}
-
-function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
-  const errInfo: FirestoreErrorInfo = {
-    error: error instanceof Error ? error.message : String(error),
-    authInfo: {
-      userId: auth.currentUser?.uid,
-      email: auth.currentUser?.email,
-      emailVerified: auth.currentUser?.emailVerified,
-      isAnonymous: auth.currentUser?.isAnonymous,
-      tenantId: auth.currentUser?.tenantId,
-      providerInfo: auth.currentUser?.providerData.map(provider => ({
-        providerId: provider.providerId,
-        displayName: provider.displayName,
-        email: provider.email,
-        photoUrl: provider.photoURL
-      })) || []
-    },
-    operationType,
-    path
-  }
-  console.error('Firestore Error: ', JSON.stringify(errInfo));
-  throw new Error(JSON.stringify(errInfo));
-}
 
 interface AuthContextType {
   user: User | null;
@@ -95,10 +17,10 @@ interface AuthContextType {
   adminLogin: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
   addOrder: (order: Order) => void;
-  updateOrderStatus: (orderId: string, status: Order['status']) => void;
-  updateProduct: (product: Product) => void;
-  deleteProduct: (productId: string) => void;
-  addProduct: (product: Product) => void;
+  updateOrderStatus: (orderId: string, status: Order['status']) => Promise<void>;
+  updateProduct: (product: Product) => Promise<void>;
+  deleteProduct: (productId: string) => Promise<void>;
+  addProduct: (product: Product) => Promise<void>;
   updateCategory: (oldName: string, newName: string) => void;
   deleteCategory: (name: string) => void;
   addCategory: (name: string) => void;
@@ -106,6 +28,8 @@ interface AuthContextType {
   removeAddress: (addressId: string) => void;
   updateShippingRates: (rates: Record<string, number>) => void;
   updateUser: (name: string, avatar: string) => void;
+  syncProducts: () => void;
+  syncCategories: () => void;
   bannerImage: string;
   updateBannerImage: (image: string) => void;
   whatsappNumber: string;
@@ -139,7 +63,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [allProducts, setAllProducts] = useState<Product[]>(MOCK_PRODUCTS);
   const [categories, setCategories] = useState<string[]>(CATEGORIES);
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [shippingRates, setShippingRates] = useState<Record<string, number>>(DELIVERY_RATES);
@@ -167,119 +91,87 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [visitorCount, setVisitorCount] = useState<number>(0);
   const [trackingLogs, setTrackingLogs] = useState<any[]>([]);
 
-  // Test connection to Firestore
   useEffect(() => {
-    async function testConnection() {
-      try {
-        await getDocFromServer(doc(db, 'test', 'connection'));
-      } catch (error) {
-        if(error instanceof Error && error.message.includes('the client is offline')) {
-          console.error("Please check your Firebase configuration.");
-        }
-      }
-    }
-    testConnection();
-  }, []);
-
-  // Auth state listener
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        // Fetch user profile from Firestore
-        const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-        if (userDoc.exists()) {
-          const userData = userDoc.data() as User;
-          setUser({ ...userData, id: userDoc.id });
-        } else {
-          // Fallback if doc doesn't exist yet (should be created on login/signup)
-          const isOwner = firebaseUser.email === 'mstkarimabibi45@gmail.com';
-          setUser({
-            id: firebaseUser.uid,
-            name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
-            email: firebaseUser.email || '',
-            avatar: firebaseUser.photoURL || `https://picsum.photos/seed/${firebaseUser.email}/100/100`,
-            isAdmin: isOwner,
-            role: isOwner ? 'admin' : 'client'
-          });
-        }
+    // Load data from localStorage if available
+    const savedUser = localStorage.getItem('shopbd_user');
+    if (savedUser) setUser(JSON.parse(savedUser));
+    
+    const savedProducts = localStorage.getItem('shopbd_products');
+    if (savedProducts) {
+      const parsed = JSON.parse(savedProducts);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        setAllProducts(parsed);
       } else {
-        setUser(null);
+        setAllProducts(MOCK_PRODUCTS);
       }
-      setIsAuthReady(true);
-    });
-    return () => unsubscribe();
+    } else {
+      setAllProducts(MOCK_PRODUCTS);
+    }
+    
+    const savedOrders = localStorage.getItem('shopbd_orders');
+    if (savedOrders) setOrders(JSON.parse(savedOrders));
+    
+    const savedCategories = localStorage.getItem('shopbd_categories');
+    if (savedCategories) {
+      const parsed = JSON.parse(savedCategories);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        setCategories(parsed);
+      } else {
+        setCategories(CATEGORIES);
+      }
+    } else {
+      setCategories(CATEGORIES);
+    }
+
+    const savedConfig = localStorage.getItem('shopbd_config');
+    if (savedConfig) {
+      const data = JSON.parse(savedConfig);
+      if (data.bannerImage) setBannerImage(data.bannerImage);
+      if (data.whatsappNumber) setWhatsappNumber(data.whatsappNumber);
+      if (data.facebookLink) setFacebookLink(data.facebookLink);
+      if (data.youtubeLink) setYoutubeLink(data.youtubeLink);
+      if (data.tiktokLink) setTiktokLink(data.tiktokLink);
+      if (data.globalOrderPolicy) setGlobalOrderPolicy(data.globalOrderPolicy);
+      if (data.shippingRates) setShippingRates(data.shippingRates);
+      if (data.trackingConfig) setTrackingConfig(data.trackingConfig);
+      if (data.adminUsername) setAdminUsername(data.adminUsername);
+      if (data.adminPassword) setAdminPassword(data.adminPassword);
+      if (data.visitorCount) setVisitorCount(data.visitorCount);
+      if (data.customApiKey) setCustomApiKey(data.customApiKey);
+      if (data.twelvedataApiKey) setTwelvedataApiKey(data.twelvedataApiKey);
+    }
+
+    setIsAuthReady(true);
   }, []);
 
-  // Real-time data listeners
+  // Save config to localStorage whenever it changes
   useEffect(() => {
     if (!isAuthReady) return;
-
-    // Listen for products
-    const unsubscribeProducts = onSnapshot(collection(db, 'products'), (snapshot) => {
-      const productsData = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })) as Product[];
-      setAllProducts(productsData.length > 0 ? productsData : MOCK_PRODUCTS);
-    }, (error) => handleFirestoreError(error, OperationType.LIST, 'products'));
-
-    // Listen for orders
-    let unsubscribeOrders = () => {};
-    if (user) {
-      const ordersRef = collection(db, 'orders');
-      let ordersQuery;
-      if (user.isAdmin) {
-        ordersQuery = query(ordersRef, orderBy('date', 'desc'));
-      } else {
-        ordersQuery = query(ordersRef, where('uid', '==', user.id));
-      }
-      
-      unsubscribeOrders = onSnapshot(ordersQuery, (snapshot) => {
-        let ordersData = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })) as Order[];
-        // Sort client-side to avoid needing composite indexes
-        ordersData = ordersData.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-        setOrders(ordersData);
-      }, (error) => handleFirestoreError(error, OperationType.LIST, 'orders'));
-    } else {
-      setOrders([]);
+    try {
+      const config = {
+        bannerImage, whatsappNumber, facebookLink, youtubeLink, tiktokLink,
+        globalOrderPolicy, shippingRates, categories, trackingConfig,
+        adminUsername, adminPassword, visitorCount, customApiKey, twelvedataApiKey
+      };
+      localStorage.setItem('shopbd_config', JSON.stringify(config));
+    } catch (e) {
+      console.error("Failed to save config to localStorage:", e);
     }
-
-    // Listen for config
-    const unsubscribeConfig = onSnapshot(doc(db, 'config', 'global'), (snapshot) => {
-      if (snapshot.exists()) {
-        const data = snapshot.data();
-        if (data.bannerImage) setBannerImage(data.bannerImage);
-        if (data.whatsappNumber) setWhatsappNumber(data.whatsappNumber);
-        if (data.facebookLink) setFacebookLink(data.facebookLink);
-        if (data.youtubeLink) setYoutubeLink(data.youtubeLink);
-        if (data.tiktokLink) setTiktokLink(data.tiktokLink);
-        if (data.globalOrderPolicy) setGlobalOrderPolicy(data.globalOrderPolicy);
-        if (data.shippingRates) setShippingRates(data.shippingRates);
-        if (data.categories) setCategories(data.categories);
-        if (data.trackingConfig) setTrackingConfig(data.trackingConfig);
-        if (data.adminUsername) setAdminUsername(data.adminUsername);
-        if (data.adminPassword) setAdminPassword(data.adminPassword);
-        if (data.visitorCount) setVisitorCount(data.visitorCount);
-        if (data.customApiKey) setCustomApiKey(data.customApiKey);
-        if (data.twelvedataApiKey) setTwelvedataApiKey(data.twelvedataApiKey);
-      }
-    }, (error) => handleFirestoreError(error, OperationType.GET, 'config/global'));
-
-    return () => {
-      unsubscribeProducts();
-      unsubscribeOrders();
-      unsubscribeConfig();
-    };
-  }, [isAuthReady, user]);
+  }, [
+    bannerImage, whatsappNumber, facebookLink, youtubeLink, tiktokLink,
+    globalOrderPolicy, shippingRates, categories, trackingConfig,
+    adminUsername, adminPassword, visitorCount, customApiKey, twelvedataApiKey,
+    isAuthReady
+  ]);
 
   // Visitor count logic
   useEffect(() => {
     const hasVisited = sessionStorage.getItem('shopbd_visited');
     if (!hasVisited && isAuthReady) {
-      const configRef = doc(db, 'config', 'global');
-      updateDoc(configRef, {
-        visitorCount: (visitorCount || 0) + 1
-      }).catch(err => console.error("Failed to update visitor count", err));
+      setVisitorCount(prev => prev + 1);
       sessionStorage.setItem('shopbd_visited', 'true');
     }
-  }, [isAuthReady, visitorCount]);
+  }, [isAuthReady]);
 
   // Tracking logs interval
   useEffect(() => {
@@ -290,75 +182,46 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   const login = async (email: string, password?: string) => {
-    if (password) {
-      await signInWithEmailAndPassword(auth, email, password);
-    } else {
-      // Simple mock login if no password (for testing)
-      const mockUser: User = {
-        id: 'mock-user',
-        name: email.split('@')[0],
-        email: email,
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
-        isAdmin: false,
-        role: 'client'
-      };
-      setUser(mockUser);
-    }
+    const mockUser: User = {
+      id: 'mock-user-' + Date.now(),
+      name: email.split('@')[0],
+      email: email,
+      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
+      isAdmin: email === 'mstkarimabibi45@gmail.com',
+      role: email === 'mstkarimabibi45@gmail.com' ? 'admin' : 'client'
+    };
+    setUser(mockUser);
+    localStorage.setItem('shopbd_user', JSON.stringify(mockUser));
   };
 
   const signup = async (email: string, password?: string, name?: string) => {
-    if (password) {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      if (name) {
-        await updateProfile(userCredential.user, { displayName: name });
-      }
-      // Create user profile in Firestore
-      const isOwner = email === 'mstkarimabibi45@gmail.com';
-      const newUser: User = {
-        id: userCredential.user.uid,
-        name: name || email.split('@')[0],
-        email: email,
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
-        isAdmin: isOwner,
-        role: isOwner ? 'admin' : 'client'
-      };
-      
-      try {
-        await setDoc(doc(db, 'users', userCredential.user.uid), newUser);
-      } catch (error) {
-        handleFirestoreError(error, OperationType.CREATE, `users/${userCredential.user.uid}`);
-      }
-    }
+    const mockUser: User = {
+      id: 'mock-user-' + Date.now(),
+      name: name || email.split('@')[0],
+      email: email,
+      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
+      isAdmin: email === 'mstkarimabibi45@gmail.com',
+      role: email === 'mstkarimabibi45@gmail.com' ? 'admin' : 'client'
+    };
+    setUser(mockUser);
+    localStorage.setItem('shopbd_user', JSON.stringify(mockUser));
   };
 
   const signInWithGoogle = async () => {
-    const provider = new GoogleAuthProvider();
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const firebaseUser = result.user;
-      
-      // Check if user profile exists in Firestore
-      const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-      if (!userDoc.exists()) {
-        const isOwner = firebaseUser.email === 'mstkarimabibi45@gmail.com';
-        const newUser: User = {
-          id: firebaseUser.uid,
-          name: firebaseUser.displayName || 'User',
-          email: firebaseUser.email || '',
-          avatar: firebaseUser.photoURL || `https://picsum.photos/seed/${firebaseUser.email}/100/100`,
-          isAdmin: isOwner,
-          role: isOwner ? 'admin' : 'client'
-        };
-        await setDoc(doc(db, 'users', firebaseUser.uid), newUser);
-      }
-    } catch (error) {
-      console.error("Google Sign-in error:", error);
-      throw error;
-    }
+    const mockUser: User = {
+      id: 'google-user-' + Date.now(),
+      name: 'Google User',
+      email: 'user@gmail.com',
+      avatar: 'https://picsum.photos/seed/google/100/100',
+      isAdmin: false,
+      role: 'client'
+    };
+    setUser(mockUser);
+    localStorage.setItem('shopbd_user', JSON.stringify(mockUser));
   };
 
   const resetPassword = async (email: string) => {
-    await sendPasswordResetEmail(auth, email);
+    console.log('Password reset email sent to:', email);
   };
 
   const adminLogin = async (username: string, password: string): Promise<boolean> => {
@@ -375,130 +238,102 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         role: 'admin'
       };
       setUser(adminUser);
+      localStorage.setItem('shopbd_user', JSON.stringify(adminUser));
       return true;
     }
     return false;
   };
 
-  const updateAdminCredentials = async (username: string, password: string) => {
-    const path = 'config/global';
-    try {
-      await updateDoc(doc(db, 'config', 'global'), { adminUsername: username, adminPassword: password });
-    } catch (error) {
-      handleFirestoreError(error, OperationType.UPDATE, path);
-    }
+  const updateAdminCredentials = (username: string, password: string) => {
+    setAdminUsername(username);
+    setAdminPassword(password);
   };
 
-  const logout = async () => {
-    await signOut(auth);
+  const logout = () => {
     setUser(null);
+    localStorage.removeItem('shopbd_user');
   };
 
-  const sanitizeData = (data: any): any => {
-    if (data === null || typeof data !== 'object') {
-      return data;
-    }
-    if (data instanceof Date) {
-      return data.toISOString();
-    }
-    if (Array.isArray(data)) {
-      return data.map(sanitizeData);
-    }
-    const sanitized: any = {};
-    Object.keys(data).forEach(key => {
-      const value = data[key];
-      if (value !== undefined) {
-        sanitized[key] = sanitizeData(value);
-      }
-    });
-    return sanitized;
-  };
-
-  const addOrder = async (order: Order) => {
-    const path = 'orders';
-    try {
-      const orderWithCustomer = sanitizeData({ 
-        ...order, 
-        customerName: order.customerName || user?.name || 'Guest',
-        uid: auth.currentUser?.uid || user?.id || 'guest',
-        date: new Date().toISOString()
-      });
-      await addDoc(collection(db, path), orderWithCustomer);
-    } catch (error) {
-      handleFirestoreError(error, OperationType.CREATE, path);
-    }
+  const addOrder = (order: Order) => {
+    const newOrder = { 
+      ...order, 
+      id: 'order-' + Date.now(),
+      customerName: order.customerName || user?.name || 'Guest',
+      uid: user?.id || 'guest',
+      date: new Date().toISOString()
+    };
+    const newOrders = [newOrder, ...orders];
+    setOrders(newOrders);
+    localStorage.setItem('shopbd_orders', JSON.stringify(newOrders));
   };
 
   const updateOrderStatus = async (orderId: string, status: Order['status']) => {
-    const path = `orders/${orderId}`;
+    const newOrders = orders.map(o => o.id === orderId ? { ...o, status } : o);
+    setOrders(newOrders);
     try {
-      await updateDoc(doc(db, 'orders', orderId), { status });
-    } catch (error) {
-      handleFirestoreError(error, OperationType.UPDATE, path);
+      localStorage.setItem('shopbd_orders', JSON.stringify(newOrders));
+    } catch (e) {
+      console.error("Failed to save orders to localStorage:", e);
     }
   };
 
   const updateProduct = async (product: Product) => {
-    const path = `products/${product.id}`;
+    const newProducts = allProducts.map(p => p.id === product.id ? product : p);
+    setAllProducts(newProducts);
     try {
-      await setDoc(doc(db, 'products', product.id), sanitizeData(product));
-    } catch (error) {
-      handleFirestoreError(error, OperationType.UPDATE, path);
+      localStorage.setItem('shopbd_products', JSON.stringify(newProducts));
+    } catch (e) {
+      console.error("Failed to save products to localStorage:", e);
+      if (e instanceof Error && e.name === 'QuotaExceededError') {
+        throw new Error('Storage quota exceeded. Please delete some products or use smaller images.');
+      }
+      throw e;
     }
   };
 
   const deleteProduct = async (productId: string) => {
-    const path = `products/${productId}`;
+    const newProducts = allProducts.filter(p => p.id !== productId);
+    setAllProducts(newProducts);
     try {
-      await deleteDoc(doc(db, 'products', productId));
-    } catch (error) {
-      handleFirestoreError(error, OperationType.DELETE, path);
+      localStorage.setItem('shopbd_products', JSON.stringify(newProducts));
+    } catch (e) {
+      console.error("Failed to delete product from localStorage:", e);
+      throw e;
     }
   };
 
   const addProduct = async (product: Product) => {
-    const path = 'products';
+    const newProducts = [product, ...allProducts];
+    setAllProducts(newProducts);
     try {
-      await setDoc(doc(db, 'products', product.id), sanitizeData(product));
-    } catch (error) {
-      handleFirestoreError(error, OperationType.CREATE, path);
+      localStorage.setItem('shopbd_products', JSON.stringify(newProducts));
+    } catch (e) {
+      console.error("Failed to add product to localStorage:", e);
+      if (e instanceof Error && e.name === 'QuotaExceededError') {
+        throw new Error('Storage quota exceeded. Please delete some products or use smaller images.');
+      }
+      throw e;
     }
   };
 
-  const updateCategory = async (oldName: string, newName: string) => {
+  const updateCategory = (oldName: string, newName: string) => {
     if (!newName || oldName === newName) return;
     const newCategories = categories.map(c => c === oldName ? newName : c);
-    const path = 'config/global';
-    try {
-      await updateDoc(doc(db, 'config', 'global'), { categories: newCategories });
-    } catch (error) {
-      handleFirestoreError(error, OperationType.UPDATE, path);
-    }
+    setCategories(newCategories);
   };
 
-  const deleteCategory = async (name: string) => {
+  const deleteCategory = (name: string) => {
     if (!name) return;
     const newCategories = categories.filter(c => c !== name);
     if (!newCategories.includes('Uncategorized')) {
       newCategories.push('Uncategorized');
     }
-    const path = 'config/global';
-    try {
-      await updateDoc(doc(db, 'config', 'global'), { categories: newCategories });
-    } catch (error) {
-      handleFirestoreError(error, OperationType.UPDATE, path);
-    }
+    setCategories(newCategories);
   };
 
-  const addCategory = async (name: string) => {
+  const addCategory = (name: string) => {
     if (!name || categories.includes(name)) return;
-    const newCategories = [...categories, name];
-    const path = 'config/global';
-    try {
-      await updateDoc(doc(db, 'config', 'global'), { categories: newCategories });
-    } catch (error) {
-      handleFirestoreError(error, OperationType.UPDATE, path);
-    }
+    setCategories([...categories, name]);
   };
 
   const addAddress = (address: Address) => {
@@ -509,88 +344,55 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setAddresses(prev => prev.filter(a => a.id !== addressId));
   };
 
-  const updateShippingRates = async (rates: Record<string, number>) => {
-    const path = 'config/global';
-    try {
-      await updateDoc(doc(db, 'config', 'global'), { shippingRates: rates });
-    } catch (error) {
-      handleFirestoreError(error, OperationType.UPDATE, path);
+  const updateShippingRates = (rates: Record<string, number>) => {
+    setShippingRates(rates);
+  };
+
+  const updateUser = (name: string, avatar: string) => {
+    if (user) {
+      const updatedUser = { ...user, name, avatar };
+      setUser(updatedUser);
+      localStorage.setItem('shopbd_user', JSON.stringify(updatedUser));
     }
   };
 
-  const updateUser = async (name: string, avatar: string) => {
-    if (user && auth.currentUser) {
-      const path = `users/${auth.currentUser.uid}`;
-      try {
-        await updateDoc(doc(db, 'users', auth.currentUser.uid), { name, avatar });
-      } catch (error) {
-        handleFirestoreError(error, OperationType.UPDATE, path);
-      }
-    }
+  const syncProducts = () => {
+    setAllProducts(MOCK_PRODUCTS);
+    localStorage.setItem('shopbd_products', JSON.stringify(MOCK_PRODUCTS));
   };
 
-  const updateBannerImage = async (image: string) => {
-    const path = 'config/global';
-    try {
-      await updateDoc(doc(db, 'config', 'global'), { bannerImage: image });
-    } catch (error) {
-      handleFirestoreError(error, OperationType.UPDATE, path);
-    }
+  const syncCategories = () => {
+    setCategories(CATEGORIES);
+    localStorage.setItem('shopbd_categories', JSON.stringify(CATEGORIES));
   };
 
-  const updateWhatsappNumber = async (number: string) => {
-    const path = 'config/global';
-    try {
-      await updateDoc(doc(db, 'config', 'global'), { whatsappNumber: number });
-    } catch (error) {
-      handleFirestoreError(error, OperationType.UPDATE, path);
-    }
+  const updateBannerImage = (image: string) => {
+    setBannerImage(image);
   };
 
-  const updateFacebookLink = async (link: string) => {
-    const path = 'config/global';
-    try {
-      await updateDoc(doc(db, 'config', 'global'), { facebookLink: link });
-    } catch (error) {
-      handleFirestoreError(error, OperationType.UPDATE, path);
-    }
+  const updateWhatsappNumber = (number: string) => {
+    setWhatsappNumber(number);
   };
 
-  const updateYoutubeLink = async (link: string) => {
-    const path = 'config/global';
-    try {
-      await updateDoc(doc(db, 'config', 'global'), { youtubeLink: link });
-    } catch (error) {
-      handleFirestoreError(error, OperationType.UPDATE, path);
-    }
+  const updateFacebookLink = (link: string) => {
+    setFacebookLink(link);
   };
 
-  const updateTiktokLink = async (link: string) => {
-    const path = 'config/global';
-    try {
-      await updateDoc(doc(db, 'config', 'global'), { tiktokLink: link });
-    } catch (error) {
-      handleFirestoreError(error, OperationType.UPDATE, path);
-    }
+  const updateYoutubeLink = (link: string) => {
+    setYoutubeLink(link);
   };
 
-  const updateGlobalOrderPolicy = async (policy: string) => {
-    const path = 'config/global';
-    try {
-      await updateDoc(doc(db, 'config', 'global'), { globalOrderPolicy: policy });
-    } catch (error) {
-      handleFirestoreError(error, OperationType.UPDATE, path);
-    }
+  const updateTiktokLink = (link: string) => {
+    setTiktokLink(link);
   };
 
-  const updateTrackingConfig = async (config: TrackingConfig) => {
-    const path = 'config/global';
-    try {
-      await updateDoc(doc(db, 'config', 'global'), { trackingConfig: config });
-      trackingService.init(config);
-    } catch (error) {
-      handleFirestoreError(error, OperationType.UPDATE, path);
-    }
+  const updateGlobalOrderPolicy = (policy: string) => {
+    setGlobalOrderPolicy(policy);
+  };
+
+  const updateTrackingConfig = (config: TrackingConfig) => {
+    setTrackingConfig(config);
+    trackingService.init(config);
   };
 
   const clearTrackingLogs = () => {
@@ -599,23 +401,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const updateCustomApiKey = async (key: string) => {
-    const path = 'config/global';
-    try {
-      await updateDoc(doc(db, 'config', 'global'), { customApiKey: key });
-      setCustomApiKey(key);
-    } catch (error) {
-      handleFirestoreError(error, OperationType.UPDATE, path);
-    }
+    setCustomApiKey(key);
   };
 
   const updateTwelvedataApiKey = async (key: string) => {
-    const path = 'config/global';
-    try {
-      await updateDoc(doc(db, 'config', 'global'), { twelvedataApiKey: key });
-      setTwelvedataApiKey(key);
-    } catch (error) {
-      handleFirestoreError(error, OperationType.UPDATE, path);
-    }
+    setTwelvedataApiKey(key);
   };
 
   return (
@@ -625,7 +415,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       login, signup, adminLogin, logout, 
       signInWithGoogle, resetPassword,
       addOrder, updateOrderStatus, updateProduct, deleteProduct, addProduct, updateCategory, deleteCategory, addCategory,
-      addAddress, removeAddress, updateShippingRates, updateUser, updateBannerImage, updateWhatsappNumber,
+      addAddress, removeAddress, updateShippingRates, updateUser, 
+      syncProducts, syncCategories,
+      updateBannerImage, updateWhatsappNumber,
       updateFacebookLink, updateYoutubeLink, updateTiktokLink,
       adminUsername, adminPassword, updateAdminCredentials,
       globalOrderPolicy, updateGlobalOrderPolicy,

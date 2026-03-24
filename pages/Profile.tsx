@@ -43,21 +43,7 @@ const Profile: React.FC = () => {
       console.error("Auth error:", error);
       let message = t('auth_error_default');
       
-      const errorCode = error.code || (error.message && error.message.includes('auth/') ? error.message.match(/auth\/[a-z-]+/)?.[0] : null);
-
-      if (errorCode === 'auth/email-already-in-use') {
-        message = t('auth_error_email_in_use');
-      } else if (errorCode === 'auth/invalid-email') {
-        message = t('auth_error_invalid_email');
-      } else if (errorCode === 'auth/weak-password') {
-        message = t('auth_error_weak_password');
-      } else if (errorCode === 'auth/user-not-found') {
-        message = t('auth_error_user_not_found');
-      } else if (errorCode === 'auth/wrong-password') {
-        message = t('auth_error_wrong_password');
-      } else if (errorCode === 'auth/too-many-requests') {
-        message = t('auth_error_too_many_requests');
-      } else if (error.message) {
+      if (error.message) {
         try {
           const parsed = JSON.parse(error.message);
           if (parsed.error) message = parsed.error;

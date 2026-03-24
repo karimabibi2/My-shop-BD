@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router-dom';
 const Home: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const { allProducts, bannerImage } = useAuth();
+  const { allProducts, bannerImage, categories } = useAuth();
   const { activeCategory, setActiveCategory, setIsDrawerOpen } = useCategory();
   const { addToCart, cart } = useCart();
   const { t } = useLanguage();
@@ -32,6 +32,18 @@ const Home: React.FC = () => {
       return matchesSearch && matchesCategory;
     });
   }, [searchQuery, activeCategory, allProducts]);
+
+  const categorizedProducts = useMemo(() => {
+    if (activeCategory !== 'All' || searchQuery) return [];
+    
+    return categories
+      .filter(cat => cat !== 'All')
+      .map(cat => ({
+        name: cat,
+        products: allProducts.filter(p => p.category === cat).slice(0, 8)
+      }))
+      .filter(group => group.products.length > 0);
+  }, [activeCategory, searchQuery, categories, allProducts]);
 
   return (
     <Layout>
@@ -124,7 +136,7 @@ const Home: React.FC = () => {
         </div>
 
         {/* Product Grid */}
-        <div className="grid grid-cols-2 gap-3 pb-10">
+        <div className="grid grid-cols-2 gap-3 pb-2">
           {filteredProducts.map(product => (
             <ProductCard 
               key={product.id} 
@@ -147,6 +159,42 @@ const Home: React.FC = () => {
             </div>
           )}
         </div>
+
+        {/* Categorized Sections */}
+        {categorizedProducts.length > 0 && (
+          <div className="flex flex-col gap-10 pt-6 pb-10 border-t border-gray-100 dark:border-slate-800">
+            <div className="text-center mb-2">
+              <h2 className="text-lg font-black text-gray-900 dark:text-white uppercase tracking-[0.2em] mb-1">{t('shop_by_category')}</h2>
+              <div className="w-12 h-1 bg-[#e62e04] mx-auto rounded-full"></div>
+            </div>
+            
+            {categorizedProducts.map(group => (
+              <div key={group.name} className="flex flex-col gap-3">
+                <div className="flex justify-between items-center px-1">
+                  <h3 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-widest flex items-center gap-2">
+                    <span className="w-1 h-4 bg-[#e62e04] rounded-full"></span>
+                    {group.name}
+                  </h3>
+                  <button 
+                    onClick={() => setActiveCategory(group.name)}
+                    className="text-[10px] font-black text-[#e62e04] uppercase tracking-widest hover:underline"
+                  >
+                    {t('view_all')}
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  {group.products.map(product => (
+                    <ProductCard 
+                      key={product.id} 
+                      product={product} 
+                      onOpenDetails={() => setSelectedProduct(product)}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <ProductDetailsModal 
