@@ -6,7 +6,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { Lock, User, ShieldAlert, ArrowLeft } from 'lucide-react';
 
 const AdminLogin: React.FC = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { adminLogin, signInWithGoogle, user } = useAuth();
@@ -23,7 +23,7 @@ const AdminLogin: React.FC = () => {
     e.preventDefault();
     setError('');
     
-    const success = await adminLogin(username, password);
+    const success = await adminLogin(email, password);
     if (success) {
       navigate('/admin');
     } else {
@@ -68,15 +68,15 @@ const AdminLogin: React.FC = () => {
           )}
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">{t('username')}</label>
+            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">{t('email')}</label>
             <div className="relative">
               <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
               <input 
-                type="text" 
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                type="email" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-2xl py-4 pl-12 pr-4 text-sm font-bold focus:ring-2 focus:ring-[#e62e04] outline-none dark:text-white transition-all"
-                placeholder="admin"
+                placeholder="admin@example.com"
                 required
               />
             </div>

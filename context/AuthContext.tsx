@@ -5,6 +5,7 @@ import { trackingService, TrackingConfig } from '../services/TrackingService';
 import { 
   auth, db, googleProvider, 
   signInWithPopup, signOut, onAuthStateChanged,
+  signInWithEmailAndPassword, createUserWithEmailAndPassword,
   collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, addDoc, onSnapshot, query, where, orderBy, limit
 } from '../firebase';
 
@@ -284,36 +285,35 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   const login = async (email: string, password?: string) => {
-    // For this app, we'll use Firebase Auth
-    // If it's the admin email, we check against the config
-    if (email === adminUsername && password === adminPassword) {
-      const adminUser: User = {
-        id: 'admin',
-        name: 'Admin',
-        email: adminUsername,
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin',
-        isAdmin: true,
-        role: 'admin'
-      };
-      setUser(adminUser);
-      return;
+    if (!password) throw new Error('Password is required');
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (error: any) {
+      console.error('Login error:', error);
+      throw error;
     }
-    // Otherwise, try Firebase Auth (if password provided)
-    // Note: This is a simplified version. In a real app, you'd use signInWithEmailAndPassword
-    throw new Error('Invalid credentials');
   };
 
   const signup = async (email: string, password?: string, name?: string) => {
-    // Simplified signup
-    const newUser: User = {
-      id: 'user-' + Date.now(),
-      name: name || email.split('@')[0],
-      email: email,
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
-      isAdmin: false,
-      role: 'client'
-    };
-    setUser(newUser);
+    if (!password) throw new Error('Password is required');
+    try {
+      const { user: firebaseUser } = await createUserWithEmailAndPassword(auth, email, password);
+      
+      const newUser: User = {
+        id: firebaseUser.uid,
+        name: name || email.split('@')[0],
+        email: email,
+        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
+        isAdmin: false,
+        role: 'client'
+      };
+      
+      await setDoc(doc(db, 'users', firebaseUser.uid), newUser);
+      setUser(newUser);
+    } catch (error: any) {
+      console.error('Signup error:', error);
+      throw error;
+    }
   };
 
   const signInWithGoogle = async () => {
@@ -329,23 +329,41 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     console.log('Password reset email sent to:', email);
   };
 
-  const adminLogin = async (username: string, password: string): Promise<boolean> => {
-    if (
-      (username === adminUsername && password === adminPassword) ||
-      (username === 'Amiadmin' && password === 'Amiadmin12#')
-    ) {
-      const adminUser: User = {
-        id: 'admin',
-        name: 'Niloy Shop Admin',
-        email: 'admin@niloyshop.com',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Niloyshop',
-        isAdmin: true,
-        role: 'admin'
-      };
-      setUser(adminUser);
-      return true;
+  const adminLogin = async (email: string, password: string): Promise<boolean> => {
+    try {
+      const { user: firebaseUser } = await signInWithEmailAndPassword(auth, email, password);
+      
+      // The isAdmin check is handled in onAuthStateChanged
+      // But we can check it here too for immediate feedback
+      const isAdminEmail = firebaseUser.email === 'mstkarimabibi45@gmail.com' || firebaseUser.email === 'jafor100khan@gmail.com';
+      
+      if (isAdminEmail) {
+        return true;
+      } else {
+        // If not an admin email, sign out immediately
+        await signOut(auth);
+        throw new Error('Unauthorized: Not an admin email');
+      }
+    } catch (error: any) {
+      console.error('Admin Login Error:', error);
+      // Fallback for local admin credentials if they match the config
+      if (
+        (email === adminUsername && password === adminPassword) ||
+        (email === 'Amiadmin' && password === 'Amiadmin12#')
+      ) {
+        const adminUser: User = {
+          id: 'admin-local',
+          name: 'Niloy Shop Admin',
+          email: email,
+          avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Niloyshop',
+          isAdmin: true,
+          role: 'admin'
+        };
+        setUser(adminUser);
+        return true;
+      }
+      return false;
     }
-    return false;
   };
 
   const updateAdminCredentials = (username: string, password: string) => {
