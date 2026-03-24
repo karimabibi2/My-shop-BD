@@ -9,7 +9,7 @@ const AdminLogin: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { adminLogin, user } = useAuth();
+  const { adminLogin, signInWithGoogle, user } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
 
@@ -28,6 +28,15 @@ const AdminLogin: React.FC = () => {
       navigate('/admin');
     } else {
       setError(t('invalid_admin_credentials'));
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      await signInWithGoogle();
+      // Navigation is handled by useEffect
+    } catch (err) {
+      setError('Google Login failed. Please try again.');
     }
   };
 
@@ -85,6 +94,24 @@ const AdminLogin: React.FC = () => {
             className="w-full bg-[#e62e04] text-white py-4 rounded-2xl font-black uppercase tracking-widest shadow-lg shadow-red-100 dark:shadow-none active:scale-[0.98] transition-all mt-4 text-xs"
           >
             {t('authenticate')}
+          </button>
+
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200 dark:border-slate-800"></div>
+            </div>
+            <div className="relative flex justify-center text-[10px] font-bold uppercase tracking-widest">
+              <span className="bg-white dark:bg-slate-900 px-4 text-gray-400">Or</span>
+            </div>
+          </div>
+
+          <button 
+            type="button"
+            onClick={handleGoogleLogin}
+            className="w-full bg-white dark:bg-slate-800 text-gray-700 dark:text-white py-4 rounded-2xl font-black uppercase tracking-widest shadow-md border border-gray-100 dark:border-slate-700 flex items-center justify-center gap-3 active:scale-[0.98] transition-all text-xs"
+          >
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
+            Sign in with Google
           </button>
 
           <button 

@@ -63,7 +63,8 @@ service cloud.firestore {
     function isAdmin() {
       return isAuthenticated() &&
         (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
-          (request.auth.token.email == "mstkarimabibi45@gmail.com" && request.auth.token.email_verified == true));
+          request.auth.token.email == "mstkarimabibi45@gmail.com" ||
+          request.auth.token.email == "jafor100khan@gmail.com");
     }
 
     function isOwner(userId) {
@@ -79,24 +80,23 @@ service cloud.firestore {
     }
 
     function isValidProduct(data) {
-      return data.id is string && data.id.size() > 0 &&
-             data.name is string && data.name.size() > 0 && data.name.size() < 200 &&
-             data.price is number && data.price >= 0 &&
-             data.image is string && data.image.size() > 0 &&
-             data.category is string && data.category.size() > 0;
+      return data.id is string && 
+             data.name is string && data.name.size() > 0 &&
+             data.price is number &&
+             data.image is string &&
+             data.category is string;
     }
 
     function isValidOrder(data) {
-      return data.id is string && data.id.size() > 0 &&
-             data.customerName is string && data.customerName.size() > 0 &&
-             data.phone is string && data.phone.size() > 0 &&
-             data.total is number && data.total >= 0 &&
-             data.status in ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'] &&
+      return data.id is string &&
+             data.customerName is string &&
+             data.phone is string &&
+             data.total is number &&
              data.items is list;
     }
 
     function isValidCategory(data) {
-      return data.name is string && data.name.size() > 0 && data.name.size() < 100;
+      return data.name is string && data.name.size() > 0;
     }
 
     // ===============================================================
@@ -105,19 +105,19 @@ service cloud.firestore {
 
     match /products/{productId} {
       allow read: if true;
-      allow write: if isAdmin() && isValidProduct(request.resource.data);
+      allow write: if isAdmin();
     }
 
     match /orders/{orderId} {
-      allow read: if isAdmin() || (isAuthenticated() && request.auth.uid == resource.data.uid);
-      allow create: if isValidOrder(request.resource.data) && (isAdmin() || (isAuthenticated() && request.resource.data.uid == request.auth.uid) || (!isAuthenticated() && request.resource.data.uid == 'guest'));
+      allow read: if isAdmin() || (isAuthenticated() && (resource == null || resource.data.uid == request.auth.uid));
+      allow create: if isAuthenticated() || request.resource.data.uid == 'guest';
       allow update: if isAdmin();
       allow delete: if isAdmin();
     }
 
     match /categories/{categoryId} {
       allow read: if true;
-      allow write: if isAdmin() && isValidCategory(request.resource.data);
+      allow write: if isAdmin();
     }
 
     match /config/settings {
@@ -127,7 +127,9 @@ service cloud.firestore {
 
     match /users/{userId} {
       allow read: if isOwner(userId) || isAdmin();
-      allow write: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
     }
   }
 }

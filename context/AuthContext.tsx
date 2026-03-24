@@ -153,13 +153,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
         const userData = userDoc.exists() ? userDoc.data() as User : null;
         
+        const isAdminEmail = firebaseUser.email === 'mstkarimabibi45@gmail.com' || firebaseUser.email === 'jafor100khan@gmail.com';
+        
         const mockUser: User = {
           id: firebaseUser.uid,
           name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
           email: firebaseUser.email || '',
           avatar: firebaseUser.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${firebaseUser.email}`,
-          isAdmin: firebaseUser.email === 'mstkarimabibi45@gmail.com' || userData?.isAdmin || false,
-          role: (firebaseUser.email === 'mstkarimabibi45@gmail.com' || userData?.role === 'admin') ? 'admin' : 'client'
+          isAdmin: isAdminEmail || userData?.isAdmin || false,
+          role: (isAdminEmail || userData?.role === 'admin') ? 'admin' : 'client'
         };
         setUser(mockUser);
         
