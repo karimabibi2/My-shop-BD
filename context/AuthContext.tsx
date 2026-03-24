@@ -2,6 +2,62 @@ import React, { createContext, useContext, useState, ReactNode, useEffect } from
 import { User, Order, Address, Product } from '../types';
 import { MOCK_PRODUCTS, DELIVERY_RATES, CATEGORIES } from '../constants';
 import { trackingService, TrackingConfig } from '../services/TrackingService';
+import { 
+  auth, db, googleProvider, 
+  signInWithPopup, signOut, onAuthStateChanged,
+  collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, addDoc, onSnapshot, query, where, orderBy, limit
+} from '../firebase';
+
+enum OperationType {
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  LIST = 'list',
+  GET = 'get',
+  WRITE = 'write',
+}
+
+interface FirestoreErrorInfo {
+  error: string;
+  operationType: OperationType;
+  path: string | null;
+  authInfo: {
+    userId: string | undefined;
+    email: string | null | undefined;
+    emailVerified: boolean | undefined;
+    isAnonymous: boolean | undefined;
+    tenantId: string | null | undefined;
+    providerInfo: {
+      providerId: string;
+      displayName: string | null;
+      email: string | null;
+      photoUrl: string | null;
+    }[];
+  }
+}
+
+function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
+  const errInfo: FirestoreErrorInfo = {
+    error: error instanceof Error ? error.message : String(error),
+    authInfo: {
+      userId: auth.currentUser?.uid,
+      email: auth.currentUser?.email,
+      emailVerified: auth.currentUser?.emailVerified,
+      isAnonymous: auth.currentUser?.isAnonymous,
+      tenantId: auth.currentUser?.tenantId,
+      providerInfo: auth.currentUser?.providerData.map(provider => ({
+        providerId: provider.providerId,
+        displayName: provider.displayName,
+        email: provider.email,
+        photoUrl: provider.photoURL
+      })) || []
+    },
+    operationType,
+    path
+  }
+  console.error('Firestore Error: ', JSON.stringify(errInfo));
+  throw new Error(JSON.stringify(errInfo));
+}
 
 interface AuthContextType {
   user: User | null;
@@ -92,76 +148,120 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [trackingLogs, setTrackingLogs] = useState<any[]>([]);
 
   useEffect(() => {
-    // Load data from localStorage if available
-    const savedUser = localStorage.getItem('shopbd_user');
-    if (savedUser) setUser(JSON.parse(savedUser));
-    
-    const savedProducts = localStorage.getItem('shopbd_products');
-    if (savedProducts) {
-      const parsed = JSON.parse(savedProducts);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        setAllProducts(parsed);
+    const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+        const userData = userDoc.exists() ? userDoc.data() as User : null;
+        
+        const mockUser: User = {
+          id: firebaseUser.uid,
+          name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
+          email: firebaseUser.email || '',
+          avatar: firebaseUser.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${firebaseUser.email}`,
+          isAdmin: firebaseUser.email === 'mstkarimabibi45@gmail.com' || userData?.isAdmin || false,
+          role: (firebaseUser.email === 'mstkarimabibi45@gmail.com' || userData?.role === 'admin') ? 'admin' : 'client'
+        };
+        setUser(mockUser);
+        
+        // Ensure user doc exists in Firestore
+        if (!userDoc.exists()) {
+          await setDoc(doc(db, 'users', firebaseUser.uid), mockUser);
+        }
       } else {
-        setAllProducts(MOCK_PRODUCTS);
+        setUser(null);
       }
-    } else {
-      setAllProducts(MOCK_PRODUCTS);
-    }
-    
-    const savedOrders = localStorage.getItem('shopbd_orders');
-    if (savedOrders) setOrders(JSON.parse(savedOrders));
-    
-    const savedCategories = localStorage.getItem('shopbd_categories');
-    if (savedCategories) {
-      const parsed = JSON.parse(savedCategories);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        setCategories(parsed);
-      } else {
-        setCategories(CATEGORIES);
+      setIsAuthReady(true);
+    });
+
+    // Real-time listeners
+    const unsubscribeProducts = onSnapshot(collection(db, 'products'), (snapshot) => {
+      const products = snapshot.docs.map(doc => doc.data() as Product);
+      setAllProducts(products.length > 0 ? products : MOCK_PRODUCTS);
+    }, (error) => handleFirestoreError(error, OperationType.GET, 'products'));
+
+    const unsubscribeCategories = onSnapshot(collection(db, 'categories'), (snapshot) => {
+      const categoriesData = snapshot.docs.map(doc => doc.data().name as string);
+      setCategories(categoriesData.length > 0 ? categoriesData : CATEGORIES);
+    }, (error) => handleFirestoreError(error, OperationType.GET, 'categories'));
+
+    const unsubscribeConfig = onSnapshot(doc(db, 'config', 'settings'), (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.data();
+        if (data.bannerImage) setBannerImage(data.bannerImage);
+        if (data.whatsappNumber) setWhatsappNumber(data.whatsappNumber);
+        if (data.facebookLink) setFacebookLink(data.facebookLink);
+        if (data.youtubeLink) setYoutubeLink(data.youtubeLink);
+        if (data.tiktokLink) setTiktokLink(data.tiktokLink);
+        if (data.globalOrderPolicy) setGlobalOrderPolicy(data.globalOrderPolicy);
+        if (data.shippingRates) setShippingRates(data.shippingRates);
+        if (data.trackingConfig) setTrackingConfig(data.trackingConfig);
+        if (data.adminUsername) setAdminUsername(data.adminUsername);
+        if (data.adminPassword) setAdminPassword(data.adminPassword);
+        if (data.visitorCount) setVisitorCount(data.visitorCount);
+        if (data.customApiKey) setCustomApiKey(data.customApiKey);
+        if (data.twelvedataApiKey) setTwelvedataApiKey(data.twelvedataApiKey);
       }
-    } else {
-      setCategories(CATEGORIES);
-    }
+    }, (error) => handleFirestoreError(error, OperationType.GET, 'config/settings'));
 
-    const savedConfig = localStorage.getItem('shopbd_config');
-    if (savedConfig) {
-      const data = JSON.parse(savedConfig);
-      if (data.bannerImage) setBannerImage(data.bannerImage);
-      if (data.whatsappNumber) setWhatsappNumber(data.whatsappNumber);
-      if (data.facebookLink) setFacebookLink(data.facebookLink);
-      if (data.youtubeLink) setYoutubeLink(data.youtubeLink);
-      if (data.tiktokLink) setTiktokLink(data.tiktokLink);
-      if (data.globalOrderPolicy) setGlobalOrderPolicy(data.globalOrderPolicy);
-      if (data.shippingRates) setShippingRates(data.shippingRates);
-      if (data.trackingConfig) setTrackingConfig(data.trackingConfig);
-      if (data.adminUsername) setAdminUsername(data.adminUsername);
-      if (data.adminPassword) setAdminPassword(data.adminPassword);
-      if (data.visitorCount) setVisitorCount(data.visitorCount);
-      if (data.customApiKey) setCustomApiKey(data.customApiKey);
-      if (data.twelvedataApiKey) setTwelvedataApiKey(data.twelvedataApiKey);
-    }
-
-    setIsAuthReady(true);
+    return () => {
+      unsubscribeAuth();
+      unsubscribeProducts();
+      unsubscribeCategories();
+      unsubscribeConfig();
+    };
   }, []);
 
-  // Save config to localStorage whenever it changes
+  // Orders listener - filtered by user role
   useEffect(() => {
     if (!isAuthReady) return;
-    try {
-      const config = {
-        bannerImage, whatsappNumber, facebookLink, youtubeLink, tiktokLink,
-        globalOrderPolicy, shippingRates, categories, trackingConfig,
-        adminUsername, adminPassword, visitorCount, customApiKey, twelvedataApiKey
-      };
-      localStorage.setItem('shopbd_config', JSON.stringify(config));
-    } catch (e) {
-      console.error("Failed to save config to localStorage:", e);
+
+    let ordersQuery;
+    if (user?.isAdmin) {
+      // Admin sees all orders
+      ordersQuery = collection(db, 'orders');
+    } else if (user) {
+      // Client sees only their own orders
+      ordersQuery = query(collection(db, 'orders'), where('uid', '==', user.id));
+    } else {
+      // Guest sees no orders
+      setOrders([]);
+      return;
     }
+
+    const unsubscribeOrders = onSnapshot(ordersQuery, (snapshot) => {
+      const ordersData = snapshot.docs.map(doc => doc.data() as Order);
+      setOrders(ordersData.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+    }, (error) => {
+      // Only report if it's not a permission error for guests (who might have stale listeners)
+      if (error.code !== 'permission-denied' || user) {
+        handleFirestoreError(error, OperationType.GET, 'orders');
+      }
+    });
+
+    return () => unsubscribeOrders();
+  }, [user, isAuthReady]);
+
+  // Save config to Firestore whenever it changes (only for admin)
+  useEffect(() => {
+    if (!isAuthReady || !user?.isAdmin) return;
+    const saveConfig = async () => {
+      try {
+        const config = {
+          bannerImage, whatsappNumber, facebookLink, youtubeLink, tiktokLink,
+          globalOrderPolicy, shippingRates, categories, trackingConfig,
+          adminUsername, adminPassword, visitorCount, customApiKey, twelvedataApiKey
+        };
+        await setDoc(doc(db, 'config', 'settings'), config);
+      } catch (e) {
+        console.error("Failed to save config to Firestore:", e);
+      }
+    };
+    saveConfig();
   }, [
     bannerImage, whatsappNumber, facebookLink, youtubeLink, tiktokLink,
     globalOrderPolicy, shippingRates, categories, trackingConfig,
     adminUsername, adminPassword, visitorCount, customApiKey, twelvedataApiKey,
-    isAuthReady
+    isAuthReady, user?.isAdmin
   ]);
 
   // Visitor count logic
@@ -182,42 +282,45 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   const login = async (email: string, password?: string) => {
-    const mockUser: User = {
-      id: 'mock-user-' + Date.now(),
-      name: email.split('@')[0],
-      email: email,
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
-      isAdmin: email === 'mstkarimabibi45@gmail.com',
-      role: email === 'mstkarimabibi45@gmail.com' ? 'admin' : 'client'
-    };
-    setUser(mockUser);
-    localStorage.setItem('shopbd_user', JSON.stringify(mockUser));
+    // For this app, we'll use Firebase Auth
+    // If it's the admin email, we check against the config
+    if (email === adminUsername && password === adminPassword) {
+      const adminUser: User = {
+        id: 'admin',
+        name: 'Admin',
+        email: adminUsername,
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin',
+        isAdmin: true,
+        role: 'admin'
+      };
+      setUser(adminUser);
+      return;
+    }
+    // Otherwise, try Firebase Auth (if password provided)
+    // Note: This is a simplified version. In a real app, you'd use signInWithEmailAndPassword
+    throw new Error('Invalid credentials');
   };
 
   const signup = async (email: string, password?: string, name?: string) => {
-    const mockUser: User = {
-      id: 'mock-user-' + Date.now(),
+    // Simplified signup
+    const newUser: User = {
+      id: 'user-' + Date.now(),
       name: name || email.split('@')[0],
       email: email,
       avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
-      isAdmin: email === 'mstkarimabibi45@gmail.com',
-      role: email === 'mstkarimabibi45@gmail.com' ? 'admin' : 'client'
-    };
-    setUser(mockUser);
-    localStorage.setItem('shopbd_user', JSON.stringify(mockUser));
-  };
-
-  const signInWithGoogle = async () => {
-    const mockUser: User = {
-      id: 'google-user-' + Date.now(),
-      name: 'Google User',
-      email: 'user@gmail.com',
-      avatar: 'https://picsum.photos/seed/google/100/100',
       isAdmin: false,
       role: 'client'
     };
-    setUser(mockUser);
-    localStorage.setItem('shopbd_user', JSON.stringify(mockUser));
+    setUser(newUser);
+  };
+
+  const signInWithGoogle = async () => {
+    try {
+      await signInWithPopup(auth, googleProvider);
+    } catch (error) {
+      console.error("Google sign in error:", error);
+      throw error;
+    }
   };
 
   const resetPassword = async (email: string) => {
@@ -238,7 +341,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         role: 'admin'
       };
       setUser(adminUser);
-      localStorage.setItem('shopbd_user', JSON.stringify(adminUser));
       return true;
     }
     return false;
@@ -249,91 +351,101 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setAdminPassword(password);
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('shopbd_user');
+  const logout = async () => {
+    try {
+      await signOut(auth);
+      setUser(null);
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
-  const addOrder = (order: Order) => {
+  const addOrder = async (order: Order) => {
     const newOrder = { 
       ...order, 
-      id: 'order-' + Date.now(),
+      id: order.id || 'order-' + Date.now(),
       customerName: order.customerName || user?.name || 'Guest',
       uid: user?.id || 'guest',
       date: new Date().toISOString()
     };
-    const newOrders = [newOrder, ...orders];
-    setOrders(newOrders);
-    localStorage.setItem('shopbd_orders', JSON.stringify(newOrders));
+    try {
+      await setDoc(doc(db, 'orders', newOrder.id), newOrder);
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, `orders/${newOrder.id}`);
+    }
   };
 
   const updateOrderStatus = async (orderId: string, status: Order['status']) => {
-    const newOrders = orders.map(o => o.id === orderId ? { ...o, status } : o);
-    setOrders(newOrders);
     try {
-      localStorage.setItem('shopbd_orders', JSON.stringify(newOrders));
-    } catch (e) {
-      console.error("Failed to save orders to localStorage:", e);
+      await updateDoc(doc(db, 'orders', orderId), { status });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, `orders/${orderId}`);
     }
   };
 
   const updateProduct = async (product: Product) => {
-    const newProducts = allProducts.map(p => p.id === product.id ? product : p);
-    setAllProducts(newProducts);
     try {
-      localStorage.setItem('shopbd_products', JSON.stringify(newProducts));
-    } catch (e) {
-      console.error("Failed to save products to localStorage:", e);
-      if (e instanceof Error && e.name === 'QuotaExceededError') {
-        throw new Error('Storage quota exceeded. Please delete some products or use smaller images.');
-      }
-      throw e;
+      await setDoc(doc(db, 'products', product.id), product);
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, `products/${product.id}`);
     }
   };
 
   const deleteProduct = async (productId: string) => {
-    const newProducts = allProducts.filter(p => p.id !== productId);
-    setAllProducts(newProducts);
     try {
-      localStorage.setItem('shopbd_products', JSON.stringify(newProducts));
-    } catch (e) {
-      console.error("Failed to delete product from localStorage:", e);
-      throw e;
+      await deleteDoc(doc(db, 'products', productId));
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, `products/${productId}`);
     }
   };
 
   const addProduct = async (product: Product) => {
-    const newProducts = [product, ...allProducts];
-    setAllProducts(newProducts);
     try {
-      localStorage.setItem('shopbd_products', JSON.stringify(newProducts));
-    } catch (e) {
-      console.error("Failed to add product to localStorage:", e);
-      if (e instanceof Error && e.name === 'QuotaExceededError') {
-        throw new Error('Storage quota exceeded. Please delete some products or use smaller images.');
-      }
-      throw e;
+      await setDoc(doc(db, 'products', product.id), product);
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, `products/${product.id}`);
     }
   };
 
-  const updateCategory = (oldName: string, newName: string) => {
+  const updateCategory = async (oldName: string, newName: string) => {
     if (!newName || oldName === newName) return;
-    const newCategories = categories.map(c => c === oldName ? newName : c);
-    setCategories(newCategories);
-  };
-
-  const deleteCategory = (name: string) => {
-    if (!name) return;
-    const newCategories = categories.filter(c => c !== name);
-    if (!newCategories.includes('Uncategorized')) {
-      newCategories.push('Uncategorized');
+    try {
+      // In Firestore, we store categories as documents
+      const q = query(collection(db, 'categories'), where('name', '==', oldName));
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        const categoryDoc = querySnapshot.docs[0];
+        await updateDoc(doc(db, 'categories', categoryDoc.id), { name: newName });
+      } else {
+        // If not found, just add it
+        await addDoc(collection(db, 'categories'), { name: newName });
+      }
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, 'categories');
     }
-    setCategories(newCategories);
   };
 
-  const addCategory = (name: string) => {
+  const deleteCategory = async (name: string) => {
+    if (!name) return;
+    try {
+      const q = query(collection(db, 'categories'), where('name', '==', name));
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        const categoryDoc = querySnapshot.docs[0];
+        await deleteDoc(doc(db, 'categories', categoryDoc.id));
+      }
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, 'categories');
+    }
+  };
+
+  const addCategory = async (name: string) => {
     if (!name || categories.includes(name)) return;
-    setCategories([...categories, name]);
+    try {
+      await addDoc(collection(db, 'categories'), { name });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, 'categories');
+    }
   };
 
   const addAddress = (address: Address) => {

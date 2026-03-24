@@ -1,0 +1,133 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: products
+    // Document ID: productId
+    // Fields:
+    //   - id: string (required)
+    //   - name: string (required)
+    //   - price: number (required)
+    //   - image: string (required)
+    //   - category: string (required)
+    //   - rating: number (optional)
+    //   - isAvailable: boolean (optional)
+    //   - description: string (optional)
+    //   - orderPolicy: string (optional)
+    //   - sizes: list (optional)
+    //
+    // Collection: orders
+    // Document ID: orderId
+    // Fields:
+    //   - id: string (required)
+    //   - customerName: string (required)
+    //   - phone: string (required)
+    //   - address: string (required)
+    //   - total: number (required)
+    //   - status: string (required)
+    //   - date: string (required)
+    //   - items: list (required)
+    //   - paymentMethod: string (optional)
+    //   - uid: string (optional)
+    //
+    // Collection: categories
+    // Document ID: categoryId
+    // Fields:
+    //   - name: string (required)
+    //
+    // Collection: config
+    // Document ID: settings
+    // Fields:
+    //   - bannerImage: string
+    //   - whatsappNumber: string
+    //   - facebookLink: string
+    //   - youtubeLink: string
+    //   - tiktokLink: string
+    //   - globalOrderPolicy: string
+    //   - shippingRates: map
+    //   - adminUsername: string
+    //   - adminPassword: string
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "mstkarimabibi45@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.uid;
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function isValidProduct(data) {
+      return data.id is string && data.id.size() > 0 &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 200 &&
+             data.price is number && data.price >= 0 &&
+             data.image is string && data.image.size() > 0 &&
+             data.category is string && data.category.size() > 0;
+    }
+
+    function isValidOrder(data) {
+      return data.id is string && data.id.size() > 0 &&
+             data.customerName is string && data.customerName.size() > 0 &&
+             data.phone is string && data.phone.size() > 0 &&
+             data.total is number && data.total >= 0 &&
+             data.status in ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'] &&
+             data.items is list;
+    }
+
+    function isValidCategory(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() < 100;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidProduct(request.resource.data);
+    }
+
+    match /orders/{orderId} {
+      allow read: if isAdmin() || (isAuthenticated() && request.auth.uid == resource.data.uid);
+      allow create: if isValidOrder(request.resource.data) && (isAdmin() || (isAuthenticated() && request.resource.data.uid == request.auth.uid) || (!isAuthenticated() && request.resource.data.uid == 'guest'));
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidCategory(request.resource.data);
+    }
+
+    match /config/settings {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow write: if isOwner(userId) || isAdmin();
+    }
+  }
+}
