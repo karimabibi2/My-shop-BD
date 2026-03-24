@@ -33,10 +33,18 @@ const AdminLogin: React.FC = () => {
 
   const handleGoogleLogin = async () => {
     try {
+      setError('');
       await signInWithGoogle();
       // Navigation is handled by useEffect
-    } catch (err) {
-      setError('Google Login failed. Please try again.');
+    } catch (err: any) {
+      console.error('Google Login Error:', err);
+      if (err.code === 'auth/popup-blocked') {
+        setError('Popup blocked by browser. Please allow popups for this site.');
+      } else if (err.code === 'auth/cancelled-popup-request') {
+        setError('Login cancelled. Please try again.');
+      } else {
+        setError(`Google Login failed: ${err.message || 'Unknown error'}`);
+      }
     }
   };
 
