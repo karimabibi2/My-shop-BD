@@ -60,7 +60,8 @@
       "description": "A product category",
       "type": "object",
       "properties": {
-        "name": { "type": "string" }
+        "name": { "type": "string" },
+        "image": { "type": "string" }
       },
       "required": ["name"]
     },
@@ -79,6 +80,16 @@
         "adminUsername": { "type": "string" },
         "adminPassword": { "type": "string" }
       }
+    },
+    "Cart": {
+      "title": "User Cart",
+      "description": "A user's shopping cart",
+      "type": "object",
+      "properties": {
+        "items": { "type": "array" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["items", "updatedAt"]
     }
   },
   "firestore": {
@@ -97,6 +108,10 @@
     "/config/settings": {
       "schema": "Config",
       "description": "Global settings document"
+    },
+    "/carts/{userId}": {
+      "schema": "Cart",
+      "description": "User specific shopping carts"
     }
   }
 }

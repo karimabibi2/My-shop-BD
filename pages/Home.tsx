@@ -37,10 +37,10 @@ const Home: React.FC = () => {
     if (activeCategory !== 'All' || searchQuery) return [];
     
     return categories
-      .filter(cat => cat !== 'All')
+      .filter(cat => cat.name !== 'All')
       .map(cat => ({
-        name: cat,
-        products: allProducts.filter(p => p.category === cat).slice(0, 8)
+        name: cat.name,
+        products: allProducts.filter(p => p.category === cat.name).slice(0, 8)
       }))
       .filter(group => group.products.length > 0);
   }, [activeCategory, searchQuery, categories, allProducts]);

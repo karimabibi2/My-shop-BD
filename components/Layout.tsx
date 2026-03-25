@@ -207,14 +207,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
               {categories.map((cat) => (
                 <button
-                  key={cat}
-                  onClick={() => handleCategorySelect(cat)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 transition-colors border-b border-gray-50 dark:border-slate-800 ${activeCategory === cat ? 'bg-red-50 dark:bg-red-950/20' : 'hover:bg-gray-50 dark:hover:bg-slate-800'}`}
+                  key={cat.id}
+                  onClick={() => handleCategorySelect(cat.name)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 transition-colors border-b border-gray-50 dark:border-slate-800 ${activeCategory === cat.name ? 'bg-red-50 dark:bg-red-950/20' : 'hover:bg-gray-50 dark:hover:bg-slate-800'}`}
                 >
                     <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 flex-shrink-0">
                       <img 
-                        src={`https://picsum.photos/seed/${cat.replace(/[^a-zA-Z]/g, '')}/100/100`} 
-                        alt={cat}
+                        src={cat.image || `https://picsum.photos/seed/${cat.name.replace(/[^a-zA-Z]/g, '')}/100/100`} 
+                        alt={cat.name}
                         referrerPolicy="no-referrer"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
@@ -223,8 +223,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                         className="w-full h-full object-cover"
                       />
                     </div>
-                  <span className={`text-[12px] font-bold text-left flex-1 ${activeCategory === cat ? 'text-[#e62e04]' : 'text-gray-700 dark:text-gray-300'}`}>
-                    {cat}
+                  <span className={`text-[12px] font-bold text-left flex-1 ${activeCategory === cat.name ? 'text-[#e62e04]' : 'text-gray-700 dark:text-gray-300'}`}>
+                    {cat.name}
                   </span>
                 </button>
               ))}

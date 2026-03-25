@@ -51,6 +51,12 @@ service cloud.firestore {
     //   - adminUsername: string
     //   - adminPassword: string
     //
+    // Collection: carts
+    // Document ID: userId
+    // Fields:
+    //   - items: list (required)
+    //   - updatedAt: string (required)
+    //
     // ===============================================================
 
     // ===============================================================
@@ -130,6 +136,11 @@ service cloud.firestore {
       allow create: if isOwner(userId);
       allow update: if isOwner(userId) || isAdmin();
       allow delete: if isAdmin();
+    }
+
+    match /carts/{userId} {
+      allow read: if isOwner(userId);
+      allow write: if isOwner(userId);
     }
   }
 }

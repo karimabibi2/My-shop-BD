@@ -64,9 +64,9 @@ const AdminPanel: React.FC = () => {
   const [editingProduct, setEditingProduct] = useState<any>(null);
 
   // Category Edit State
-  const [editingCategory, setEditingCategory] = useState<{ oldName: string, newName: string } | null>(null);
+  const [editingCategory, setEditingCategory] = useState<{ oldName: string, newName: string, image?: string } | null>(null);
   const [isAddingCategory, setIsAddingCategory] = useState(false);
-  const [newCategoryName, setNewCategoryName] = useState('');
+  const [newCategory, setNewCategory] = useState<{ name: string, image?: string }>({ name: '', image: '' });
   
   // Delivery Rates Local State
   const [rates, setRates] = useState(shippingRates);
@@ -168,6 +168,32 @@ const AdminPanel: React.FC = () => {
         } catch (error) {
           console.error("Image resize failed:", error);
           setEditingProduct({ ...editingProduct, image: base64 });
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCategoryImageUpload = (e: React.ChangeEvent<HTMLInputElement>, isNew: boolean) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64 = reader.result as string;
+        try {
+          const resized = await resizeImage(base64, 400, 400);
+          if (isNew) {
+            setNewCategory({ ...newCategory, image: resized });
+          } else if (editingCategory) {
+            setEditingCategory({ ...editingCategory, image: resized });
+          }
+        } catch (error) {
+          console.error("Image resize failed:", error);
+          if (isNew) {
+            setNewCategory({ ...newCategory, image: base64 });
+          } else if (editingCategory) {
+            setEditingCategory({ ...editingCategory, image: base64 });
+          }
         }
       };
       reader.readAsDataURL(file);
@@ -357,69 +383,142 @@ const AdminPanel: React.FC = () => {
             <div className="flex justify-between items-center px-1">
               <h3 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-widest">{t('store_inventory')}</h3>
               <button 
-                onClick={() => setEditingProduct({ id: 'new-' + Date.now(), name: '', price: 0, rating: 5, category: categories[0], isAvailable: true, image: 'https://picsum.photos/400', description: '', orderPolicy: '', sizes: [] })}
+                onClick={() => setEditingProduct({ 
+                  id: 'new-' + Date.now(), 
+                  name: '', 
+                  price: 0, 
+                  rating: 5, 
+                  category: categories[0]?.name || 'Uncategorized', 
+                  isAvailable: true, 
+                  image: 'https://picsum.photos/400', 
+                  description: 'এটি একটি প্রিমিয়াম কোয়ালিটি পণ্য। আমাদের প্রতিটি পণ্য অত্যন্ত যত্ন সহকারে তৈরি করা হয় এবং গুণমান নিশ্চিত করা হয়।', 
+                  orderPolicy: 'সারা বাংলাদেশে ক্যাশ অন ডেলিভারি সুবিধা রয়েছে। ঢাকা সিটির ভিতরে ডেলিভারি চার্জ ৬০ টাকা এবং ঢাকার বাইরে ১২০ টাকা। ডেলিভারি সময় ২-৩ কার্যদিবস।', 
+                  sizes: [] 
+                })}
                 className="bg-green-500 text-white p-2 rounded-lg"
               >
                 <Plus size={18} />
               </button>
             </div>
 
-            <div className="flex flex-col gap-3">
-              {allProducts.map(product => (
-                <div key={product.id} className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm flex items-center gap-3">
-                  <img 
-                    src={product.image} 
-                    className="w-12 h-12 rounded-lg object-contain bg-gray-50" 
-                    referrerPolicy="no-referrer"
-                    alt={product.name}
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=400&h=400&fit=crop';
-                    }}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-[11px] font-bold text-gray-800 dark:text-white truncate">{product.name}</h4>
-                    {product.description && (
-                      <p className="text-[8px] text-gray-400 truncate mt-0.5">{product.description}</p>
-                    )}
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-[10px] font-black text-[#e62e04]">৳{product.price}</span>
-                      <span className={`text-[8px] font-bold uppercase px-1.5 py-0.5 rounded ${product.isAvailable ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
-                        {product.isAvailable ? t('in_stock') : t('out_of_stock')}
-                      </span>
+            <div className="flex flex-col gap-6">
+              {categories.map(cat => {
+                const category = cat.name;
+                const categoryProducts = allProducts.filter(p => p.category === category);
+                if (categoryProducts.length === 0) return null;
+                return (
+                  <div key={cat.id} className="flex flex-col gap-3">
+                    <div className="flex items-center gap-2 px-1">
+                      <div className="h-4 w-1 bg-[#e62e04] rounded-full"></div>
+                      <h4 className="text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-widest">{category}</h4>
+                      <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest ml-auto">{categoryProducts.length} Items</span>
+                    </div>
+                    <div className="flex flex-col gap-3">
+                      {categoryProducts.map(product => (
+                        <div key={product.id} className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm flex items-center gap-3">
+                          <img 
+                            src={product.image} 
+                            className="w-12 h-12 rounded-lg object-contain bg-gray-50" 
+                            referrerPolicy="no-referrer"
+                            alt={product.name}
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=400&h=400&fit=crop';
+                            }}
+                          />
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-[11px] font-bold text-gray-800 dark:text-white truncate">{product.name}</h4>
+                            {product.description && (
+                              <p className="text-[8px] text-gray-400 truncate mt-0.5">{product.description}</p>
+                            )}
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="text-[10px] font-black text-[#e62e04]">৳{product.price}</span>
+                              <span className={`text-[8px] font-bold uppercase px-1.5 py-0.5 rounded ${product.isAvailable ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
+                                {product.isAvailable ? t('in_stock') : t('out_of_stock')}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button 
+                              onClick={() => setEditingProduct(product)} 
+                              className="px-3 py-1.5 bg-blue-500 text-white rounded-lg flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest shadow-sm shadow-blue-100"
+                            >
+                              <Edit2 size={12} /> {t('edit')}
+                            </button>
+                            <button 
+                              onClick={() => setEditingProduct(product)} 
+                              className="px-3 py-1.5 bg-amber-500 text-white rounded-lg flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest shadow-sm shadow-amber-100"
+                            >
+                              <FileText size={12} /> {t('order_policy')}
+                            </button>
+                            <button 
+                              onClick={async () => {
+                                if (window.confirm(t('confirm_delete_product'))) {
+                                  try {
+                                    await deleteProduct(product.id);
+                                    alert(t('product_deleted'));
+                                  } catch (e: any) {
+                                    alert(e.message || t('failed_to_delete_product'));
+                                  }
+                                }
+                              }} 
+                              className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <button 
-                      onClick={() => setEditingProduct(product)} 
-                      className="px-3 py-1.5 bg-blue-500 text-white rounded-lg flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest shadow-sm shadow-blue-100"
-                    >
-                      <Edit2 size={12} /> {t('edit')}
-                    </button>
-                    <button 
-                      onClick={() => setEditingProduct(product)} 
-                      className="px-3 py-1.5 bg-amber-500 text-white rounded-lg flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest shadow-sm shadow-amber-100"
-                    >
-                      <FileText size={12} /> {t('order_policy')}
-                    </button>
-                    <button 
-                      onClick={async () => {
-                        if (window.confirm(t('confirm_delete_product'))) {
-                          try {
-                            await deleteProduct(product.id);
-                            alert(t('product_deleted'));
-                          } catch (e: any) {
-                            alert(e.message || t('failed_to_delete_product'));
-                          }
-                        }
-                      }} 
-                      className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
+            </div>
+
+            {/* Category Wise Image Gallery at the Bottom */}
+            <div className="mt-10 pt-10 border-t border-gray-100 dark:border-slate-800">
+              <h3 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-widest px-1 mb-6 flex items-center gap-2">
+                <ImageIcon size={18} className="text-[#e62e04]" />
+                {t('category_gallery')}
+              </h3>
+              <div className="flex flex-col gap-8">
+                {categories.map(cat => {
+                  const category = cat.name;
+                  const categoryProducts = allProducts.filter(p => p.category === category);
+                  if (categoryProducts.length === 0) return null;
+                  return (
+                    <div key={cat.id} className="flex flex-col gap-3">
+                      <div className="flex items-center gap-3 px-1">
+                        <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-800">
+                          {cat.image ? (
+                            <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-[#e62e04] bg-red-50">
+                              <ImageIcon size={14} />
+                            </div>
+                          )}
+                        </div>
+                        <h4 className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{category}</h4>
+                      </div>
+                      <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                        {categoryProducts.map(product => (
+                          <div key={product.id} className="aspect-square rounded-xl overflow-hidden bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-800 shadow-sm group relative">
+                            <img 
+                              src={product.image} 
+                              alt={product.name} 
+                              className="w-full h-full object-contain p-1 group-hover:scale-110 transition-transform duration-300"
+                              referrerPolicy="no-referrer"
+                            />
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                              <span className="text-[6px] text-white font-black uppercase text-center px-1">{product.name}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         )}
@@ -438,38 +537,49 @@ const AdminPanel: React.FC = () => {
             </div>
 
             <div className="flex flex-col gap-3">
-              {categories.map(category => (
-                <div key={category} className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm flex items-center justify-between">
-                  <div className="flex flex-col">
-                    <span className="text-xs font-black text-gray-800 dark:text-white uppercase tracking-wider">{category}</span>
-                    <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">
-                      {allProducts.filter(p => p.category === category).length} {t('products')}
-                    </span>
+              {categories.map(cat => (
+                <div key={cat.id} className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-800 flex items-center justify-center">
+                      {cat.image ? (
+                        <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                      ) : (
+                        <div className="text-[#e62e04]">
+                          <ImageIcon size={20} />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-xs font-black text-gray-800 dark:text-white uppercase tracking-wider">{cat.name}</span>
+                      <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">
+                        {allProducts.filter(p => p.category === cat.name).length} {t('products')}
+                      </span>
+                    </div>
                   </div>
                   <div className="flex items-center gap-1">
                     <button 
-                      onClick={() => setEditingCategory({ oldName: category, newName: category })}
+                      onClick={() => setEditingCategory({ oldName: cat.name, newName: cat.name, image: cat.image })}
                       className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950/20 rounded-lg flex items-center gap-1 text-[10px] font-black uppercase"
                     >
                       <Edit2 size={14} /> {t('edit')}
                     </button>
                     <button 
                       onClick={async () => {
-                        if (category === 'Uncategorized') {
+                        if (cat.name === 'Uncategorized') {
                           alert('The "Uncategorized" category cannot be deleted.');
                           return;
                         }
                         if (window.confirm(t('confirm_delete_category'))) {
                           try {
-                            await deleteCategory(category);
+                            await deleteCategory(cat.name);
                             alert(t('category_deleted'));
                           } catch (e) {
                             alert(t('failed_to_delete_category'));
                           }
                         }
                       }}
-                      disabled={category === 'Uncategorized'}
-                      className={`p-2 rounded-lg flex items-center gap-1 text-[10px] font-black uppercase ${category === 'Uncategorized' ? 'text-gray-300 cursor-not-allowed' : 'text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20'}`}
+                      disabled={cat.name === 'Uncategorized'}
+                      className={`p-2 rounded-lg flex items-center gap-1 text-[10px] font-black uppercase ${cat.name === 'Uncategorized' ? 'text-gray-300 cursor-not-allowed' : 'text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20'}`}
                     >
                       <Trash2 size={14} /> {t('delete')}
                     </button>
@@ -1345,7 +1455,7 @@ const AdminPanel: React.FC = () => {
                         onChange={(e) => setEditingProduct({...editingProduct, category: e.target.value})}
                         className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-xs font-bold dark:text-white"
                       >
-                        {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                        {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
                       </select>
                     </div>
                     <div className="flex flex-col gap-1.5">
@@ -1524,21 +1634,44 @@ const AdminPanel: React.FC = () => {
                     <label className="text-[9px] font-black text-gray-400 uppercase">{t('category_name')}</label>
                     <input 
                       type="text" 
-                      value={newCategoryName}
-                      onChange={(e) => setNewCategoryName(e.target.value)}
+                      value={newCategory.name}
+                      onChange={(e) => setNewCategory({...newCategory, name: e.target.value})}
                       className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-xs font-bold dark:text-white"
                       placeholder={t('category_name_placeholder')}
                       autoFocus
                     />
                   </div>
 
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[9px] font-black text-gray-400 uppercase">{t('category_image')}</label>
+                    <div className="flex gap-3 items-center">
+                      <div className="w-16 h-16 rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                        {newCategory.image ? (
+                          <img src={newCategory.image} alt="Preview" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                        ) : (
+                          <ImageIcon size={20} className="text-gray-300" />
+                        )}
+                      </div>
+                      <label className="flex-1 cursor-pointer bg-gray-50 dark:bg-slate-800 border-2 border-dashed border-gray-200 dark:border-slate-700 rounded-xl p-2 flex flex-col items-center justify-center gap-1 hover:border-green-500 transition-colors">
+                        <Upload size={14} className="text-gray-400" />
+                        <span className="text-[8px] font-black uppercase text-gray-500">{t('upload')}</span>
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          className="hidden" 
+                          onChange={(e) => handleCategoryImageUpload(e, true)}
+                        />
+                      </label>
+                    </div>
+                  </div>
+
                   <button 
                     onClick={async () => {
-                      if (newCategoryName.trim()) {
+                      if (newCategory.name.trim()) {
                         try {
-                          await addCategory(newCategoryName.trim());
+                          await addCategory(newCategory.name.trim(), newCategory.image);
                           alert(t('category_added'));
-                          setNewCategoryName('');
+                          setNewCategory({ name: '', image: '' });
                           setIsAddingCategory(false);
                         } catch (e) {
                           alert(t('failed_to_add_category'));
@@ -1575,6 +1708,29 @@ const AdminPanel: React.FC = () => {
                     />
                   </div>
 
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[9px] font-black text-gray-400 uppercase">{t('category_image')}</label>
+                    <div className="flex gap-3 items-center">
+                      <div className="w-16 h-16 rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                        {editingCategory.image ? (
+                          <img src={editingCategory.image} alt="Preview" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                        ) : (
+                          <ImageIcon size={20} className="text-gray-300" />
+                        )}
+                      </div>
+                      <label className="flex-1 cursor-pointer bg-gray-50 dark:bg-slate-800 border-2 border-dashed border-gray-200 dark:border-slate-700 rounded-xl p-2 flex flex-col items-center justify-center gap-1 hover:border-[#e62e04] transition-colors">
+                        <Upload size={14} className="text-gray-400" />
+                        <span className="text-[8px] font-black uppercase text-gray-500">{t('upload')}</span>
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          className="hidden" 
+                          onChange={(e) => handleCategoryImageUpload(e, false)}
+                        />
+                      </label>
+                    </div>
+                  </div>
+
                   <p className="text-[8px] text-gray-400 font-bold uppercase leading-tight px-1">
                     {t('category_update_warning')}
                   </p>
@@ -1582,7 +1738,7 @@ const AdminPanel: React.FC = () => {
                   <button 
                     onClick={async () => {
                       try {
-                        await updateCategory(editingCategory.oldName, editingCategory.newName);
+                        await updateCategory(editingCategory.oldName, editingCategory.newName, editingCategory.image);
                         alert(t('category_updated'));
                         setEditingCategory(null);
                       } catch (e) {

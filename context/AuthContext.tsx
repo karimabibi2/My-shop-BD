@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { User, Order, Address, Product } from '../types';
+import { User, Order, Address, Product, Category } from '../types';
 import { MOCK_PRODUCTS, DELIVERY_RATES, CATEGORIES } from '../constants';
 import { trackingService, TrackingConfig } from '../services/TrackingService';
 import { 
@@ -64,7 +64,7 @@ interface AuthContextType {
   user: User | null;
   orders: Order[];
   allProducts: Product[];
-  categories: string[];
+  categories: Category[];
   addresses: Address[];
   shippingRates: Record<string, number>;
   login: (email: string, password?: string) => Promise<void>;
@@ -78,9 +78,10 @@ interface AuthContextType {
   updateProduct: (product: Product) => Promise<void>;
   deleteProduct: (productId: string) => Promise<void>;
   addProduct: (product: Product) => Promise<void>;
-  updateCategory: (oldName: string, newName: string) => void;
-  deleteCategory: (name: string) => void;
-  addCategory: (name: string) => void;
+  updateCategory: (oldName: string, newName: string, image?: string) => Promise<void>;
+  deleteCategory: (name: string) => Promise<void>;
+  addCategory: (name: string, image?: string) => Promise<void>;
+  updateCategoryImage: (categoryName: string, image: string) => Promise<void>;
   addAddress: (address: Address) => void;
   removeAddress: (addressId: string) => void;
   updateShippingRates: (rates: Record<string, number>) => void;
@@ -121,7 +122,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isAuthReady, setIsAuthReady] = useState(false);
   const [orders, setOrders] = useState<Order[]>([]);
   const [allProducts, setAllProducts] = useState<Product[]>(MOCK_PRODUCTS);
-  const [categories, setCategories] = useState<string[]>(CATEGORIES);
+  const [categories, setCategories] = useState<Category[]>(CATEGORIES.map(name => ({ id: name, name })));
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [shippingRates, setShippingRates] = useState<Record<string, number>>(DELIVERY_RATES);
   const [bannerImage, setBannerImage] = useState<string>('https://picsum.photos/seed/shop/800/400');
@@ -183,8 +184,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, (error) => handleFirestoreError(error, OperationType.GET, 'products'));
 
     const unsubscribeCategories = onSnapshot(collection(db, 'categories'), (snapshot) => {
-      const categoriesData = snapshot.docs.map(doc => doc.data().name as string);
-      setCategories(categoriesData.length > 0 ? categoriesData : CATEGORIES);
+      const categoriesData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as Category));
+      setCategories(categoriesData.length > 0 ? categoriesData : CATEGORIES.map(name => ({ id: name, name })));
     }, (error) => handleFirestoreError(error, OperationType.GET, 'categories'));
 
     const unsubscribeConfig = onSnapshot(doc(db, 'config', 'settings'), (snapshot) => {
@@ -427,18 +431,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const updateCategory = async (oldName: string, newName: string) => {
-    if (!newName || oldName === newName) return;
+  const updateCategory = async (oldName: string, newName: string, image?: string) => {
+    if (!newName) return;
     try {
-      // In Firestore, we store categories as documents
       const q = query(collection(db, 'categories'), where('name', '==', oldName));
       const querySnapshot = await getDocs(q);
       if (!querySnapshot.empty) {
         const categoryDoc = querySnapshot.docs[0];
-        await updateDoc(doc(db, 'categories', categoryDoc.id), { name: newName });
+        const updateData: any = { name: newName };
+        if (image) updateData.image = image;
+        await updateDoc(doc(db, 'categories', categoryDoc.id), updateData);
       } else {
-        // If not found, just add it
-        await addDoc(collection(db, 'categories'), { name: newName });
+        await addDoc(collection(db, 'categories'), { name: newName, image: image || '' });
       }
     } catch (error) {
       handleFirestoreError(error, OperationType.UPDATE, 'categories');
@@ -459,12 +463,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const addCategory = async (name: string) => {
-    if (!name || categories.includes(name)) return;
+  const addCategory = async (name: string, image?: string) => {
+    if (!name || categories.some(c => c.name === name)) return;
     try {
-      await addDoc(collection(db, 'categories'), { name });
+      await addDoc(collection(db, 'categories'), { name, image: image || '' });
     } catch (error) {
       handleFirestoreError(error, OperationType.WRITE, 'categories');
+    }
+  };
+
+  const updateCategoryImage = async (categoryName: string, image: string) => {
+    try {
+      const q = query(collection(db, 'categories'), where('name', '==', categoryName));
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        const categoryDoc = querySnapshot.docs[0];
+        await updateDoc(doc(db, 'categories', categoryDoc.id), { image });
+      } else {
+        await addDoc(collection(db, 'categories'), { name: categoryName, image });
+      }
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, 'categories');
     }
   };
 
@@ -494,8 +513,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const syncCategories = () => {
-    setCategories(CATEGORIES);
-    localStorage.setItem('shopbd_categories', JSON.stringify(CATEGORIES));
+    const defaultCategories = CATEGORIES.map(name => ({ id: name, name }));
+    setCategories(defaultCategories);
+    localStorage.setItem('shopbd_categories', JSON.stringify(defaultCategories));
   };
 
   const updateBannerImage = (image: string) => {
@@ -546,7 +566,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       facebookLink, youtubeLink, tiktokLink,
       login, signup, adminLogin, logout, 
       signInWithGoogle, resetPassword,
-      addOrder, updateOrderStatus, updateProduct, deleteProduct, addProduct, updateCategory, deleteCategory, addCategory,
+      addOrder, updateOrderStatus, updateProduct, deleteProduct, addProduct, updateCategory, deleteCategory, addCategory, updateCategoryImage,
       addAddress, removeAddress, updateShippingRates, updateUser, 
       syncProducts, syncCategories,
       updateBannerImage, updateWhatsappNumber,

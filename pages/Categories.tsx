@@ -26,7 +26,7 @@ const Categories: React.FC = () => {
   const { categories } = useAuth();
   const { t } = useLanguage();
 
-  const handleCategoryClick = (category: string) => {
+  const handleCategoryClick = (categoryName: string) => {
     // Navigate home and potentially pass state to filter, 
     // but for now we'll just show the list as requested.
     navigate('/');
@@ -42,16 +42,20 @@ const Categories: React.FC = () => {
         <div className="grid grid-cols-1 gap-3">
           {categories.map((cat) => (
             <button
-              key={cat}
-              onClick={() => handleCategoryClick(cat)}
-              className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between group active:scale-[0.98] transition-all"
+              key={cat.id}
+              onClick={() => handleCategoryClick(cat.name)}
+              className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm flex items-center justify-between group active:scale-[0.98] transition-all"
             >
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gray-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-[#e62e04] group-hover:bg-[#e62e04] group-hover:text-white transition-colors">
-                  {categoryIcons[cat] || <LayoutGrid size={24} />}
+                <div className="w-12 h-12 bg-gray-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-[#e62e04] group-hover:bg-[#e62e04] group-hover:text-white transition-colors overflow-hidden">
+                  {cat.image ? (
+                    <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  ) : (
+                    categoryIcons[cat.name] || <LayoutGrid size={24} />
+                  )}
                 </div>
                 <div className="flex flex-col items-start">
-                  <span className="text-sm font-bold text-gray-800 dark:text-gray-200">{cat}</span>
+                  <span className="text-sm font-bold text-gray-800 dark:text-gray-200">{cat.name}</span>
                   <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">{t('explore_collection')}</span>
                 </div>
               </div>

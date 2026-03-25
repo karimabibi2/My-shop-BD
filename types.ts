@@ -49,4 +49,10 @@ export interface Order {
   uid?: string;
 }
 
+export interface Category {
+  id: string;
+  name: string;
+  image?: string;
+}
+
 export type CategoryType = string;
