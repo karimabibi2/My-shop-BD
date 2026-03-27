@@ -37,11 +37,12 @@ const AdminPanel: React.FC = () => {
     visitorCount, trackingLogs,
     customApiKey, updateCustomApiKey,
     twelvedataApiKey, updateTwelvedataApiKey,
+    landingConfig, updateLandingConfig,
     isAuthReady
   } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'orders' | 'settings' | 'categories'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'orders' | 'settings' | 'categories' | 'landing'>('dashboard');
 
   useEffect(() => {
     if (isAuthReady && (!user || !user.isAdmin)) {
@@ -53,7 +54,7 @@ const AdminPanel: React.FC = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const tab = params.get('tab');
-    if (tab && ['dashboard', 'products', 'orders', 'settings', 'categories'].includes(tab)) {
+    if (tab && ['dashboard', 'products', 'orders', 'settings', 'categories', 'landing'].includes(tab)) {
       setActiveTab(tab as any);
     } else {
       setActiveTab('dashboard');
@@ -83,6 +84,7 @@ const AdminPanel: React.FC = () => {
   const [localTracking, setLocalTracking] = useState(trackingConfig);
   const [localApiKey, setLocalApiKey] = useState(customApiKey);
   const [localTwelvedataKey, setLocalTwelvedataKey] = useState(twelvedataApiKey);
+  const [localLandingConfig, setLocalLandingConfig] = useState(landingConfig);
   const [hasApiKey, setHasApiKey] = useState(false);
 
   useEffect(() => {
@@ -155,6 +157,10 @@ const AdminPanel: React.FC = () => {
   useEffect(() => {
     setLocalTracking(trackingConfig);
   }, [trackingConfig]);
+
+  useEffect(() => {
+    setLocalLandingConfig(landingConfig);
+  }, [landingConfig]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -244,6 +250,7 @@ const AdminPanel: React.FC = () => {
               {activeTab === 'products' && t('inventory')}
               {activeTab === 'orders' && t('sales_orders')}
               {activeTab === 'categories' && t('categories')}
+              {activeTab === 'landing' && t('landing_page_settings')}
               {activeTab === 'settings' && t('store_settings')}
             </h1>
             <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
@@ -416,16 +423,18 @@ const AdminPanel: React.FC = () => {
                     <div className="flex flex-col gap-3">
                       {categoryProducts.map(product => (
                         <div key={product.id} className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm flex items-center gap-3">
-                          <img 
-                            src={product.image} 
-                            className="w-12 h-12 rounded-lg object-contain bg-gray-50" 
-                            referrerPolicy="no-referrer"
-                            alt={product.name}
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.src = 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=400&h=400&fit=crop';
-                            }}
-                          />
+                          <div className="w-12 h-12 rounded-lg bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-800 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                            {product.image ? (
+                              <img 
+                                src={product.image} 
+                                className="w-full h-full object-contain" 
+                                referrerPolicy="no-referrer"
+                                alt={product.name}
+                              />
+                            ) : (
+                              <Package size={20} className="text-gray-300 dark:text-gray-600" />
+                            )}
+                          </div>
                           <div className="flex-1 min-w-0">
                             <h4 className="text-[11px] font-bold text-gray-800 dark:text-white truncate">{product.name}</h4>
                             {product.description && (
@@ -503,12 +512,18 @@ const AdminPanel: React.FC = () => {
                       <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
                         {categoryProducts.map(product => (
                           <div key={product.id} className="aspect-square rounded-xl overflow-hidden bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-800 shadow-sm group relative">
-                            <img 
-                              src={product.image} 
-                              alt={product.name} 
-                              className="w-full h-full object-contain p-1 group-hover:scale-110 transition-transform duration-300"
-                              referrerPolicy="no-referrer"
-                            />
+                            <div className="w-full h-full flex items-center justify-center">
+                              {product.image ? (
+                                <img 
+                                  src={product.image} 
+                                  alt={product.name} 
+                                  className="w-full h-full object-contain p-1 group-hover:scale-110 transition-transform duration-300"
+                                  referrerPolicy="no-referrer"
+                                />
+                              ) : (
+                                <Package size={16} className="text-gray-300" />
+                              )}
+                            </div>
                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                               <span className="text-[6px] text-white font-black uppercase text-center px-1">{product.name}</span>
                             </div>
@@ -695,6 +710,257 @@ const AdminPanel: React.FC = () => {
           </div>
         )}
 
+        {/* --- Landing Tab --- */}
+        {activeTab === 'landing' && (
+          <div className="flex flex-col gap-5 animate-in slide-in-from-bottom-4 duration-300 pb-10">
+            {/* Featured Product Selection */}
+            <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                <Package size={18} className="text-[#e62e04]" />
+                <h4 className="text-[11px] font-black uppercase tracking-widest">{t('featured_product')}</h4>
+              </div>
+              <div className="flex flex-col gap-3">
+                <select 
+                  value={localLandingConfig.featuredProductId}
+                  onChange={(e) => {
+                    const productId = e.target.value;
+                    const product = allProducts.find(p => p.id === productId);
+                    setLocalLandingConfig({
+                      ...localLandingConfig, 
+                      featuredProductId: productId,
+                      // Optionally auto-fill description and order policy if they are empty
+                      description: localLandingConfig.description || product?.description || '',
+                      orderPolicy: localLandingConfig.orderPolicy || product?.orderPolicy || ''
+                    });
+                  }}
+                  className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-[10px] font-bold dark:text-white"
+                >
+                  <option value="">{t('select_product')}</option>
+                  {allProducts.map(p => (
+                    <option key={p.id} value={p.id}>{p.name} - ৳{p.price}</option>
+                  ))}
+                </select>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-[9px] font-black text-gray-400 uppercase">{t('landing_description')}</label>
+                  <textarea 
+                    value={localLandingConfig.description || ''}
+                    onChange={(e) => setLocalLandingConfig({...localLandingConfig, description: e.target.value})}
+                    rows={4}
+                    className="bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-[10px] font-bold dark:text-white resize-none"
+                    placeholder={t('description')}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-[9px] font-black text-gray-400 uppercase">{t('landing_order_policy')}</label>
+                  <textarea 
+                    value={localLandingConfig.orderPolicy || ''}
+                    onChange={(e) => setLocalLandingConfig({...localLandingConfig, orderPolicy: e.target.value})}
+                    rows={4}
+                    className="bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-[10px] font-bold dark:text-white resize-none"
+                    placeholder={t('order_policy')}
+                  />
+                </div>
+
+                <button 
+                  onClick={async () => {
+                    try {
+                      await updateLandingConfig(localLandingConfig);
+                      alert(t('landing_config_updated'));
+                    } catch (e) {
+                      alert(t('failed_to_update_settings'));
+                    }
+                  }}
+                  className="w-full bg-[#e62e04] text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
+                >
+                  <Save size={14} /> {t('save_featured_product')}
+                </button>
+              </div>
+            </div>
+
+            {/* FAQs Management */}
+            <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <MessageCircle size={18} className="text-blue-500" />
+                  <h4 className="text-[11px] font-black uppercase tracking-widest">{t('faqs')}</h4>
+                </div>
+                <button 
+                  onClick={() => {
+                    const newFaqs = [...localLandingConfig.faqs, { q: '', a: '' }];
+                    setLocalLandingConfig({...localLandingConfig, faqs: newFaqs});
+                  }}
+                  className="bg-blue-50 dark:bg-blue-950/20 text-blue-600 p-2 rounded-lg"
+                >
+                  <Plus size={16} />
+                </button>
+              </div>
+              
+              <div className="flex flex-col gap-4">
+                {localLandingConfig.faqs.map((faq, idx) => (
+                  <div key={idx} className="p-4 bg-gray-50 dark:bg-slate-800 rounded-xl flex flex-col gap-3 relative">
+                    <button 
+                      onClick={() => {
+                        const newFaqs = localLandingConfig.faqs.filter((_, i) => i !== idx);
+                        setLocalLandingConfig({...localLandingConfig, faqs: newFaqs});
+                      }}
+                      className="absolute top-2 right-2 text-red-500"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[9px] font-black text-gray-400 uppercase">{t('question')} {idx + 1}</label>
+                      <input 
+                        type="text" 
+                        value={faq.q}
+                        onChange={(e) => {
+                          const newFaqs = [...localLandingConfig.faqs];
+                          newFaqs[idx].q = e.target.value;
+                          setLocalLandingConfig({...localLandingConfig, faqs: newFaqs});
+                        }}
+                        className="bg-white dark:bg-slate-900 border-none rounded-lg p-2 text-[10px] font-bold dark:text-white"
+                        placeholder={t('question_placeholder')}
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[9px] font-black text-gray-400 uppercase">{t('answer')} {idx + 1}</label>
+                      <textarea 
+                        value={faq.a}
+                        onChange={(e) => {
+                          const newFaqs = [...localLandingConfig.faqs];
+                          newFaqs[idx].a = e.target.value;
+                          setLocalLandingConfig({...localLandingConfig, faqs: newFaqs});
+                        }}
+                        rows={2}
+                        className="bg-white dark:bg-slate-900 border-none rounded-lg p-2 text-[10px] font-bold dark:text-white resize-none"
+                        placeholder={t('answer_placeholder')}
+                      />
+                    </div>
+                  </div>
+                ))}
+                <button 
+                  onClick={async () => {
+                    try {
+                      await updateLandingConfig(localLandingConfig);
+                      alert(t('landing_config_updated'));
+                    } catch (e) {
+                      alert(t('failed_to_update_settings'));
+                    }
+                  }}
+                  className="w-full bg-blue-600 text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
+                >
+                  <Save size={14} /> {t('save_faqs')}
+                </button>
+              </div>
+            </div>
+
+            {/* Reviews Management */}
+            <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Users size={18} className="text-purple-500" />
+                  <h4 className="text-[11px] font-black uppercase tracking-widest">{t('customer_reviews')}</h4>
+                </div>
+                <button 
+                  onClick={() => {
+                    const newReviews = [...localLandingConfig.reviews, { name: '', text: '', rating: 5, image: '' }];
+                    setLocalLandingConfig({...localLandingConfig, reviews: newReviews});
+                  }}
+                  className="bg-purple-50 dark:bg-purple-950/20 text-purple-600 p-2 rounded-lg"
+                >
+                  <Plus size={16} />
+                </button>
+              </div>
+              
+              <div className="flex flex-col gap-4">
+                {localLandingConfig.reviews.map((review, idx) => (
+                  <div key={idx} className="p-4 bg-gray-50 dark:bg-slate-800 rounded-xl flex flex-col gap-3 relative">
+                    <button 
+                      onClick={() => {
+                        const newReviews = localLandingConfig.reviews.filter((_, i) => i !== idx);
+                        setLocalLandingConfig({...localLandingConfig, reviews: newReviews});
+                      }}
+                      className="absolute top-2 right-2 text-red-500"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="flex flex-col gap-1">
+                        <label className="text-[9px] font-black text-gray-400 uppercase">{t('customer_name')}</label>
+                        <input 
+                          type="text" 
+                          value={review.name}
+                          onChange={(e) => {
+                            const newReviews = [...localLandingConfig.reviews];
+                            newReviews[idx].name = e.target.value;
+                            setLocalLandingConfig({...localLandingConfig, reviews: newReviews});
+                          }}
+                          className="bg-white dark:bg-slate-900 border-none rounded-lg p-2 text-[10px] font-bold dark:text-white"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <label className="text-[9px] font-black text-gray-400 uppercase">{t('rating')}</label>
+                        <input 
+                          type="number" 
+                          min="1" max="5"
+                          value={review.rating}
+                          onChange={(e) => {
+                            const newReviews = [...localLandingConfig.reviews];
+                            newReviews[idx].rating = parseInt(e.target.value);
+                            setLocalLandingConfig({...localLandingConfig, reviews: newReviews});
+                          }}
+                          className="bg-white dark:bg-slate-900 border-none rounded-lg p-2 text-[10px] font-bold dark:text-white"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[9px] font-black text-gray-400 uppercase">{t('review_text')}</label>
+                      <textarea 
+                        value={review.text}
+                        onChange={(e) => {
+                          const newReviews = [...localLandingConfig.reviews];
+                          newReviews[idx].text = e.target.value;
+                          setLocalLandingConfig({...localLandingConfig, reviews: newReviews});
+                        }}
+                        rows={2}
+                        className="bg-white dark:bg-slate-900 border-none rounded-lg p-2 text-[10px] font-bold dark:text-white resize-none"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[9px] font-black text-gray-400 uppercase">{t('customer_image_url')}</label>
+                      <input 
+                        type="text" 
+                        value={review.image}
+                        onChange={(e) => {
+                          const newReviews = [...localLandingConfig.reviews];
+                          newReviews[idx].image = e.target.value;
+                          setLocalLandingConfig({...localLandingConfig, reviews: newReviews});
+                        }}
+                        className="bg-white dark:bg-slate-900 border-none rounded-lg p-2 text-[10px] font-bold dark:text-white"
+                        placeholder="https://..."
+                      />
+                    </div>
+                  </div>
+                ))}
+                <button 
+                  onClick={async () => {
+                    try {
+                      await updateLandingConfig(localLandingConfig);
+                      alert(t('landing_config_updated'));
+                    } catch (e) {
+                      alert(t('failed_to_update_settings'));
+                    }
+                  }}
+                  className="w-full bg-purple-600 text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
+                >
+                  <Save size={14} /> {t('save_reviews')}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* --- Settings Tab --- */}
         {activeTab === 'settings' && (
           <div className="flex flex-col gap-5 animate-in slide-in-from-bottom-4 duration-300 pb-10">
@@ -771,7 +1037,23 @@ const AdminPanel: React.FC = () => {
             </div>
 
             <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center gap-2">
+                <Globe size={18} className="text-[#e62e04]" />
+                <h4 className="text-[11px] font-black uppercase tracking-widest">{t('landing_page_management')}</h4>
+              </div>
+              <p className="text-[9px] text-gray-400 font-bold uppercase leading-tight px-1">
+                {t('landing_page_management_desc')}
+              </p>
+              <button 
+                onClick={() => setActiveTab('landing')}
+                className="w-full bg-[#e62e04] text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
+              >
+                <Edit2 size={14} /> {t('edit_landing_page')}
+              </button>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
+              <div className="flex items-center gap-2">
                 <Truck size={18} className="text-[#e62e04]" />
                 <h4 className="text-[11px] font-black uppercase tracking-widest">{t('delivery_settings')}</h4>
               </div>
@@ -1018,15 +1300,17 @@ const AdminPanel: React.FC = () => {
               
               <div className="flex flex-col gap-3">
                 <div className="w-full h-24 rounded-xl overflow-hidden border border-gray-100 dark:border-slate-800 relative bg-gray-50 dark:bg-slate-800">
-                  <img 
-                    src={newBannerUrl} 
-                    alt="Banner Preview" 
-                    className="w-full h-full object-cover opacity-60"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = 'https://picsum.photos/seed/error/800/400';
-                    }}
-                  />
+                  {newBannerUrl ? (
+                    <img 
+                      src={newBannerUrl} 
+                      alt="Banner Preview" 
+                      className="w-full h-full object-cover opacity-60"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-300">
+                      <ImageIcon size={32} />
+                    </div>
+                  )}
                   <div className="absolute inset-0 flex items-center justify-center">
                     <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest bg-white/80 dark:bg-slate-900/80 px-2 py-1 rounded">{t('preview')}</span>
                   </div>
@@ -1548,10 +1832,6 @@ const AdminPanel: React.FC = () => {
                                 alt="Preview" 
                                 className="w-full h-full object-contain"
                                 referrerPolicy="no-referrer"
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  target.src = 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=400&h=400&fit=crop';
-                                }}
                               />
                               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                 <ImageIcon size={20} className="text-white" />

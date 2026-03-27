@@ -23,7 +23,7 @@ const categoryIcons: Record<string, React.ReactNode> = {
 
 const Categories: React.FC = () => {
   const navigate = useNavigate();
-  const { categories } = useAuth();
+  const { categories, isDataReady } = useAuth();
   const { t } = useLanguage();
 
   const handleCategoryClick = (categoryName: string) => {
@@ -40,28 +40,35 @@ const Categories: React.FC = () => {
         </h2>
         
         <div className="grid grid-cols-1 gap-3">
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => handleCategoryClick(cat.name)}
-              className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm flex items-center justify-between group active:scale-[0.98] transition-all"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gray-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-[#e62e04] group-hover:bg-[#e62e04] group-hover:text-white transition-colors overflow-hidden">
-                  {cat.image ? (
-                    <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                  ) : (
-                    categoryIcons[cat.name] || <LayoutGrid size={24} />
-                  )}
+          {!isDataReady ? (
+            <div className="flex flex-col items-center justify-center py-20 gap-4 bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-gray-200 dark:border-slate-800">
+              <div className="w-10 h-10 border-4 border-[#e62e04] border-t-transparent rounded-full animate-spin"></div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Loading...</p>
+            </div>
+          ) : (
+            categories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => handleCategoryClick(cat.name)}
+                className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm flex items-center justify-between group active:scale-[0.98] transition-all"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gray-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-[#e62e04] group-hover:bg-[#e62e04] group-hover:text-white transition-colors overflow-hidden">
+                    {cat.image ? (
+                      <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    ) : (
+                      categoryIcons[cat.name] || <LayoutGrid size={24} />
+                    )}
+                  </div>
+                  <div className="flex flex-col items-start">
+                    <span className="text-sm font-bold text-gray-800 dark:text-gray-200">{cat.name}</span>
+                    <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">{t('explore_collection')}</span>
+                  </div>
                 </div>
-                <div className="flex flex-col items-start">
-                  <span className="text-sm font-bold text-gray-800 dark:text-gray-200">{cat.name}</span>
-                  <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">{t('explore_collection')}</span>
-                </div>
-              </div>
-              <ChevronRight size={18} className="text-gray-300 group-hover:text-[#e62e04] transition-colors" />
-            </button>
-          ))}
+                <ChevronRight size={18} className="text-gray-300 group-hover:text-[#e62e04] transition-colors" />
+              </button>
+            ))
+          )}
         </div>
       </div>
     </Layout>

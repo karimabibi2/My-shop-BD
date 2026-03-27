@@ -4,7 +4,7 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { 
   BarChart3, Package, ShoppingCart, Settings, 
   Layers, ShieldAlert, LogOut, Home, Moon, Sun,
-  Menu, X
+  Menu, X, Globe
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -97,6 +97,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               <AdminNavLink to="/admin?tab=products" icon={<Package size={20} />} label="Products" collapsed={!isSidebarOpen} onClick={() => window.innerWidth < 640 && setIsSidebarOpen(false)} />
               <AdminNavLink to="/admin?tab=orders" icon={<ShoppingCart size={20} />} label="Orders" collapsed={!isSidebarOpen} onClick={() => window.innerWidth < 640 && setIsSidebarOpen(false)} />
               <AdminNavLink to="/admin?tab=categories" icon={<Layers size={20} />} label="Categories" collapsed={!isSidebarOpen} onClick={() => window.innerWidth < 640 && setIsSidebarOpen(false)} />
+              <AdminNavLink to="/admin?tab=landing" icon={<Globe size={20} />} label="Landing Page" collapsed={!isSidebarOpen} onClick={() => window.innerWidth < 640 && setIsSidebarOpen(false)} />
               <AdminNavLink to="/admin?tab=settings" icon={<Settings size={20} />} label="Settings" collapsed={!isSidebarOpen} onClick={() => window.innerWidth < 640 && setIsSidebarOpen(false)} />
             </nav>
             

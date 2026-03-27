@@ -4,7 +4,7 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { 
   Home, ShoppingCart, User, Bell, Package, Menu, X, 
   ChevronRight, Grid, Moon, Sun, ShieldAlert, MessageCircle,
-  Youtube, Facebook, Languages
+  Youtube, Facebook, Languages, Zap, Truck
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { CATEGORIES } from '../constants';
@@ -100,6 +100,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <div className="flex-1 py-2 overflow-y-auto no-scrollbar">
               <NavLink to="/" onClick={() => setActiveCategory('All')} className="flex items-center gap-4 px-6 py-4 text-gray-700 dark:text-gray-300 font-bold text-sm border-b border-gray-50 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800">
                 <Home size={20} className="text-gray-400" /> {t('home')}
+              </NavLink>
+              
+              <NavLink to="/landing" className="flex items-center gap-4 px-6 py-4 text-gray-700 dark:text-gray-300 font-bold text-sm border-b border-gray-50 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800">
+                <Zap size={20} className="text-gray-400" /> {t('landing')}
               </NavLink>
               
               <button onClick={() => { setIsMenuOpen(false); setIsDrawerOpen(true); }} className="w-full flex items-center gap-4 px-6 py-4 text-gray-700 dark:text-gray-300 font-bold text-sm border-b border-gray-50 dark:border-slate-800 text-left hover:bg-gray-50 dark:hover:bg-slate-800">
@@ -216,10 +220,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                         src={cat.image || `https://picsum.photos/seed/${cat.name.replace(/[^a-zA-Z]/g, '')}/100/100`} 
                         alt={cat.name}
                         referrerPolicy="no-referrer"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=100&h=100&fit=crop';
-                        }}
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -267,10 +267,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   className="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-slate-700" 
                   alt="Profile"
                   referrerPolicy="no-referrer"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`;
-                  }}
                 />
               ) : (
                 <div className="p-1 text-gray-700 dark:text-gray-300">

@@ -272,10 +272,6 @@ const Profile: React.FC = () => {
             <img 
               src={user.avatar} 
               referrerPolicy="no-referrer" 
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`;
-              }}
               className="w-16 h-16 rounded-full object-cover border-2 border-white dark:border-slate-800 shadow-sm aspect-square" 
               alt="User" 
             />
@@ -437,10 +433,6 @@ const Profile: React.FC = () => {
                       src={newAvatar} 
                       className="w-24 h-24 rounded-full object-cover border-4 border-gray-50 dark:border-slate-800 shadow-md aspect-square"
                       alt="Preview"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`;
-                      }}
                     />
                     <label className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                       <ImageIcon size={24} className="text-white" />

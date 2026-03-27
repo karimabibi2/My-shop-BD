@@ -72,17 +72,18 @@ const Orders: React.FC = () => {
               
               <div className="flex gap-2 overflow-x-auto no-scrollbar py-1">
                 {order.items.map(item => (
-                  <img 
-                    key={item.id} 
-                    src={item.image} 
-                    referrerPolicy="no-referrer" 
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=400&h=400&fit=crop';
-                    }}
-                    className="w-10 h-10 rounded-lg object-contain bg-gray-50 dark:bg-white border border-gray-100 dark:border-slate-800 flex-shrink-0" 
-                    alt={item.name} 
-                  />
+                  <div key={item.id} className="w-10 h-10 rounded-lg bg-gray-50 dark:bg-white border border-gray-100 dark:border-slate-800 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                    {item.image ? (
+                      <img 
+                        src={item.image} 
+                        referrerPolicy="no-referrer" 
+                        className="w-full h-full object-contain" 
+                        alt={item.name} 
+                      />
+                    ) : (
+                      <ShoppingBag size={14} className="text-gray-300 dark:text-gray-600" />
+                    )}
+                  </div>
                 ))}
               </div>
               

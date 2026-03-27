@@ -81,6 +81,38 @@
         "adminPassword": { "type": "string" }
       }
     },
+    "LandingConfig": {
+      "title": "Landing Page Configuration",
+      "description": "Configuration for the landing page featured product and FAQs",
+      "type": "object",
+      "properties": {
+        "featuredProductId": { "type": "string" },
+        "description": { "type": "string" },
+        "orderPolicy": { "type": "string" },
+        "faqs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "q": { "type": "string" },
+              "a": { "type": "string" }
+            }
+          }
+        },
+        "reviews": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "text": { "type": "string" },
+              "rating": { "type": "number" },
+              "image": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
     "Cart": {
       "title": "User Cart",
       "description": "A user's shopping cart",
@@ -108,6 +140,10 @@
     "/config/settings": {
       "schema": "Config",
       "description": "Global settings document"
+    },
+    "/config/landing": {
+      "schema": "LandingConfig",
+      "description": "Landing page configuration document"
     },
     "/carts/{userId}": {
       "schema": "Cart",

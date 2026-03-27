@@ -15,6 +15,7 @@ import Orders from './pages/Orders';
 import Addresses from './pages/Addresses';
 import AdminPanel from './pages/AdminPanel';
 import AdminLogin from './pages/AdminLogin';
+import LandingPage from './pages/LandingPage';
 
 const App: React.FC = () => {
   return (
@@ -34,6 +35,7 @@ const App: React.FC = () => {
                   <Route path="/addresses" element={<Addresses />} />
                   <Route path="/admin" element={<AdminPanel />} />
                   <Route path="/admin/login" element={<AdminLogin />} />
+                  <Route path="/landing" element={<LandingPage />} />
                 </Routes>
               </Router>
             </CategoryProvider>

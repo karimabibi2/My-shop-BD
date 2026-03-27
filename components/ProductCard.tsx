@@ -9,9 +9,10 @@ import { useNavigate } from 'react-router-dom';
 interface ProductCardProps {
   product: Product;
   onOpenDetails: () => void;
+  onBuyNow?: (product: Product) => void;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetails }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetails, onBuyNow }) => {
   const { addToCart, removeFromCart, cart } = useCart();
   const { t } = useLanguage();
   const navigate = useNavigate();
@@ -31,13 +32,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetails }) => 
 
   const handleBuyNow = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onOpenDetails();
+    if (onBuyNow) {
+      onBuyNow(product);
+    } else {
+      onOpenDetails();
+    }
   };
 
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    const target = e.target as HTMLImageElement;
-    target.src = 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=400&h=400&fit=crop';
-  };
+  // No handleImageError needed anymore
 
   return (
     <div 
@@ -49,15 +51,21 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetails }) => 
         -{discountPercent}% {t('off')}
       </div>
 
-      <div className="relative aspect-square overflow-hidden bg-white dark:bg-white p-2 flex items-center justify-center">
-        <img 
-          src={product.image} 
-          alt={product.name} 
-          onError={handleImageError}
-          loading="lazy"
-          referrerPolicy="no-referrer"
-          className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
-        />
+      <div className="relative aspect-square overflow-hidden bg-gray-50 dark:bg-slate-800 p-2 flex items-center justify-center">
+        {product.image ? (
+          <img 
+            src={product.image} 
+            alt={product.name} 
+            loading="lazy"
+            referrerPolicy="no-referrer"
+            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+          />
+        ) : (
+          <div className="flex flex-col items-center justify-center text-gray-300 dark:text-gray-600">
+            <ShoppingCart size={40} strokeWidth={1} />
+            <span className="text-[8px] font-black uppercase mt-1">No Image</span>
+          </div>
+        )}
       </div>
       
       <div className="p-3 flex flex-col flex-1 border-t border-gray-50 dark:border-slate-800">

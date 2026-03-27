@@ -37,16 +37,18 @@ const Cart: React.FC = () => {
         <div className="flex flex-col gap-3">
           {cart.map(item => (
             <div key={item.id} className="bg-white dark:bg-slate-900 p-3 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 flex gap-4 items-center">
-              <img 
-                src={item.image} 
-                alt={item.name} 
-                referrerPolicy="no-referrer" 
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src = 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=400&h=400&fit=crop';
-                }}
-                className="w-16 h-16 rounded-lg object-contain bg-gray-50 dark:bg-white border border-gray-50" 
-              />
+              <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-50 dark:bg-white border border-gray-50 flex items-center justify-center">
+                {item.image ? (
+                  <img 
+                    src={item.image} 
+                    alt={item.name} 
+                    referrerPolicy="no-referrer" 
+                    className="w-full h-full object-contain" 
+                  />
+                ) : (
+                  <ShoppingBag size={24} className="text-gray-300" />
+                )}
+              </div>
               <div className="flex-1 flex flex-col gap-0.5">
                 <h4 className="font-bold text-gray-800 dark:text-gray-200 text-[12px] line-clamp-1">{item.name}</h4>
                 <p className="text-[#e62e04] font-black text-sm">৳{item.price.toLocaleString()}</p>

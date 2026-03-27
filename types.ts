@@ -55,4 +55,24 @@ export interface Category {
   image?: string;
 }
 
+export interface FAQ {
+  q: string;
+  a: string;
+}
+
+export interface Review {
+  name: string;
+  text: string;
+  rating: number;
+  image?: string;
+}
+
+export interface LandingConfig {
+  featuredProductId: string;
+  description?: string;
+  orderPolicy?: string;
+  faqs: FAQ[];
+  reviews: Review[];
+}
+
 export type CategoryType = string;

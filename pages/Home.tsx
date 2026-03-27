@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router-dom';
 const Home: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const { allProducts, bannerImage, categories } = useAuth();
+  const { allProducts, bannerImage, categories, isDataReady } = useAuth();
   const { activeCategory, setActiveCategory, setIsDrawerOpen } = useCategory();
   const { addToCart, cart } = useCart();
   const { t } = useLanguage();
@@ -82,12 +82,14 @@ const Home: React.FC = () => {
         {/* Banner */}
         {activeCategory === 'All' && !searchQuery && (
           <div className="rounded-xl overflow-hidden relative shadow-md h-36 bg-gradient-to-r from-red-600 to-red-400 dark:from-red-900 dark:to-red-700">
-            <img 
-              src={bannerImage} 
-              alt="Promo Banner" 
-              referrerPolicy="no-referrer"
-              className="w-full h-full object-cover opacity-30"
-            />
+            {bannerImage && (
+              <img 
+                src={bannerImage} 
+                alt="Promo Banner" 
+                referrerPolicy="no-referrer"
+                className="w-full h-full object-cover opacity-30"
+              />
+            )}
             <div className="absolute inset-0 flex flex-col justify-center px-6 text-white">
               <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-80 mb-1">{t('premium_collection')}</span>
               <h2 className="text-2xl font-black italic tracking-tighter leading-none mb-2 text-white">MY shopBD</h2>
@@ -142,20 +144,30 @@ const Home: React.FC = () => {
               key={product.id} 
               product={product} 
               onOpenDetails={() => setSelectedProduct(product)}
+              onBuyNow={handleBuyNow}
             />
           ))}
           {filteredProducts.length === 0 && (
             <div className="col-span-2 text-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-gray-200 dark:border-slate-800">
-              <div className="w-16 h-16 bg-gray-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300 dark:text-gray-600">
-                <Search size={32} />
-              </div>
-              <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('no_items_matched')}</p>
-              <button 
-                onClick={() => { setActiveCategory('All'); setSearchQuery(''); }} 
-                className="mt-4 text-[#e62e04] text-[10px] font-black uppercase tracking-widest border border-red-100 dark:border-red-900 px-4 py-2 rounded-full hover:bg-red-50 dark:hover:bg-red-950/20"
-              >
-                {t('reset_filter')}
-              </button>
+              {!isDataReady ? (
+                <div className="flex flex-col items-center gap-4">
+                  <div className="w-10 h-10 border-4 border-[#e62e04] border-t-transparent rounded-full animate-spin"></div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Loading...</p>
+                </div>
+              ) : (
+                <>
+                  <div className="w-16 h-16 bg-gray-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300 dark:text-gray-600">
+                    <Search size={32} />
+                  </div>
+                  <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('no_items_matched')}</p>
+                  <button 
+                    onClick={() => { setActiveCategory('All'); setSearchQuery(''); }} 
+                    className="mt-4 text-[#e62e04] text-[10px] font-black uppercase tracking-widest border border-red-100 dark:border-red-900 px-4 py-2 rounded-full hover:bg-red-50 dark:hover:bg-red-950/20"
+                  >
+                    {t('reset_filter')}
+                  </button>
+                </>
+              )}
             </div>
           )}
         </div>
@@ -188,6 +200,7 @@ const Home: React.FC = () => {
                       key={product.id} 
                       product={product} 
                       onOpenDetails={() => setSelectedProduct(product)}
+                      onBuyNow={handleBuyNow}
                     />
                   ))}
                 </div>

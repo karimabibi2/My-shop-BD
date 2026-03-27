@@ -93,6 +93,7 @@ const Search: React.FC = () => {
                   key={p.id} 
                   product={p} 
                   onOpenDetails={() => setSelectedProduct(p)}
+                  onBuyNow={handleBuyNow}
                 />
               ))}
             </div>

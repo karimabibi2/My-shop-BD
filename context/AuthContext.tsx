@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { User, Order, Address, Product, Category } from '../types';
+import { User, Order, Address, Product, Category, LandingConfig } from '../types';
 import { MOCK_PRODUCTS, DELIVERY_RATES, CATEGORIES } from '../constants';
 import { trackingService, TrackingConfig } from '../services/TrackingService';
 import { 
@@ -112,7 +112,10 @@ interface AuthContextType {
   updateCustomApiKey: (key: string) => Promise<void>;
   twelvedataApiKey: string;
   updateTwelvedataApiKey: (key: string) => Promise<void>;
+  landingConfig: LandingConfig;
+  updateLandingConfig: (config: LandingConfig) => Promise<void>;
   isAuthReady: boolean;
+  isDataReady: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -120,12 +123,13 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
+  const [isDataReady, setIsDataReady] = useState(false);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [allProducts, setAllProducts] = useState<Product[]>(MOCK_PRODUCTS);
-  const [categories, setCategories] = useState<Category[]>(CATEGORIES.map(name => ({ id: name, name })));
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [shippingRates, setShippingRates] = useState<Record<string, number>>(DELIVERY_RATES);
-  const [bannerImage, setBannerImage] = useState<string>('https://picsum.photos/seed/shop/800/400');
+  const [bannerImage, setBannerImage] = useState<string>('');
   const [whatsappNumber, setWhatsappNumber] = useState<string>('8801304881109');
   const [facebookLink, setFacebookLink] = useState<string>('https://facebook.com');
   const [youtubeLink, setYoutubeLink] = useState<string>('https://youtube.com');
@@ -146,6 +150,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const [customApiKey, setCustomApiKey] = useState<string>('');
   const [twelvedataApiKey, setTwelvedataApiKey] = useState<string>('');
+  const [landingConfig, setLandingConfig] = useState<LandingConfig>({
+    featuredProductId: '',
+    description: '',
+    orderPolicy: '',
+    faqs: [],
+    reviews: []
+  });
   const [visitorCount, setVisitorCount] = useState<number>(0);
   const [trackingLogs, setTrackingLogs] = useState<any[]>([]);
 
@@ -177,10 +188,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setIsAuthReady(true);
     });
 
-    // Real-time listeners
+    // Real-time listeners tracking
+    let productsSynced = false;
+    let categoriesSynced = false;
+    let configSynced = false;
+    let landingSynced = false;
+
+    const checkDataReady = () => {
+      if (productsSynced && categoriesSynced && configSynced && landingSynced) {
+        setIsDataReady(true);
+      }
+    };
+
     const unsubscribeProducts = onSnapshot(collection(db, 'products'), (snapshot) => {
       const products = snapshot.docs.map(doc => doc.data() as Product);
-      setAllProducts(products.length > 0 ? products : MOCK_PRODUCTS);
+      setAllProducts(products);
+      productsSynced = true;
+      checkDataReady();
     }, (error) => handleFirestoreError(error, OperationType.GET, 'products'));
 
     const unsubscribeCategories = onSnapshot(collection(db, 'categories'), (snapshot) => {
@@ -188,7 +212,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         id: doc.id,
         ...doc.data()
       } as Category));
-      setCategories(categoriesData.length > 0 ? categoriesData : CATEGORIES.map(name => ({ id: name, name })));
+      setCategories(categoriesData);
+      categoriesSynced = true;
+      checkDataReady();
     }, (error) => handleFirestoreError(error, OperationType.GET, 'categories'));
 
     const unsubscribeConfig = onSnapshot(doc(db, 'config', 'settings'), (snapshot) => {
@@ -208,13 +234,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (data.customApiKey) setCustomApiKey(data.customApiKey);
         if (data.twelvedataApiKey) setTwelvedataApiKey(data.twelvedataApiKey);
       }
+      configSynced = true;
+      checkDataReady();
     }, (error) => handleFirestoreError(error, OperationType.GET, 'config/settings'));
+
+    const unsubscribeLanding = onSnapshot(doc(db, 'config', 'landing'), (snapshot) => {
+      if (snapshot.exists()) {
+        setLandingConfig(snapshot.data() as LandingConfig);
+      }
+      landingSynced = true;
+      checkDataReady();
+    }, (error) => handleFirestoreError(error, OperationType.GET, 'config/landing'));
 
     return () => {
       unsubscribeAuth();
       unsubscribeProducts();
       unsubscribeCategories();
       unsubscribeConfig();
+      unsubscribeLanding();
     };
   }, []);
 
@@ -503,19 +540,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (user) {
       const updatedUser = { ...user, name, avatar };
       setUser(updatedUser);
-      localStorage.setItem('shopbd_user', JSON.stringify(updatedUser));
     }
   };
 
   const syncProducts = () => {
     setAllProducts(MOCK_PRODUCTS);
-    localStorage.setItem('shopbd_products', JSON.stringify(MOCK_PRODUCTS));
   };
 
   const syncCategories = () => {
     const defaultCategories = CATEGORIES.map(name => ({ id: name, name }));
     setCategories(defaultCategories);
-    localStorage.setItem('shopbd_categories', JSON.stringify(defaultCategories));
   };
 
   const updateBannerImage = (image: string) => {
@@ -560,6 +594,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setTwelvedataApiKey(key);
   };
 
+  const updateLandingConfig = async (config: LandingConfig) => {
+    try {
+      await setDoc(doc(db, 'config', 'landing'), config);
+      setLandingConfig(config);
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, 'config/landing');
+    }
+  };
+
   return (
     <AuthContext.Provider value={{ 
       user, orders, allProducts, categories, addresses, shippingRates, bannerImage, whatsappNumber, 
@@ -577,7 +620,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       visitorCount, trackingLogs,
       customApiKey, updateCustomApiKey,
       twelvedataApiKey, updateTwelvedataApiKey,
-      isAuthReady
+      landingConfig, updateLandingConfig,
+      isAuthReady,
+      isDataReady
     }}>
       {children}
     </AuthContext.Provider>

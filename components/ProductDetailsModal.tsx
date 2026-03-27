@@ -102,17 +102,20 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ product, onCl
 
             <div className="overflow-y-auto no-scrollbar">
               {/* Product Image */}
-              <div className="relative aspect-square bg-white flex items-center justify-center p-8">
-                <img 
-                  src={product.image} 
-                  alt={product.name} 
-                  className="w-full h-full object-contain"
-                  referrerPolicy="no-referrer"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.src = 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=600&h=600&fit=crop';
-                  }}
-                />
+              <div className="relative aspect-square bg-gray-50 dark:bg-slate-800 flex items-center justify-center p-8">
+                {product.image ? (
+                  <img 
+                    src={product.image} 
+                    alt={product.name} 
+                    className="w-full h-full object-contain"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-gray-300 dark:text-gray-600">
+                    <ShoppingCart size={80} strokeWidth={1} />
+                    <span className="text-xs font-black uppercase mt-2 tracking-widest">No Image</span>
+                  </div>
+                )}
                 <div className="absolute top-4 left-4 bg-[#e62e04] text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">
                   20% OFF
                 </div>
@@ -299,12 +302,15 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ product, onCl
                     alert(t('select_size'));
                     return;
                   }
-                  onBuyNow({ ...product, sizes: selectedSize ? [selectedSize] : product.sizes });
+                  onBuyNow({ ...product, selectedSize: selectedSize || undefined } as any);
                 }}
-                className="flex-[1.5] bg-[#e62e04] text-white py-3.5 rounded-2xl flex justify-center items-center gap-2 font-black text-[11px] uppercase tracking-widest shadow-lg shadow-red-200 dark:shadow-none active:scale-95 transition-all"
+                className="flex-[1.5] bg-[#e62e04] text-white py-3.5 rounded-2xl flex flex-col justify-center items-center gap-0.5 font-black text-[11px] uppercase tracking-widest shadow-lg shadow-red-200 dark:shadow-none active:scale-95 transition-all"
               >
-                <Zap size={16} fill="currentColor" />
-                {t('buy_now')}
+                <div className="flex items-center gap-2">
+                  <Zap size={16} fill="currentColor" />
+                  {t('buy_now')}
+                </div>
+                <span className="text-[8px] opacity-80 font-bold tracking-normal">{t('cash')}</span>
               </button>
             </div>
           </motion.div>

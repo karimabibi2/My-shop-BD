@@ -95,22 +95,4 @@ export const BD_LOCATIONS: Record<string, string[]> = {
   "Munshiganj": ["Munshiganj Sadar", "Gazaria", "Lohajang", "Sirajdikhan", "Sreenagar", "Tongibari"]
 };
 
-export const MOCK_PRODUCTS: Product[] = [
-  // Shoes
-  { id: 's1', name: 'Anti-Slip Breathable Sports Sneakers', price: 2850, rating: 4.8, category: 'Shoes', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop', description: 'এটি একটি প্রিমিয়াম কোয়ালিটি স্পোর্টস জুতো। এটি দীর্ঘস্থায়ী এবং আরামদায়ক।', orderPolicy: 'সারা বাংলাদেশে ক্যাশ অন ডেলিভারি সুবিধা রয়েছে। ডেলিভারি সময় ২-৩ দিন।', isAvailable: true },
-  { id: 's2', name: 'Classic Leather Formal Shoes', price: 3200, rating: 4.7, category: 'Shoes', image: 'https://images.unsplash.com/photo-1449247709967-d4461a6a6103?w=400&h=400&fit=crop', description: 'অফিস বা যেকোনো ফরমাল অনুষ্ঠানের জন্য সেরা চামড়ার জুতো।', orderPolicy: 'সারা বাংলাদেশে ক্যাশ অন ডেলিভারি সুবিধা রয়েছে। ডেলিভারি সময় ২-৩ দিন।', isAvailable: true },
-  { id: 's3', name: 'Casual Canvas Walking Shoes', price: 1500, rating: 4.5, category: 'Shoes', image: 'https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=400&h=400&fit=crop', description: 'প্রতিদিনের ব্যবহারের জন্য হালকা এবং টেকসই ক্যানভাস জুতো।', orderPolicy: 'সারা বাংলাদেশে ক্যাশ অন ডেলিভারি সুবিধা রয়েছে। ডেলিভারি সময় ২-৩ দিন।', isAvailable: true },
-  
-  // Bag
-  { id: 'b1', name: 'Luxury Leather Handbag Red', price: 4200, rating: 4.9, category: 'Bag', image: 'https://images.unsplash.com/photo-1594223274512-ad4803739b7c?w=400&h=400&fit=crop', description: 'বিলাসবহুল লেদার হ্যান্ডব্যাগ, যা আপনার আভিজাত্য ফুটিয়ে তুলবে।', orderPolicy: 'সারা বাংলাদেশে ক্যাশ অন ডেলিভারি সুবিধা রয়েছে। ডেলিভারি সময় ২-৩ দিন।', isAvailable: true },
-  { id: 'b2', name: 'Waterproof Laptop Backpack', price: 2500, rating: 4.8, category: 'Bag', image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=400&fit=crop', description: 'ওয়াটারপ্রুফ ল্যাপটপ ব্যাকপ্যাক, অফিস বা ভ্রমণের জন্য আদর্শ।', orderPolicy: 'সারা বাংলাদেশে ক্যাশ অন ডেলিভারি সুবিধা রয়েছে। ডেলিভারি সময় ২-৩ দিন।', isAvailable: true },
-  
-  // Jewelry
-  { id: 'j1', name: 'Elegant Pearl Necklace Set', price: 1500, rating: 4.7, category: 'Jewelry', image: 'https://images.unsplash.com/photo-1535633302723-999aa2777b50?w=400&h=400&fit=crop', description: 'চমৎকার মুক্তার নেকলেস সেট, যেকোনো অনুষ্ঠানে মানানসই।', orderPolicy: 'সারা বাংলাদেশে ক্যাশ অন ডেলিভারি সুবিধা রয়েছে। ডেলিভারি সময় ২-৩ দিন।', isAvailable: true },
-  
-  // Men's Clothing
-  { id: 'm1', name: 'Men\'s Premium Bomber Jacket', price: 3450, rating: 4.5, category: 'Men\'s Clothing', image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=400&h=400&fit=crop', description: 'শীতের জন্য প্রিমিয়াম কোয়ালিটি বোম্বার জ্যাকেট।', orderPolicy: 'সারা বাংলাদেশে ক্যাশ অন ডেলিভারি সুবিধা রয়েছে। ডেলিভারি সময় ২-৩ দিন।', isAvailable: true },
-  
-  // Women's Clothing
-  { id: 'w1', name: 'Floral Summer Maxi Dress', price: 1800, rating: 4.8, category: 'Women\'s Clothing', image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400&h=400&fit=crop', description: 'গরমে আরামদায়ক এবং স্টাইলিশ ফ্লোরাল ম্যাক্সি ড্রেস।', orderPolicy: 'সারা বাংলাদেশে ক্যাশ অন ডেলিভারি সুবিধা রয়েছে। ডেলিভারি সময় ২-৩ দিন।', isAvailable: true }
-];
+export const MOCK_PRODUCTS: Product[] = [];

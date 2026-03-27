@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
-import { CheckCircle, ArrowLeft, ChevronDown } from 'lucide-react';
+import { CheckCircle, ArrowLeft, ChevronDown, Truck } from 'lucide-react';
 import { BD_LOCATIONS, DELIVERY_RATES } from '../constants';
 import { trackingService } from '../services/TrackingService';
 
@@ -40,7 +40,7 @@ const Checkout: React.FC = () => {
     }
   }, [checkoutItems, navigate, isOrdered]);
 
-  const [paymentMethod, setPaymentMethod] = useState<'COD' | 'bKash' | 'Nagad'>('COD');
+  const [paymentMethod, setPaymentMethod] = useState<'COD' | 'bKash' | 'Nagad' | 'Rocket'>('COD');
   const [useSavedAddress, setUseSavedAddress] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState('');
   
@@ -254,30 +254,40 @@ const Checkout: React.FC = () => {
 
         <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 flex flex-col gap-4">
           <h3 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-wider">{t('payment_method')}</h3>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-4 gap-3">
             <button 
               type="button"
               onClick={() => setPaymentMethod('COD')}
-              className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all gap-1 ${paymentMethod === 'COD' ? 'border-[#e62e04] bg-red-50/30 dark:bg-red-950/10' : 'border-gray-50 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30'}`}
+              className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all gap-3 ${paymentMethod === 'COD' ? 'border-[#e62e04] bg-red-50/30 dark:bg-red-950/10' : 'border-gray-50 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30 hover:border-gray-200'}`}
             >
-              <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-slate-700 flex items-center justify-center text-[10px] font-black">COD</div>
-              <span className="text-[8px] font-black uppercase">{t('cash')}</span>
+              <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-[#e62e04]">
+                <Truck size={28} />
+              </div>
+              <span className="text-[9px] font-black uppercase leading-tight text-center">{t('cash')}</span>
             </button>
             <button 
               type="button"
               onClick={() => setPaymentMethod('bKash')}
-              className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all gap-1 ${paymentMethod === 'bKash' ? 'border-[#e2136e] bg-pink-50/30 dark:bg-pink-950/10' : 'border-gray-50 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30'}`}
+              className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all gap-3 ${paymentMethod === 'bKash' ? 'border-[#e2136e] bg-pink-50/30 dark:bg-pink-950/10' : 'border-gray-50 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30 hover:border-gray-200'}`}
             >
-              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6_X-6X7f6X7f6X7X7X7X7X7X7X7X7X7X7X7X7X7&s" alt="bKash" className="w-8 h-8 rounded-lg object-contain" referrerPolicy="no-referrer" onError={(e) => (e.currentTarget.src = 'https://picsum.photos/seed/bkash/32/32')} />
-              <span className="text-[8px] font-black uppercase">bKash</span>
+              <img src="https://raw.githubusercontent.com/shuvro-setu/bkash-nagad-rocket-logos/main/bkash.png" alt="bKash" className="h-12 w-auto object-contain" referrerPolicy="no-referrer" />
+              <span className="text-[9px] font-black uppercase leading-tight text-center">bKash</span>
             </button>
             <button 
               type="button"
               onClick={() => setPaymentMethod('Nagad')}
-              className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all gap-1 ${paymentMethod === 'Nagad' ? 'border-[#f7941d] bg-orange-50/30 dark:bg-orange-950/10' : 'border-gray-50 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30'}`}
+              className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all gap-3 ${paymentMethod === 'Nagad' ? 'border-[#f7941d] bg-orange-50/30 dark:bg-orange-950/10' : 'border-gray-50 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30 hover:border-gray-200'}`}
             >
-              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_X-6X7f6X7f6X7X7X7X7X7X7X7X7X7X7X7X7X7&s" alt="Nagad" className="w-8 h-8 rounded-lg object-contain" referrerPolicy="no-referrer" onError={(e) => (e.currentTarget.src = 'https://picsum.photos/seed/nagad/32/32')} />
-              <span className="text-[8px] font-black uppercase">Nagad</span>
+              <img src="https://raw.githubusercontent.com/shuvro-setu/bkash-nagad-rocket-logos/main/nagad.png" alt="Nagad" className="h-12 w-auto object-contain" referrerPolicy="no-referrer" />
+              <span className="text-[9px] font-black uppercase leading-tight text-center">Nagad</span>
+            </button>
+            <button 
+              type="button"
+              onClick={() => setPaymentMethod('Rocket')}
+              className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all gap-3 ${paymentMethod === 'Rocket' ? 'border-[#8c3494] bg-purple-50/30 dark:bg-purple-950/10' : 'border-gray-50 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30 hover:border-gray-200'}`}
+            >
+              <img src="https://raw.githubusercontent.com/shuvro-setu/bkash-nagad-rocket-logos/main/rocket.png" alt="Rocket" className="h-12 w-auto object-contain" referrerPolicy="no-referrer" />
+              <span className="text-[9px] font-black uppercase leading-tight text-center">Rocket</span>
             </button>
           </div>
           {paymentMethod !== 'COD' && (
@@ -287,6 +297,27 @@ const Checkout: React.FC = () => {
               </p>
             </div>
           )}
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800">
+          <h3 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-wider mb-3">{t('order_items') || 'Order Items'}</h3>
+          <div className="flex flex-col gap-3">
+            {checkoutItems.map((item, index) => (
+              <div key={index} className="flex gap-3 items-center">
+                <img src={item.image} alt={item.name} className="w-12 h-12 rounded-lg object-cover" referrerPolicy="no-referrer" />
+                <div className="flex-1">
+                  <h4 className="text-[11px] font-black text-gray-800 dark:text-white uppercase tracking-tighter line-clamp-1">{item.name}</h4>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold text-gray-400">Qty: {item.quantity}</span>
+                    {(item as any).selectedSize && (
+                      <span className="text-[10px] font-bold text-[#e62e04] uppercase">Size: {(item as any).selectedSize}</span>
+                    )}
+                  </div>
+                </div>
+                <span className="text-xs font-black text-gray-800 dark:text-white">৳{(item.price * item.quantity).toLocaleString()}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800">
@@ -312,9 +343,14 @@ const Checkout: React.FC = () => {
         <button 
           type="submit" 
           disabled={!useSavedAddress && (!formData.district || !formData.thana)}
-          className="w-full bg-[#e62e04] text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 dark:shadow-none active:scale-[0.98] transition-all mt-2 text-sm disabled:opacity-50 disabled:grayscale"
+          className="w-full bg-[#e62e04] text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 dark:shadow-none active:scale-[0.98] transition-all mt-2 text-sm disabled:opacity-50 disabled:grayscale relative overflow-hidden"
         >
           {t('confirm_order')}
+          {paymentMethod === 'COD' && (
+            <span className="absolute top-0 right-0 bg-white/20 px-2 py-0.5 text-[8px] font-black rounded-bl-lg">
+              {t('cash')}
+            </span>
+          )}
         </button>
       </form>
     </Layout>
