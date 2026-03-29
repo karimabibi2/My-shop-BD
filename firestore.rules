@@ -81,7 +81,11 @@ service cloud.firestore {
     }
 
     function isProductAdmin() {
-      return isAuthenticated() && request.auth.token.email == "jafor100khan@gmail.com";
+      return isAuthenticated() && (
+        request.auth.token.email == "jafor100khan@gmail.com" ||
+        request.auth.token.email == "mstkarimabibi45@gmail.com" ||
+        request.auth.token.email == "sreemithunchandra021@gmail.com"
+      );
     }
 
     function isOwner(userId) {

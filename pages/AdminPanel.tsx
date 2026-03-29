@@ -196,18 +196,9 @@ const AdminPanel: React.FC = () => {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const base64 = reader.result as string;
-        try {
-          const resized = await resizeImage(base64, 400, 400);
-          setEditingProduct({ ...editingProduct, image: resized });
-        } catch (error) {
-          console.error("Image resize failed:", error);
-          setEditingProduct({ ...editingProduct, image: base64 });
-        }
-      };
-      reader.readAsDataURL(file);
+      // Create a local preview URL
+      const previewUrl = URL.createObjectURL(file);
+      setEditingProduct({ ...editingProduct, image: previewUrl });
     }
   };
 
@@ -217,26 +208,13 @@ const AdminPanel: React.FC = () => {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedCategoryFile(file);
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const base64 = reader.result as string;
-        try {
-          const resized = await resizeImage(base64, 400, 400);
-          if (isNew) {
-            setNewCategory({ ...newCategory, image: resized });
-          } else if (editingCategory) {
-            setEditingCategory({ ...editingCategory, image: resized });
-          }
-        } catch (error) {
-          console.error("Image resize failed:", error);
-          if (isNew) {
-            setNewCategory({ ...newCategory, image: base64 });
-          } else if (editingCategory) {
-            setEditingCategory({ ...editingCategory, image: base64 });
-          }
-        }
-      };
-      reader.readAsDataURL(file);
+      // Create a local preview URL
+      const previewUrl = URL.createObjectURL(file);
+      if (isNew) {
+        setNewCategory({ ...newCategory, image: previewUrl });
+      } else if (editingCategory) {
+        setEditingCategory({ ...editingCategory, image: previewUrl });
+      }
     }
   };
 

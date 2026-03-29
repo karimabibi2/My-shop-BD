@@ -661,6 +661,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const uploadImage = (file: File | Blob, path: string, onProgress?: (progress: number) => void): Promise<string> => {
+    console.log('Initiating upload to:', path, 'File:', file);
     return new Promise((resolve, reject) => {
       try {
         const storageRef = ref(storage, path);
@@ -669,23 +670,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         uploadTask.on('state_changed', 
           (snapshot) => {
             const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log('Upload progress for', path, ':', progress, '%');
             if (onProgress) onProgress(progress);
           }, 
           (error) => {
-            console.error('Error uploading image:', error);
+            console.error('Error uploading image to', path, ':', error);
             reject(error);
           }, 
           async () => {
             try {
+              console.log('Upload complete for', path);
               const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+              console.log('Download URL for', path, ':', downloadURL);
               resolve(downloadURL);
             } catch (error) {
+              console.error('Error getting download URL for', path, ':', error);
               reject(error);
             }
           }
         );
       } catch (error) {
-        console.error('Error initiating upload:', error);
+        console.error('Error initiating upload for', path, ':', error);
         reject(error);
       }
     });

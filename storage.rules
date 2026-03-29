@@ -3,15 +3,27 @@ service firebase.storage {
   match /b/{bucket}/o {
     match /products/{allPaths=**} {
       allow read: if true;
-      allow write: if request.auth != null && request.auth.token.email == "jafor100khan@gmail.com";
+      allow write: if request.auth != null && (
+        request.auth.token.email == "jafor100khan@gmail.com" || 
+        request.auth.token.email == "mstkarimabibi45@gmail.com" ||
+        request.auth.token.email == "sreemithunchandra021@gmail.com"
+      );
     }
     match /categories/{allPaths=**} {
       allow read: if true;
-      allow write: if request.auth != null && request.auth.token.email == "jafor100khan@gmail.com";
+      allow write: if request.auth != null && (
+        request.auth.token.email == "jafor100khan@gmail.com" || 
+        request.auth.token.email == "mstkarimabibi45@gmail.com" ||
+        request.auth.token.email == "sreemithunchandra021@gmail.com"
+      );
     }
     match /settings/{allPaths=**} {
       allow read: if true;
-      allow write: if request.auth != null && request.auth.token.email == "jafor100khan@gmail.com";
+      allow write: if request.auth != null && (
+        request.auth.token.email == "jafor100khan@gmail.com" || 
+        request.auth.token.email == "mstkarimabibi45@gmail.com" ||
+        request.auth.token.email == "sreemithunchandra021@gmail.com"
+      );
     }
   }
 }
