@@ -4,16 +4,17 @@ import Layout from '../components/Layout';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
-import { MessageCircle, Star, Truck, ShieldCheck, Headphones, RotateCcw, ChevronDown, Share2, Zap } from 'lucide-react';
+import { MessageCircle, Star, Truck, ShieldCheck, Headphones, RotateCcw, ChevronDown, Share2, Zap, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Product, FAQ, Review } from '../types';
 
 const LandingPage: React.FC = () => {
   const { addToCart } = useCart();
-  const { whatsappNumber, allProducts, landingConfig } = useAuth();
+  const { whatsappNumber, allProducts, landingConfig, toast } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
   const [selectedSize, setSelectedSize] = useState<string>('');
+  const [copied, setCopied] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const featuredProduct = useMemo(() => {
@@ -107,18 +108,20 @@ const LandingPage: React.FC = () => {
   }, [landingConfig.reviews]);
 
   const handleShare = async () => {
+    const shareUrl = window.location.href;
     const shareData = {
       title: featuredProduct.name,
       text: `Check out this ${featuredProduct.name} for only ৳${featuredProduct.price}!`,
-      url: window.location.href,
+      url: shareUrl,
     };
 
     try {
       if (navigator.share) {
         await navigator.share(shareData);
       } else {
-        await navigator.clipboard.writeText(window.location.href);
-        alert('Link copied to clipboard!');
+        await navigator.clipboard.writeText(shareUrl);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
       }
     } catch (err) {
       // If the user cancels the share, we don't want to log it as an error
@@ -128,8 +131,9 @@ const LandingPage: React.FC = () => {
       
       // Fallback to clipboard if sharing fails for other reasons
       try {
-        await navigator.clipboard.writeText(window.location.href);
-        alert('Link copied to clipboard!');
+        await navigator.clipboard.writeText(shareUrl);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
       } catch (copyErr) {
         console.error('Error sharing:', err);
       }
@@ -140,7 +144,7 @@ const LandingPage: React.FC = () => {
 
   const handleBuyNow = () => {
     if (featuredProduct.sizes && featuredProduct.sizes.length > 0 && !selectedSize) {
-      alert(t('select_size') || 'Please select a size');
+      toast.error(t('select_size') || 'Please select a size');
       return;
     }
     navigate('/checkout', { state: { buyNowProduct: { ...featuredProduct, selectedSize } } });
@@ -161,6 +165,7 @@ const LandingPage: React.FC = () => {
               <img 
                 src={featuredProduct.image} 
                 alt={featuredProduct.name} 
+                loading="lazy"
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"
               />
@@ -262,6 +267,7 @@ const LandingPage: React.FC = () => {
                           <img 
                             src={review.image} 
                             alt={review.name} 
+                            loading="lazy"
                             className="w-12 h-12 rounded-xl object-cover flex-shrink-0"
                             referrerPolicy="no-referrer"
                           />
@@ -283,10 +289,23 @@ const LandingPage: React.FC = () => {
                   <h3 className="text-[10px] font-black text-indigo-800 dark:text-indigo-300 uppercase tracking-[0.2em] mb-4 text-center">Share with Friends</h3>
                   <button 
                     onClick={handleShare}
-                    className="w-full bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 py-4 rounded-2xl flex justify-center items-center gap-3 font-black text-xs uppercase tracking-[0.2em] border-2 border-dashed border-indigo-200 dark:border-indigo-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 transition-all shadow-sm"
+                    className={`w-full py-4 rounded-2xl flex justify-center items-center gap-3 font-black text-xs uppercase tracking-[0.2em] border-2 border-dashed transition-all shadow-sm ${
+                      copied 
+                        ? 'bg-green-500 text-white border-green-600' 
+                        : 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/50'
+                    }`}
                   >
-                    <Share2 size={18} />
-                    Share this Page
+                    {copied ? (
+                      <>
+                        <Check size={18} />
+                        Link Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Share2 size={18} />
+                        Share this Page
+                      </>
+                    )}
                   </button>
                 </div>
 

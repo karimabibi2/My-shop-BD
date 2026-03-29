@@ -11,7 +11,7 @@ import { trackingService } from '../services/TrackingService';
 
 const Checkout: React.FC = () => {
   const { totalPrice: cartTotalPrice, cart: cartItems, clearCart } = useCart();
-  const { user, addOrder, addresses, shippingRates, isAuthReady } = useAuth();
+  const { user, addOrder, addresses, shippingRates, paymentMethodsImage, isAuthReady, toast } = useAuth();
   const { t } = useLanguage();
 
   if (!isAuthReady) {
@@ -75,11 +75,11 @@ const Checkout: React.FC = () => {
     let finalAddressString = "";
     if (useSavedAddress) {
       const addr = addresses.find(a => a.id === selectedAddressId);
-      if (!addr) return alert("Please select a valid address");
+      if (!addr) return toast.error("Please select a valid address");
       finalAddressString = `${addr.fullName}, ${addr.phone}, ${addr.details}, ${addr.thana}, ${addr.district}`;
     } else {
       if (!formData.details || !formData.phone || !formData.district || !formData.thana) {
-        return alert('Please fill all required delivery fields');
+        return toast.error('Please fill all required delivery fields');
       }
       finalAddressString = `${formData.fullName}, ${formData.phone}, ${formData.details}, ${formData.thana}, ${formData.district}`;
     }
@@ -113,7 +113,7 @@ const Checkout: React.FC = () => {
       }, 2500);
     } catch (error) {
       console.error("Failed to place order:", error);
-      alert("Failed to place order. Please try again.");
+      toast.error("Failed to place order. Please try again.");
     }
   };
 
@@ -291,10 +291,22 @@ const Checkout: React.FC = () => {
             </button>
           </div>
           {paymentMethod !== 'COD' && (
-            <div className="bg-amber-50 dark:bg-amber-950/20 p-3 rounded-xl border border-amber-100 dark:border-amber-900/30">
-              <p className="text-[9px] font-bold text-amber-700 dark:text-amber-500 leading-tight">
-                {t('payment_notice')}
-              </p>
+            <div className="flex flex-col gap-3">
+              <div className="bg-amber-50 dark:bg-amber-950/20 p-3 rounded-xl border border-amber-100 dark:border-amber-900/30">
+                <p className="text-[9px] font-bold text-amber-700 dark:text-amber-500 leading-tight">
+                  {t('payment_notice')}
+                </p>
+              </div>
+              {paymentMethodsImage && (
+                <div className="bg-white dark:bg-slate-800 p-2 rounded-xl border border-gray-100 dark:border-slate-700 overflow-hidden">
+                  <img 
+                    src={paymentMethodsImage} 
+                    alt="Payment Instructions" 
+                    className="w-full h-auto object-contain rounded-lg"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
+              )}
             </div>
           )}
         </div>

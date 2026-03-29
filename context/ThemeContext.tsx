@@ -1,5 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useAuth } from './AuthContext';
 
 interface ThemeContextType {
   isDarkMode: boolean;
@@ -9,6 +10,7 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const { isDarkModeDefault, isDataReady } = useAuth();
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const saved = localStorage.getItem('theme');
     if (saved) {
@@ -16,6 +18,14 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     }
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
+
+  // Apply default dark mode from admin settings if no local preference exists
+  useEffect(() => {
+    const saved = localStorage.getItem('theme');
+    if (!saved && isDataReady) {
+      setIsDarkMode(isDarkModeDefault);
+    }
+  }, [isDarkModeDefault, isDataReady]);
 
   useEffect(() => {
     const root = window.document.documentElement;

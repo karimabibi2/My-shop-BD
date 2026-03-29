@@ -219,6 +219,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       <img 
                         src={cat.image || `https://picsum.photos/seed/${cat.name.replace(/[^a-zA-Z]/g, '')}/100/100`} 
                         alt={cat.name}
+                        loading="lazy"
                         referrerPolicy="no-referrer"
                         className="w-full h-full object-cover"
                       />

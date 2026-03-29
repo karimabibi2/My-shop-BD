@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, ReactNode, useEffect } from
 import { User, Order, Address, Product, Category, LandingConfig } from '../types';
 import { MOCK_PRODUCTS, DELIVERY_RATES, CATEGORIES } from '../constants';
 import { trackingService, TrackingConfig } from '../services/TrackingService';
+import { toast } from 'sonner';
 import { 
   auth, db, googleProvider, 
   signInWithPopup, signOut, onAuthStateChanged,
@@ -90,6 +91,8 @@ interface AuthContextType {
   syncCategories: () => void;
   bannerImage: string;
   updateBannerImage: (image: string) => void;
+  paymentMethodsImage: string;
+  updatePaymentMethodsImage: (image: string) => void;
   whatsappNumber: string;
   updateWhatsappNumber: (number: string) => void;
   facebookLink: string;
@@ -112,10 +115,15 @@ interface AuthContextType {
   updateCustomApiKey: (key: string) => Promise<void>;
   twelvedataApiKey: string;
   updateTwelvedataApiKey: (key: string) => Promise<void>;
+  isPromoBannerEnabled: boolean;
+  updatePromoBannerEnabled: (enabled: boolean) => void;
+  isDarkModeDefault: boolean;
+  updateDarkModeDefault: (enabled: boolean) => void;
   landingConfig: LandingConfig;
   updateLandingConfig: (config: LandingConfig) => Promise<void>;
   isAuthReady: boolean;
   isDataReady: boolean;
+  toast: typeof toast;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -124,12 +132,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
   const [isDataReady, setIsDataReady] = useState(false);
+  const [isPromoBannerEnabled, setIsPromoBannerEnabled] = useState<boolean>(true);
+  const [isDarkModeDefault, setIsDarkModeDefault] = useState<boolean>(false);
   const [orders, setOrders] = useState<Order[]>([]);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [shippingRates, setShippingRates] = useState<Record<string, number>>(DELIVERY_RATES);
   const [bannerImage, setBannerImage] = useState<string>('');
+  const [paymentMethodsImage, setPaymentMethodsImage] = useState<string>('');
   const [whatsappNumber, setWhatsappNumber] = useState<string>('8801304881109');
   const [facebookLink, setFacebookLink] = useState<string>('https://facebook.com');
   const [youtubeLink, setYoutubeLink] = useState<string>('https://youtube.com');
@@ -221,6 +232,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (snapshot.exists()) {
         const data = snapshot.data();
         if (data.bannerImage) setBannerImage(data.bannerImage);
+        if (data.paymentMethodsImage) setPaymentMethodsImage(data.paymentMethodsImage);
         if (data.whatsappNumber) setWhatsappNumber(data.whatsappNumber);
         if (data.facebookLink) setFacebookLink(data.facebookLink);
         if (data.youtubeLink) setYoutubeLink(data.youtubeLink);
@@ -233,6 +245,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (data.visitorCount) setVisitorCount(data.visitorCount);
         if (data.customApiKey) setCustomApiKey(data.customApiKey);
         if (data.twelvedataApiKey) setTwelvedataApiKey(data.twelvedataApiKey);
+        if (data.isPromoBannerEnabled !== undefined) setIsPromoBannerEnabled(data.isPromoBannerEnabled);
+        if (data.isDarkModeDefault !== undefined) setIsDarkModeDefault(data.isDarkModeDefault);
       }
       configSynced = true;
       checkDataReady();
@@ -291,9 +305,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const saveConfig = async () => {
       try {
         const config = {
-          bannerImage, whatsappNumber, facebookLink, youtubeLink, tiktokLink,
+          bannerImage, paymentMethodsImage, whatsappNumber, facebookLink, youtubeLink, tiktokLink,
           globalOrderPolicy, shippingRates, categories, trackingConfig,
-          adminUsername, adminPassword, visitorCount, customApiKey, twelvedataApiKey
+          adminUsername, adminPassword, visitorCount, customApiKey, twelvedataApiKey,
+          isPromoBannerEnabled, isDarkModeDefault
         };
         await setDoc(doc(db, 'config', 'settings'), config);
       } catch (e) {
@@ -302,9 +317,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
     saveConfig();
   }, [
-    bannerImage, whatsappNumber, facebookLink, youtubeLink, tiktokLink,
+    bannerImage, paymentMethodsImage, whatsappNumber, facebookLink, youtubeLink, tiktokLink,
     globalOrderPolicy, shippingRates, categories, trackingConfig,
     adminUsername, adminPassword, visitorCount, customApiKey, twelvedataApiKey,
+    isPromoBannerEnabled, isDarkModeDefault,
     isAuthReady, user?.isAdmin
   ]);
 
@@ -324,6 +340,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, 2000);
     return () => clearInterval(interval);
   }, []);
+
+  // Cleanup: Remove "Ultra-Hydrating Skin Care Set" if it exists
+  useEffect(() => {
+    if (isDataReady && allProducts.length > 0) {
+      const productToRemove = allProducts.find(p => p.name === 'Ultra-Hydrating Skin Care Set' || p.id === 'be1');
+      if (productToRemove) {
+        deleteProduct(productToRemove.id).then(() => {
+          console.log('Product "Ultra-Hydrating Skin Care Set" removed successfully.');
+        }).catch(err => {
+          console.error('Failed to remove product:', err);
+        });
+      }
+    }
+  }, [isDataReady, allProducts]);
 
   const login = async (email: string, password?: string) => {
     if (!password) throw new Error('Password is required');
@@ -556,6 +586,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setBannerImage(image);
   };
 
+  const updatePaymentMethodsImage = (image: string) => {
+    setPaymentMethodsImage(image);
+  };
+
   const updateWhatsappNumber = (number: string) => {
     setWhatsappNumber(number);
   };
@@ -594,6 +628,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setTwelvedataApiKey(key);
   };
 
+  const updatePromoBannerEnabled = (enabled: boolean) => {
+    setIsPromoBannerEnabled(enabled);
+  };
+
+  const updateDarkModeDefault = (enabled: boolean) => {
+    setIsDarkModeDefault(enabled);
+  };
+
   const updateLandingConfig = async (config: LandingConfig) => {
     try {
       await setDoc(doc(db, 'config', 'landing'), config);
@@ -605,14 +647,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   return (
     <AuthContext.Provider value={{ 
-      user, orders, allProducts, categories, addresses, shippingRates, bannerImage, whatsappNumber, 
+      user, orders, allProducts, categories, addresses, shippingRates, bannerImage, paymentMethodsImage, whatsappNumber, 
       facebookLink, youtubeLink, tiktokLink,
       login, signup, adminLogin, logout, 
       signInWithGoogle, resetPassword,
       addOrder, updateOrderStatus, updateProduct, deleteProduct, addProduct, updateCategory, deleteCategory, addCategory, updateCategoryImage,
       addAddress, removeAddress, updateShippingRates, updateUser, 
       syncProducts, syncCategories,
-      updateBannerImage, updateWhatsappNumber,
+      updateBannerImage, updatePaymentMethodsImage, updateWhatsappNumber,
       updateFacebookLink, updateYoutubeLink, updateTiktokLink,
       adminUsername, adminPassword, updateAdminCredentials,
       globalOrderPolicy, updateGlobalOrderPolicy,
@@ -620,9 +662,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       visitorCount, trackingLogs,
       customApiKey, updateCustomApiKey,
       twelvedataApiKey, updateTwelvedataApiKey,
+      isPromoBannerEnabled, updatePromoBannerEnabled,
+      isDarkModeDefault, updateDarkModeDefault,
       landingConfig, updateLandingConfig,
       isAuthReady,
-      isDataReady
+      isDataReady,
+      toast
     }}>
       {children}
     </AuthContext.Provider>

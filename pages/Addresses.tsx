@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { MapPin, Plus, Trash2, ArrowLeft, Home, Building, Building2, Map, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { BD_LOCATIONS } from '../constants';
+import { toast } from 'sonner';
 
 const Addresses: React.FC = () => {
   const { addresses, addAddress, removeAddress, user, isAuthReady } = useAuth();
@@ -54,7 +55,7 @@ const Addresses: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.phone || !formData.details || !formData.district || !formData.thana) {
-      alert("Please fill all fields including District and Thana");
+      toast.error("Please fill all fields including District and Thana");
       return;
     }
 

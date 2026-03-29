@@ -42,6 +42,7 @@ service cloud.firestore {
     // Document ID: settings
     // Fields:
     //   - bannerImage: string
+    //   - paymentMethodsImage: string
     //   - whatsappNumber: string
     //   - facebookLink: string
     //   - youtubeLink: string
@@ -50,6 +51,11 @@ service cloud.firestore {
     //   - shippingRates: map
     //   - adminUsername: string
     //   - adminPassword: string
+    //   - visitorCount: number
+    //   - customApiKey: string
+    //   - twelvedataApiKey: string
+    //   - isPromoBannerEnabled: boolean
+    //   - isDarkModeDefault: boolean
     //
     // Collection: carts
     // Document ID: userId
@@ -70,7 +76,8 @@ service cloud.firestore {
       return isAuthenticated() &&
         (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
           request.auth.token.email == "mstkarimabibi45@gmail.com" ||
-          request.auth.token.email == "jafor100khan@gmail.com");
+          request.auth.token.email == "jafor100khan@gmail.com" ||
+          request.auth.token.email == "sreemithunchandra021@gmail.com");
     }
 
     function isOwner(userId) {
@@ -86,23 +93,34 @@ service cloud.firestore {
     }
 
     function isValidProduct(data) {
-      return data.id is string && 
-             data.name is string && data.name.size() > 0 &&
+      return data.id is string && data.id.size() < 100 &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 200 &&
              data.price is number &&
-             data.image is string &&
-             data.category is string;
+             data.image is string && data.image.size() < 1000 &&
+             data.category is string && data.category.size() < 100;
     }
 
     function isValidOrder(data) {
-      return data.id is string &&
-             data.customerName is string &&
-             data.phone is string &&
+      return data.id is string && data.id.size() < 100 &&
+             data.customerName is string && data.customerName.size() < 100 &&
+             data.phone is string && data.phone.size() < 20 &&
              data.total is number &&
-             data.items is list;
+             data.items is list && data.items.size() < 50;
     }
 
     function isValidCategory(data) {
-      return data.name is string && data.name.size() > 0;
+      return data.name is string && data.name.size() > 0 && data.name.size() < 100;
+    }
+
+    function isValidUser(data) {
+      return data.uid is string && data.uid.size() < 100 &&
+             data.email is string && data.email.size() < 100 &&
+             data.role in ['admin', 'user'];
+    }
+
+    function isValidCart(data) {
+      return data.items is list && data.items.size() < 50 &&
+             data.updatedAt is string && data.updatedAt.size() < 100;
     }
 
     // ===============================================================
@@ -111,19 +129,19 @@ service cloud.firestore {
 
     match /products/{productId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow write: if isAdmin() && (request.method == 'delete' || isValidProduct(request.resource.data));
     }
 
     match /orders/{orderId} {
       allow read: if isAdmin() || (isAuthenticated() && (resource == null || resource.data.uid == request.auth.uid));
-      allow create: if isAuthenticated() || request.resource.data.uid == 'guest';
-      allow update: if isAdmin();
+      allow create: if (isAuthenticated() || request.resource.data.uid == 'guest') && isValidOrder(request.resource.data);
+      allow update: if isAdmin() && isValidOrder(request.resource.data);
       allow delete: if isAdmin();
     }
 
     match /categories/{categoryId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow write: if isAdmin() && (request.method == 'delete' || isValidCategory(request.resource.data));
     }
 
     match /config/settings {
@@ -138,14 +156,18 @@ service cloud.firestore {
 
     match /users/{userId} {
       allow read: if isOwner(userId) || isAdmin();
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId) && isValidUser(request.resource.data);
+      allow update: if (isOwner(userId) && isValidUser(request.resource.data) && request.resource.data.role == resource.data.role) || isAdmin();
       allow delete: if isAdmin();
     }
 
     match /carts/{userId} {
       allow read: if isOwner(userId);
-      allow write: if isOwner(userId);
+      allow write: if isOwner(userId) && isValidCart(request.resource.data);
+    }
+
+    match /test/connection {
+      allow read: if true;
     }
   }
 }

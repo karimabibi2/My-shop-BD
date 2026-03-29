@@ -8,6 +8,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { trackingService } from '../services/TrackingService';
 import { MessageSquare } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface ProductDetailsModalProps {
   product: Product | null;
@@ -48,7 +49,7 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ product, onCl
       removeFromCart(product.id);
     } else {
       if (product.sizes && product.sizes.length > 0 && !selectedSize) {
-        alert(t('select_size'));
+        toast.error(t('select_size'));
         return;
       }
       addToCart(product, selectedSize || undefined);
@@ -107,6 +108,7 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ product, onCl
                   <img 
                     src={product.image} 
                     alt={product.name} 
+                    loading="lazy"
                     className="w-full h-full object-contain"
                     referrerPolicy="no-referrer"
                   />
@@ -299,7 +301,7 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ product, onCl
               <button 
                 onClick={() => {
                   if (product.sizes && product.sizes.length > 0 && !selectedSize) {
-                    alert(t('select_size'));
+                    toast.error(t('select_size'));
                     return;
                   }
                   onBuyNow({ ...product, selectedSize: selectedSize || undefined } as any);

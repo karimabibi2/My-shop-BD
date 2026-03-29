@@ -8,8 +8,9 @@ import {
   XCircle, ArrowLeft, Save, Globe, Truck, ShieldAlert,
   Image as ImageIcon, Upload, Link as LinkIcon,
   Layers, MessageCircle, Youtube, Facebook, Lock, Key, FileText,
-  Users, Activity, Terminal, RefreshCw
+  Users, Activity, Terminal, RefreshCw, Trash, CreditCard
 } from 'lucide-react';
+import ConfirmationModal from '../components/ConfirmationModal';
 import { resizeImage } from '../utils/imageUtils';
 import { 
   LineChart, Line, XAxis, YAxis, CartesianGrid, 
@@ -29,7 +30,7 @@ const AdminPanel: React.FC = () => {
     updateProduct, deleteProduct, addProduct, logout,
     shippingRates, updateShippingRates, categories, updateCategory, deleteCategory, addCategory,
     syncProducts, syncCategories,
-    bannerImage, updateBannerImage, whatsappNumber, updateWhatsappNumber,
+    bannerImage, updateBannerImage, paymentMethodsImage, updatePaymentMethodsImage, whatsappNumber, updateWhatsappNumber,
     facebookLink, updateFacebookLink, youtubeLink, updateYoutubeLink, tiktokLink, updateTiktokLink,
     adminUsername, adminPassword, updateAdminCredentials,
     globalOrderPolicy, updateGlobalOrderPolicy,
@@ -37,8 +38,11 @@ const AdminPanel: React.FC = () => {
     visitorCount, trackingLogs,
     customApiKey, updateCustomApiKey,
     twelvedataApiKey, updateTwelvedataApiKey,
+    isPromoBannerEnabled, updatePromoBannerEnabled,
+    isDarkModeDefault, updateDarkModeDefault,
     landingConfig, updateLandingConfig,
-    isAuthReady
+    isAuthReady,
+    toast
   } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -86,6 +90,22 @@ const AdminPanel: React.FC = () => {
   const [localTwelvedataKey, setLocalTwelvedataKey] = useState(twelvedataApiKey);
   const [localLandingConfig, setLocalLandingConfig] = useState(landingConfig);
   const [hasApiKey, setHasApiKey] = useState(false);
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    type?: 'danger' | 'warning' | 'info';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
+
+  const openConfirm = (title: string, message: string, onConfirm: () => void, type: 'danger' | 'warning' | 'info' = 'danger') => {
+    setConfirmModal({ isOpen: true, title, message, onConfirm, type });
+  };
 
   useEffect(() => {
     const checkKey = async () => {
@@ -113,7 +133,7 @@ const AdminPanel: React.FC = () => {
         console.error("Error opening key selector:", error);
       }
     } else {
-      alert("API Key selection is only available within the AI Studio environment.");
+      toast.info("API Key selection is only available within the AI Studio environment.");
     }
   };
 
@@ -461,15 +481,19 @@ const AdminPanel: React.FC = () => {
                               <FileText size={12} /> {t('order_policy')}
                             </button>
                             <button 
-                              onClick={async () => {
-                                if (window.confirm(t('confirm_delete_product'))) {
-                                  try {
-                                    await deleteProduct(product.id);
-                                    alert(t('product_deleted'));
-                                  } catch (e: any) {
-                                    alert(e.message || t('failed_to_delete_product'));
+                              onClick={() => {
+                                openConfirm(
+                                  t('confirm_delete_product') || 'Delete Product?',
+                                  t('delete_product_warning') || 'Are you sure you want to delete this product? This action cannot be undone.',
+                                  async () => {
+                                    try {
+                                      await deleteProduct(product.id);
+                                      toast.success(t('product_deleted') || 'Product deleted successfully');
+                                    } catch (e: any) {
+                                      toast.error(e.message || t('failed_to_delete_product') || 'Failed to delete product');
+                                    }
                                   }
-                                }
+                                );
                               }} 
                               className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg"
                             >
@@ -579,19 +603,23 @@ const AdminPanel: React.FC = () => {
                       <Edit2 size={14} /> {t('edit')}
                     </button>
                     <button 
-                      onClick={async () => {
+                      onClick={() => {
                         if (cat.name === 'Uncategorized') {
-                          alert('The "Uncategorized" category cannot be deleted.');
+                          toast.error('The "Uncategorized" category cannot be deleted.');
                           return;
                         }
-                        if (window.confirm(t('confirm_delete_category'))) {
-                          try {
-                            await deleteCategory(cat.name);
-                            alert(t('category_deleted'));
-                          } catch (e) {
-                            alert(t('failed_to_delete_category'));
+                        openConfirm(
+                          t('confirm_delete_category') || 'Delete Category?',
+                          t('delete_category_warning') || 'Are you sure you want to delete this category? Products in this category will be moved to Uncategorized.',
+                          async () => {
+                            try {
+                              await deleteCategory(cat.name);
+                              toast.success(t('category_deleted') || 'Category deleted successfully');
+                            } catch (e) {
+                              toast.error(t('failed_to_delete_category') || 'Failed to delete category');
+                            }
                           }
-                        }
+                        );
                       }}
                       disabled={cat.name === 'Uncategorized'}
                       className={`p-2 rounded-lg flex items-center gap-1 text-[10px] font-black uppercase ${cat.name === 'Uncategorized' ? 'text-gray-300 cursor-not-allowed' : 'text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20'}`}
@@ -678,9 +706,9 @@ const AdminPanel: React.FC = () => {
                               onClick={async () => {
                                 try {
                                   await updateOrderStatus(order.id, 'Delivered');
-                                  alert(t('order_delivered'));
+                                  toast.success(t('order_delivered') || 'Order marked as delivered');
                                 } catch (e) {
-                                  alert(t('failed_to_update_order'));
+                                  toast.error(t('failed_to_update_order') || 'Failed to update order');
                                 }
                               }}
                               className="bg-green-500 text-white p-1.5 rounded-lg text-[8px] font-black uppercase flex items-center gap-1"
@@ -692,9 +720,9 @@ const AdminPanel: React.FC = () => {
                             onClick={async () => {
                               try {
                                 await updateOrderStatus(order.id, 'Cancelled');
-                                alert(t('order_cancelled'));
+                                toast.success(t('order_cancelled') || 'Order cancelled');
                               } catch (e) {
-                                alert(t('failed_to_update_order'));
+                                toast.error(t('failed_to_update_order') || 'Failed to update order');
                               }
                             }}
                             className="text-red-500 p-1.5 rounded-lg text-[8px] font-black uppercase"
@@ -767,9 +795,9 @@ const AdminPanel: React.FC = () => {
                   onClick={async () => {
                     try {
                       await updateLandingConfig(localLandingConfig);
-                      alert(t('landing_config_updated'));
+                      toast.success(t('landing_config_updated') || 'Landing configuration updated');
                     } catch (e) {
-                      alert(t('failed_to_update_settings'));
+                      toast.error(t('failed_to_update_settings') || 'Failed to update settings');
                     }
                   }}
                   className="w-full bg-[#e62e04] text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
@@ -843,9 +871,9 @@ const AdminPanel: React.FC = () => {
                   onClick={async () => {
                     try {
                       await updateLandingConfig(localLandingConfig);
-                      alert(t('landing_config_updated'));
+                      toast.success(t('landing_config_updated') || 'Landing configuration updated');
                     } catch (e) {
-                      alert(t('failed_to_update_settings'));
+                      toast.error(t('failed_to_update_settings') || 'Failed to update settings');
                     }
                   }}
                   className="w-full bg-blue-600 text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
@@ -947,9 +975,9 @@ const AdminPanel: React.FC = () => {
                   onClick={async () => {
                     try {
                       await updateLandingConfig(localLandingConfig);
-                      alert(t('landing_config_updated'));
+                      toast.success(t('landing_config_updated') || 'Landing configuration updated');
                     } catch (e) {
-                      alert(t('failed_to_update_settings'));
+                      toast.error(t('failed_to_update_settings') || 'Failed to update settings');
                     }
                   }}
                   className="w-full bg-purple-600 text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
@@ -984,9 +1012,9 @@ const AdminPanel: React.FC = () => {
                     onClick={async () => {
                       try {
                         await updateWhatsappNumber(newWhatsappNumber);
-                        alert(t('whatsapp_updated'));
+                        toast.success(t('whatsapp_updated') || 'WhatsApp number updated');
                       } catch (e) {
-                        alert(t('failed_to_update_settings'));
+                        toast.error(t('failed_to_update_settings') || 'Failed to update settings');
                       }
                     }}
                     className="bg-[#25D366] text-white px-4 rounded-xl text-[10px] font-black uppercase tracking-widest"
@@ -1012,10 +1040,15 @@ const AdminPanel: React.FC = () => {
                 <div className="grid grid-cols-2 gap-3">
                   <button 
                     onClick={() => {
-                      if (window.confirm(t('confirm_sync_products'))) {
-                        syncProducts();
-                        alert(t('products_synced'));
-                      }
+                      openConfirm(
+                        t('confirm_sync_products') || 'Sync Products?',
+                        t('sync_products_warning') || 'Are you sure you want to sync products from the initial data? This will overwrite existing products with the same IDs.',
+                        () => {
+                          syncProducts();
+                          toast.success(t('products_synced') || 'Products synced successfully');
+                        },
+                        'warning'
+                      );
                     }}
                     className="flex items-center justify-center gap-2 py-3 bg-blue-50 dark:bg-blue-950/20 text-blue-600 rounded-xl text-[10px] font-black uppercase tracking-widest border border-blue-100 dark:border-blue-900/30"
                   >
@@ -1023,10 +1056,15 @@ const AdminPanel: React.FC = () => {
                   </button>
                   <button 
                     onClick={() => {
-                      if (window.confirm(t('confirm_sync_categories'))) {
-                        syncCategories();
-                        alert(t('categories_synced'));
-                      }
+                      openConfirm(
+                        t('confirm_sync_categories') || 'Sync Categories?',
+                        t('sync_categories_warning') || 'Are you sure you want to sync categories from the initial data?',
+                        () => {
+                          syncCategories();
+                          toast.success(t('categories_synced') || 'Categories synced successfully');
+                        },
+                        'warning'
+                      );
                     }}
                     className="flex items-center justify-center gap-2 py-3 bg-orange-50 dark:bg-orange-950/20 text-orange-600 rounded-xl text-[10px] font-black uppercase tracking-widest border border-orange-100 dark:border-orange-900/30"
                   >
@@ -1101,9 +1139,9 @@ const AdminPanel: React.FC = () => {
                 onClick={async () => {
                   try {
                     await updateShippingRates(rates);
-                    alert(t('shipping_rates_updated'));
+                    toast.success(t('shipping_rates_updated') || 'Shipping rates updated');
                   } catch (e) {
-                    alert(t('failed_to_update_settings'));
+                    toast.error(t('failed_to_update_settings') || 'Failed to update settings');
                   }
                 }}
                 className="w-full bg-[#e62e04] text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest mt-2 flex items-center justify-center gap-2"
@@ -1136,9 +1174,9 @@ const AdminPanel: React.FC = () => {
                       onClick={async () => {
                         try {
                           await updateFacebookLink(newFacebookLink);
-                          alert(t('facebook_link_updated'));
+                          toast.success(t('facebook_link_updated') || 'Facebook link updated');
                         } catch (e) {
-                          alert(t('failed_to_update_settings'));
+                          toast.error(t('failed_to_update_settings') || 'Failed to update settings');
                         }
                       }}
                       className="bg-blue-600 text-white px-3 rounded-xl text-[10px] font-black uppercase"
@@ -1165,9 +1203,9 @@ const AdminPanel: React.FC = () => {
                       onClick={async () => {
                         try {
                           await updateYoutubeLink(newYoutubeLink);
-                          alert(t('youtube_link_updated'));
+                          toast.success(t('youtube_link_updated') || 'YouTube link updated');
                         } catch (e) {
-                          alert(t('failed_to_update_settings'));
+                          toast.error(t('failed_to_update_settings') || 'Failed to update settings');
                         }
                       }}
                       className="bg-red-600 text-white px-3 rounded-xl text-[10px] font-black uppercase"
@@ -1196,9 +1234,9 @@ const AdminPanel: React.FC = () => {
                       onClick={async () => {
                         try {
                           await updateTiktokLink(newTiktokLink);
-                          alert(t('tiktok_link_updated'));
+                          toast.success(t('tiktok_link_updated') || 'TikTok link updated');
                         } catch (e) {
-                          alert(t('failed_to_update_settings'));
+                          toast.error(t('failed_to_update_settings') || 'Failed to update settings');
                         }
                       }}
                       className="bg-black text-white px-3 rounded-xl text-[10px] font-black uppercase"
@@ -1217,14 +1255,20 @@ const AdminPanel: React.FC = () => {
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-[10px] font-bold text-gray-500 uppercase">{t('promo_banner')}</span>
-                <button className="w-10 h-5 bg-green-500 rounded-full relative">
-                  <div className="absolute right-0.5 top-0.5 w-4 h-4 bg-white rounded-full"></div>
+                <button 
+                  onClick={() => updatePromoBannerEnabled(!isPromoBannerEnabled)}
+                  className={`w-10 h-5 rounded-full relative transition-colors ${isPromoBannerEnabled ? 'bg-green-500' : 'bg-gray-200 dark:bg-slate-700'}`}
+                >
+                  <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all ${isPromoBannerEnabled ? 'right-0.5' : 'left-0.5'}`}></div>
                 </button>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-[10px] font-bold text-gray-500 uppercase">{t('dark_mode_default')}</span>
-                <button className="w-10 h-5 bg-gray-200 dark:bg-slate-700 rounded-full relative">
-                  <div className="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full"></div>
+                <button 
+                  onClick={() => updateDarkModeDefault(!isDarkModeDefault)}
+                  className={`w-10 h-5 rounded-full relative transition-colors ${isDarkModeDefault ? 'bg-green-500' : 'bg-gray-200 dark:bg-slate-700'}`}
+                >
+                  <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all ${isDarkModeDefault ? 'right-0.5' : 'left-0.5'}`}></div>
                 </button>
               </div>
             </div>
@@ -1265,12 +1309,12 @@ const AdminPanel: React.FC = () => {
                       try {
                         if (newAdminUser.trim() && newAdminPass.trim()) {
                           await updateAdminCredentials(newAdminUser, newAdminPass);
-                          alert(t('admin_credentials_updated'));
+                          toast.success(t('admin_credentials_updated') || 'Admin credentials updated');
                         } else {
-                          alert(t('empty_credentials_error'));
+                          toast.error(t('empty_credentials_error') || 'Username and password cannot be empty');
                         }
                       } catch (e) {
-                        alert(t('failed_to_update_settings'));
+                        toast.error(t('failed_to_update_settings') || 'Failed to update settings');
                       }
                     }}
                     className="bg-[#e62e04] text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
@@ -1330,9 +1374,9 @@ const AdminPanel: React.FC = () => {
                       onClick={async () => {
                         try {
                           await updateBannerImage(newBannerUrl);
-                          alert(t('banner_updated'));
+                          toast.success(t('banner_updated') || 'Banner updated');
                         } catch (e) {
-                          alert(t('failed_to_update_settings'));
+                          toast.error(t('failed_to_update_settings') || 'Failed to update settings');
                         }
                       }}
                       className="bg-[#e62e04] text-white px-4 rounded-xl text-[10px] font-black uppercase tracking-widest"
@@ -1367,6 +1411,72 @@ const AdminPanel: React.FC = () => {
                 </div>
               </div>
 
+              {/* Payment Methods Image */}
+              <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-50 dark:bg-blue-950/20 text-blue-500 rounded-xl flex items-center justify-center border border-blue-100 dark:border-blue-900/30">
+                    <CreditCard size={20} />
+                  </div>
+                  <div className="flex flex-col">
+                    <h4 className="text-sm font-black text-gray-900 dark:text-white uppercase italic tracking-tighter">{t('payment_method')}</h4>
+                    <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Payment Icons/Instructions Image</p>
+                  </div>
+                </div>
+                
+                <div className="flex flex-col gap-4">
+                  <div className="relative group">
+                    <div className="w-full h-32 bg-gray-50 dark:bg-slate-800 rounded-2xl border-2 border-dashed border-gray-200 dark:border-slate-700 flex items-center justify-center overflow-hidden">
+                      {paymentMethodsImage ? (
+                        <img 
+                          src={paymentMethodsImage} 
+                          alt="Payment Methods" 
+                          className="w-full h-full object-contain"
+                          referrerPolicy="no-referrer"
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center gap-2 text-gray-400">
+                          <ImageIcon size={24} />
+                          <span className="text-[10px] font-bold uppercase tracking-widest">No Image Uploaded</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <label className="absolute inset-0 cursor-pointer flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl">
+                      <div className="flex flex-col items-center gap-1 text-white">
+                        <Upload size={20} />
+                        <span className="text-[10px] font-black uppercase tracking-widest">{t('upload_image')}</span>
+                      </div>
+                      <input 
+                        type="file" 
+                        className="hidden" 
+                        accept="image/*"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            try {
+                              const resized = await resizeImage(file, 800, 400);
+                              updatePaymentMethodsImage(resized);
+                              toast.success(t('update_success') || 'Update successful');
+                            } catch (err) {
+                              toast.error('Failed to upload image');
+                            }
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+
+                  {paymentMethodsImage && (
+                    <button 
+                      onClick={() => updatePaymentMethodsImage('')}
+                      className="text-[10px] font-black text-red-500 uppercase tracking-widest flex items-center justify-center gap-1 self-center"
+                    >
+                      <Trash size={12} /> {t('remove')}
+                    </button>
+                  )}
+                </div>
+              </div>
+
               {/* Global Order Policy */}
               <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-6">
                 <div className="flex items-center gap-3">
@@ -1392,9 +1502,9 @@ const AdminPanel: React.FC = () => {
                       onClick={async () => {
                         try {
                           await updateGlobalOrderPolicy(newGlobalPolicy);
-                          alert(t('update_success'));
+                          toast.success(t('update_success') || 'Update successful');
                         } catch (e) {
-                          alert(t('failed_to_update_settings'));
+                          toast.error(t('failed_to_update_settings') || 'Failed to update settings');
                         }
                       }}
                       className="bg-[#e62e04] text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
@@ -1501,9 +1611,9 @@ const AdminPanel: React.FC = () => {
                     onClick={async () => {
                       try {
                         await updateTrackingConfig(localTracking);
-                        alert(t('tracking_updated'));
+                        toast.success(t('tracking_updated') || 'Tracking settings updated');
                       } catch (e) {
-                        alert(t('failed_to_update_settings'));
+                        toast.error(t('failed_to_update_settings') || 'Failed to update settings');
                       }
                     }}
                     className="bg-[#e62e04] text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
@@ -1554,9 +1664,9 @@ const AdminPanel: React.FC = () => {
                         onClick={async () => {
                           try {
                             await updateCustomApiKey(localApiKey);
-                            alert(t('api_key_saved'));
+                            toast.success(t('api_key_saved') || 'API key saved');
                           } catch (e) {
-                            alert(t('failed_to_update_settings'));
+                            toast.error(t('failed_to_update_settings') || 'Failed to update settings');
                           }
                         }}
                         className="bg-[#e62e04] text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2"
@@ -1580,9 +1690,9 @@ const AdminPanel: React.FC = () => {
                         onClick={async () => {
                           try {
                             await updateTwelvedataApiKey(localTwelvedataKey);
-                            alert(t('api_key_saved'));
+                            toast.success(t('api_key_saved') || 'API key saved');
                           } catch (e) {
-                            alert(t('failed_to_update_settings'));
+                            toast.error(t('failed_to_update_settings') || 'Failed to update settings');
                           }
                         }}
                         className="bg-[#e62e04] text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2"
@@ -1655,7 +1765,7 @@ const AdminPanel: React.FC = () => {
                     <button 
                       onClick={() => {
                         trackingService.trackViewItem(allProducts[0] || { id: 'test', name: 'Test Product', price: 100, category: 'Test' });
-                        alert('Test event sent! Check logs below.');
+                        toast.info('Test event sent! Check logs below.');
                       }}
                       className="text-[9px] font-black uppercase text-blue-500 hover:underline"
                     >
@@ -1663,9 +1773,15 @@ const AdminPanel: React.FC = () => {
                     </button>
                     <button 
                       onClick={() => {
-                        if (window.confirm('Are you sure you want to clear all tracking logs?')) {
-                          clearTrackingLogs();
-                        }
+                        setConfirmModal({
+                          isOpen: true,
+                          title: 'Clear Tracking Logs',
+                          message: 'Are you sure you want to clear all tracking logs?',
+                          onConfirm: () => {
+                            clearTrackingLogs();
+                            toast.success('Tracking logs cleared');
+                          }
+                        });
                       }}
                       className="text-[9px] font-black uppercase text-red-500 hover:underline"
                     >
@@ -1882,14 +1998,14 @@ const AdminPanel: React.FC = () => {
                       try {
                         if (editingProduct.id.toString().startsWith('new')) {
                           await addProduct({ ...editingProduct, id: 'prod-' + Date.now() });
-                          alert(t('product_added'));
+                          toast.success(t('product_added') || 'Product added successfully');
                         } else {
                           await updateProduct(editingProduct);
-                          alert(t('product_updated'));
+                          toast.success(t('product_updated') || 'Product updated successfully');
                         }
                         setEditingProduct(null);
                       } catch (e: any) {
-                        alert(e.message || t('failed_to_save_product'));
+                        toast.error(e.message || t('failed_to_save_product') || 'Failed to save product');
                       }
                     }}
                     className="w-full bg-[#e62e04] text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 mt-4 text-xs"
@@ -1950,11 +2066,11 @@ const AdminPanel: React.FC = () => {
                       if (newCategory.name.trim()) {
                         try {
                           await addCategory(newCategory.name.trim(), newCategory.image);
-                          alert(t('category_added'));
+                          toast.success(t('category_added') || 'Category added successfully');
                           setNewCategory({ name: '', image: '' });
                           setIsAddingCategory(false);
                         } catch (e) {
-                          alert(t('failed_to_add_category'));
+                          toast.error(t('failed_to_add_category') || 'Failed to add category');
                         }
                       }
                     }}
@@ -2019,10 +2135,10 @@ const AdminPanel: React.FC = () => {
                     onClick={async () => {
                       try {
                         await updateCategory(editingCategory.oldName, editingCategory.newName, editingCategory.image);
-                        alert(t('category_updated'));
+                        toast.success(t('category_updated') || 'Category updated successfully');
                         setEditingCategory(null);
                       } catch (e) {
-                        alert(t('failed_to_update_category'));
+                        toast.error(t('failed_to_update_category') || 'Failed to update category');
                       }
                     }}
                     className="w-full bg-[#e62e04] text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 mt-2 text-xs"
@@ -2082,6 +2198,15 @@ const AdminPanel: React.FC = () => {
             </div>
           </div>
         )}
+        {/* --- Confirmation Modal --- */}
+        <ConfirmationModal
+          isOpen={confirmModal.isOpen}
+          onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+          onConfirm={confirmModal.onConfirm}
+          title={confirmModal.title}
+          message={confirmModal.message}
+          type={confirmModal.type}
+        />
       </div>
     </AdminLayout>
   );

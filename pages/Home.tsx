@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router-dom';
 const Home: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const { allProducts, bannerImage, categories, isDataReady } = useAuth();
+  const { allProducts, bannerImage, categories, isDataReady, isPromoBannerEnabled } = useAuth();
   const { activeCategory, setActiveCategory, setIsDrawerOpen } = useCategory();
   const { addToCart, cart } = useCart();
   const { t } = useLanguage();
@@ -80,13 +80,14 @@ const Home: React.FC = () => {
         </div>
 
         {/* Banner */}
-        {activeCategory === 'All' && !searchQuery && (
+        {activeCategory === 'All' && !searchQuery && isPromoBannerEnabled && (
           <div className="rounded-xl overflow-hidden relative shadow-md h-36 bg-gradient-to-r from-red-600 to-red-400 dark:from-red-900 dark:to-red-700">
             {bannerImage && (
               <img 
                 src={bannerImage} 
                 alt="Promo Banner" 
                 referrerPolicy="no-referrer"
+                loading="lazy"
                 className="w-full h-full object-cover opacity-30"
               />
             )}
