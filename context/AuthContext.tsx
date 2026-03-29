@@ -7,7 +7,8 @@ import {
   auth, db, googleProvider, 
   signInWithPopup, signOut, onAuthStateChanged,
   signInWithEmailAndPassword, createUserWithEmailAndPassword,
-  collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, addDoc, onSnapshot, query, where, orderBy, limit
+  collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, addDoc, onSnapshot, query, where, orderBy, limit,
+  ref, uploadBytes, getDownloadURL, storage, uploadBytesResumable
 } from '../firebase';
 
 enum OperationType {
@@ -125,6 +126,7 @@ interface AuthContextType {
   updateDarkModeDefault: (enabled: boolean) => void;
   landingConfig: LandingConfig;
   updateLandingConfig: (config: LandingConfig) => Promise<void>;
+  uploadImage: (file: File | Blob, path: string, onProgress?: (progress: number) => void) => Promise<string>;
   isAuthReady: boolean;
   isDataReady: boolean;
   toast: typeof toast;
@@ -658,6 +660,37 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const uploadImage = (file: File | Blob, path: string, onProgress?: (progress: number) => void): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      try {
+        const storageRef = ref(storage, path);
+        const uploadTask = uploadBytesResumable(storageRef, file);
+
+        uploadTask.on('state_changed', 
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            if (onProgress) onProgress(progress);
+          }, 
+          (error) => {
+            console.error('Error uploading image:', error);
+            reject(error);
+          }, 
+          async () => {
+            try {
+              const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+              resolve(downloadURL);
+            } catch (error) {
+              reject(error);
+            }
+          }
+        );
+      } catch (error) {
+        console.error('Error initiating upload:', error);
+        reject(error);
+      }
+    });
+  };
+
   return (
     <AuthContext.Provider value={{ 
       user, orders, allProducts, categories, addresses, shippingRates, bannerImage, paymentMethodsImage, whatsappNumber, 
@@ -677,7 +710,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       customApiKey, updateCustomApiKey,
       isPromoBannerEnabled, updatePromoBannerEnabled,
       isDarkModeDefault, updateDarkModeDefault,
-      landingConfig, updateLandingConfig,
+      landingConfig, updateLandingConfig, uploadImage,
       isAuthReady,
       isDataReady,
       toast

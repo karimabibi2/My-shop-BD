@@ -42,6 +42,7 @@ const AdminPanel: React.FC = () => {
     isPromoBannerEnabled, updatePromoBannerEnabled,
     isDarkModeDefault, updateDarkModeDefault,
     landingConfig, updateLandingConfig,
+    uploadImage,
     isAuthReady,
     toast
   } = useAuth();
@@ -68,6 +69,12 @@ const AdminPanel: React.FC = () => {
   
   // Product Edit Modal State
   const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedCategoryFile, setSelectedCategoryFile] = useState<File | null>(null);
+  const [selectedBannerFile, setSelectedBannerFile] = useState<File | null>(null);
+  const [selectedPaymentMethodsFile, setSelectedPaymentMethodsFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
 
   // Category Edit State
   const [editingCategory, setEditingCategory] = useState<{ oldName: string, newName: string, image?: string } | null>(null);
@@ -188,6 +195,7 @@ const AdminPanel: React.FC = () => {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setSelectedFile(file);
       const reader = new FileReader();
       reader.onloadend = async () => {
         const base64 = reader.result as string;
@@ -208,6 +216,7 @@ const AdminPanel: React.FC = () => {
   const handleCategoryImageUpload = (e: React.ChangeEvent<HTMLInputElement>, isNew: boolean) => {
     const file = e.target.files?.[0];
     if (file) {
+      setSelectedCategoryFile(file);
       const reader = new FileReader();
       reader.onloadend = async () => {
         const base64 = reader.result as string;
@@ -1460,27 +1469,62 @@ const AdminPanel: React.FC = () => {
 
                 <div className="flex flex-col gap-1.5">
                   <label className="text-[9px] font-black text-gray-400 uppercase">{t('banner_image_url')}</label>
-                  <div className="flex gap-2">
-                    <input 
-                      type="text" 
-                      value={newBannerUrl}
-                      onChange={(e) => setNewBannerUrl(e.target.value)}
-                      className="flex-1 bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-[10px] font-bold dark:text-white"
-                      placeholder="https://example.com/banner.jpg"
-                    />
-                    <button 
-                      onClick={async () => {
-                        try {
-                          await updateBannerImage(newBannerUrl);
-                          toast.success(t('banner_updated') || 'Banner updated');
-                        } catch (e) {
-                          toast.error(t('failed_to_update_settings') || 'Failed to update settings');
-                        }
-                      }}
-                      className="bg-[#e62e04] text-white px-4 rounded-xl text-[10px] font-black uppercase tracking-widest"
-                    >
-                      {t('update')}
-                    </button>
+                  <div className="flex flex-col gap-3">
+                    <div className="flex gap-2">
+                      <input 
+                        type="text" 
+                        value={newBannerUrl}
+                        onChange={(e) => setNewBannerUrl(e.target.value)}
+                        className="flex-1 bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-[10px] font-bold dark:text-white"
+                        placeholder="https://example.com/banner.jpg"
+                      />
+                      <button 
+                        disabled={isUploading}
+                        onClick={async () => {
+                          try {
+                            setIsUploading(true);
+                            setUploadProgress(0);
+                            let imageUrl = newBannerUrl;
+                            if (selectedBannerFile) {
+                              const path = `settings/${Date.now()}_${selectedBannerFile.name}`;
+                              imageUrl = await uploadImage(selectedBannerFile, path, setUploadProgress);
+                            }
+                            await updateBannerImage(imageUrl);
+                            toast.success(t('banner_updated') || 'Banner updated');
+                            setSelectedBannerFile(null);
+                          } catch (e) {
+                            toast.error(t('failed_to_update_settings') || 'Failed to update settings');
+                          } finally {
+                            setIsUploading(false);
+                          }
+                        }}
+                        className={`bg-[#e62e04] text-white px-4 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-1 ${isUploading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                      >
+                        {isUploading ? <RefreshCw className="animate-spin" size={12} /> : null}
+                        {t('update')}
+                      </button>
+                    </div>
+                    {isUploading && selectedBannerFile && (
+                      <div className="w-full bg-gray-100 dark:bg-slate-800 rounded-full h-1 overflow-hidden mt-1">
+                        <div 
+                          className="bg-[#e62e04] h-full transition-all duration-300 ease-out" 
+                          style={{ width: `${uploadProgress}%` }}
+                        />
+                      </div>
+                    )}
+                    <label className="cursor-pointer bg-gray-50 dark:bg-slate-800 border-2 border-dashed border-gray-200 dark:border-slate-700 rounded-xl p-3 flex flex-col items-center justify-center gap-1 hover:border-[#e62e04] transition-colors">
+                      <Upload size={16} className="text-gray-400" />
+                      <span className="text-[10px] font-black uppercase text-gray-500">{selectedBannerFile ? selectedBannerFile.name : t('upload_banner_image')}</span>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        className="hidden" 
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) setSelectedBannerFile(file);
+                        }}
+                      />
+                    </label>
                   </div>
                 </div>
                 
@@ -1552,16 +1596,29 @@ const AdminPanel: React.FC = () => {
                           const file = e.target.files?.[0];
                           if (file) {
                             try {
-                              const resized = await resizeImage(file, 800, 400);
-                              updatePaymentMethodsImage(resized);
+                              setIsUploading(true);
+                              setUploadProgress(0);
+                              const path = `settings/${Date.now()}_${file.name}`;
+                              const imageUrl = await uploadImage(file, path, setUploadProgress);
+                              await updatePaymentMethodsImage(imageUrl);
                               toast.success(t('update_success') || 'Update successful');
                             } catch (err) {
                               toast.error('Failed to upload image');
+                            } finally {
+                              setIsUploading(false);
                             }
                           }
                         }}
                       />
                     </label>
+                    {isUploading && !selectedBannerFile && !selectedFile && !selectedCategoryFile && (
+                      <div className="w-full bg-gray-100 dark:bg-slate-800 rounded-full h-1 overflow-hidden mt-2">
+                        <div 
+                          className="bg-blue-500 h-full transition-all duration-300 ease-out" 
+                          style={{ width: `${uploadProgress}%` }}
+                        />
+                      </div>
+                    )}
                   </div>
                   
                   <div className="flex items-center gap-3">
@@ -1584,11 +1641,16 @@ const AdminPanel: React.FC = () => {
                         const file = e.target.files?.[0];
                         if (file) {
                           try {
-                            const resized = await resizeImage(file, 800, 400);
-                            updatePaymentMethodsImage(resized);
+                            setIsUploading(true);
+                            setUploadProgress(0);
+                            const path = `settings/${Date.now()}_${file.name}`;
+                            const imageUrl = await uploadImage(file, path, setUploadProgress);
+                            await updatePaymentMethodsImage(imageUrl);
                             toast.success(t('update_success') || 'Update successful');
                           } catch (err) {
                             toast.error('Failed to upload image');
+                          } finally {
+                            setIsUploading(false);
                           }
                         }
                       }}
@@ -2097,24 +2159,52 @@ const AdminPanel: React.FC = () => {
                   </div>
 
                   <button 
+                    disabled={isUploading}
                     onClick={async () => {
+                      setIsUploading(true);
+                      setUploadProgress(0);
                       try {
+                        let imageUrl = editingProduct.image;
+                        if (selectedFile) {
+                          const path = `products/${Date.now()}_${selectedFile.name}`;
+                          imageUrl = await uploadImage(selectedFile, path, setUploadProgress);
+                        }
+
                         if (editingProduct.id.toString().startsWith('new')) {
-                          await addProduct({ ...editingProduct, id: 'prod-' + Date.now() });
+                          await addProduct({ ...editingProduct, image: imageUrl, id: 'prod-' + Date.now() });
                           toast.success(t('product_added') || 'Product added successfully');
                         } else {
-                          await updateProduct(editingProduct);
+                          await updateProduct({ ...editingProduct, image: imageUrl });
                           toast.success(t('product_updated') || 'Product updated successfully');
                         }
                         setEditingProduct(null);
+                        setSelectedFile(null);
                       } catch (e: any) {
                         toast.error(e.message || t('failed_to_save_product') || 'Failed to save product');
+                      } finally {
+                        setIsUploading(false);
                       }
                     }}
-                    className="w-full bg-[#e62e04] text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 mt-4 text-xs"
+                    className={`w-full bg-[#e62e04] text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 mt-4 text-xs flex items-center justify-center gap-2 ${isUploading ? 'opacity-70 cursor-not-allowed' : ''}`}
                   >
-                    {t('save_product_changes')}
+                    {isUploading ? <RefreshCw className="animate-spin" size={16} /> : null}
+                    {isUploading ? t('saving') || 'Saving...' : t('save_product_changes')}
                   </button>
+                  
+                  {isUploading && (
+                    <div className="mt-4">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-[9px] font-black text-[#e62e04] uppercase tracking-widest">{t('uploading') || 'Uploading...'}</span>
+                        <span className="text-[9px] font-black text-gray-400">{Math.round(uploadProgress)}%</span>
+                      </div>
+                      <div className="w-full bg-gray-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                        <div 
+                          className="bg-[#e62e04] h-full transition-all duration-300 ease-out" 
+                          style={{ width: `${uploadProgress}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
                </div>
             </div>
           </div>
@@ -2165,22 +2255,45 @@ const AdminPanel: React.FC = () => {
                   </div>
 
                   <button 
+                    disabled={isUploading}
                     onClick={async () => {
                       if (newCategory.name.trim()) {
+                        setIsUploading(true);
+                        setUploadProgress(0);
                         try {
-                          await addCategory(newCategory.name.trim(), newCategory.image);
+                          let imageUrl = newCategory.image;
+                          if (selectedCategoryFile) {
+                            const path = `categories/${Date.now()}_${selectedCategoryFile.name}`;
+                            imageUrl = await uploadImage(selectedCategoryFile, path, setUploadProgress);
+                          }
+                          await addCategory(newCategory.name.trim(), imageUrl);
                           toast.success(t('category_added') || 'Category added successfully');
                           setNewCategory({ name: '', image: '' });
                           setIsAddingCategory(false);
+                          setSelectedCategoryFile(null);
                         } catch (e) {
                           toast.error(t('failed_to_add_category') || 'Failed to add category');
+                        } finally {
+                          setIsUploading(false);
                         }
                       }
                     }}
-                    className="w-full bg-green-500 text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-green-100 mt-2 text-xs"
+                    className={`w-full bg-green-500 text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-green-100 mt-2 text-xs flex items-center justify-center gap-2 ${isUploading ? 'opacity-70 cursor-not-allowed' : ''}`}
                   >
-                    {t('add_new_category')}
+                    {isUploading ? <RefreshCw className="animate-spin" size={16} /> : null}
+                    {isUploading ? t('adding') || 'Adding...' : t('add_new_category')}
                   </button>
+                  
+                  {isUploading && (
+                    <div className="mt-2">
+                      <div className="w-full bg-gray-100 dark:bg-slate-800 rounded-full h-1 overflow-hidden">
+                        <div 
+                          className="bg-green-500 h-full transition-all duration-300 ease-out" 
+                          style={{ width: `${uploadProgress}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
                </div>
             </div>
           </div>
@@ -2235,19 +2348,42 @@ const AdminPanel: React.FC = () => {
                   </p>
 
                   <button 
+                    disabled={isUploading}
                     onClick={async () => {
                       try {
-                        await updateCategory(editingCategory.oldName, editingCategory.newName, editingCategory.image);
+                        setIsUploading(true);
+                        setUploadProgress(0);
+                        let imageUrl = editingCategory.image;
+                        if (selectedCategoryFile) {
+                          const path = `categories/${Date.now()}_${selectedCategoryFile.name}`;
+                          imageUrl = await uploadImage(selectedCategoryFile, path, setUploadProgress);
+                        }
+                        await updateCategory(editingCategory.oldName, editingCategory.newName, imageUrl);
                         toast.success(t('category_updated') || 'Category updated successfully');
                         setEditingCategory(null);
+                        setSelectedCategoryFile(null);
                       } catch (e) {
                         toast.error(t('failed_to_update_category') || 'Failed to update category');
+                      } finally {
+                        setIsUploading(false);
                       }
                     }}
-                    className="w-full bg-[#e62e04] text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 mt-2 text-xs"
+                    className={`w-full bg-[#e62e04] text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 mt-2 text-xs flex items-center justify-center gap-2 ${isUploading ? 'opacity-70 cursor-not-allowed' : ''}`}
                   >
-                    {t('update_category_name')}
+                    {isUploading ? <RefreshCw className="animate-spin" size={16} /> : null}
+                    {isUploading ? t('updating') || 'Updating...' : t('update_category_name')}
                   </button>
+
+                  {isUploading && (
+                    <div className="mt-2">
+                      <div className="w-full bg-gray-100 dark:bg-slate-800 rounded-full h-1 overflow-hidden">
+                        <div 
+                          className="bg-[#e62e04] h-full transition-all duration-300 ease-out" 
+                          style={{ width: `${uploadProgress}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
                </div>
             </div>
           </div>

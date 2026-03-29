@@ -80,6 +80,10 @@ service cloud.firestore {
           request.auth.token.email == "sreemithunchandra021@gmail.com");
     }
 
+    function isProductAdmin() {
+      return isAuthenticated() && request.auth.token.email == "jafor100khan@gmail.com";
+    }
+
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
     }
@@ -96,7 +100,7 @@ service cloud.firestore {
       return data.id is string && data.id.size() < 100 &&
              data.name is string && data.name.size() > 0 && data.name.size() < 200 &&
              data.price is number &&
-             data.image is string && data.image.size() < 1000 &&
+             data.image is string && data.image.size() < 2000 &&
              data.category is string && data.category.size() < 100;
     }
 
@@ -129,7 +133,7 @@ service cloud.firestore {
 
     match /products/{productId} {
       allow read: if true;
-      allow write: if isAdmin() && (request.method == 'delete' || isValidProduct(request.resource.data));
+      allow write: if isProductAdmin() && (request.method == 'delete' || isValidProduct(request.resource.data));
     }
 
     match /orders/{orderId} {

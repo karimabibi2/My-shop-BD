@@ -17,6 +17,7 @@ import {
   limit,
   getDocFromServer
 } from 'firebase/firestore';
+import { getStorage, ref, uploadBytes, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
 
 // Import the Firebase configuration
 import firebaseConfig from './firebase-applet-config.json';
@@ -25,9 +26,10 @@ import firebaseConfig from './firebase-applet-config.json';
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 export const auth = getAuth(app);
+export const storage = getStorage(app);
 export const googleProvider = new GoogleAuthProvider();
 
-// Export Firestore functions for use in context
+// Export Firestore and Storage functions for use in context
 export { 
   collection, 
   doc, 
@@ -47,7 +49,12 @@ export {
   onAuthStateChanged,
   getDocFromServer,
   signInWithEmailAndPassword,
-  createUserWithEmailAndPassword
+  createUserWithEmailAndPassword,
+  ref,
+  uploadBytes,
+  uploadBytesResumable,
+  getDownloadURL,
+  deleteObject
 };
 
 // Test connection
