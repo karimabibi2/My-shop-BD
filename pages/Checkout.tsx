@@ -11,8 +11,11 @@ import { trackingService } from '../services/TrackingService';
 
 const Checkout: React.FC = () => {
   const { totalPrice: cartTotalPrice, cart: cartItems, clearCart } = useCart();
-  const { user, addOrder, addresses, shippingRates, paymentMethodsImage, isAuthReady, toast } = useAuth();
+  const { user, addOrder, addresses, shippingRates, paymentMethodsImage, bkashNumber, nagadNumber, rocketNumber, isAuthReady, toast } = useAuth();
   const { t } = useLanguage();
+
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [transactionId, setTransactionId] = useState('');
 
   if (!isAuthReady) {
     return (
@@ -97,14 +100,31 @@ const Checkout: React.FC = () => {
       phone: useSavedAddress 
         ? addresses.find(a => a.id === selectedAddressId)?.phone 
         : formData.phone,
-      paymentMethod
+      paymentMethod,
+      transactionId: paymentMethod !== 'COD' ? transactionId : ''
     };
+
+    if (paymentMethod !== 'COD' && !transactionId) {
+      return toast.error('Please enter Transaction ID');
+    }
+
+    setIsProcessing(true);
+    
+    // Simulate Real bKash API if bKash is selected
+    if (paymentMethod === 'bKash') {
+      toast.info('Connecting to bKash Gateway...');
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
 
     try {
       await addOrder(orderData);
       trackingService.trackPurchase(orderData.id, orderData.total, orderData.items);
       
+      // Auto Invoice Simulation
+      console.log('Generating Auto Invoice for Order:', orderData.id);
+      
       setIsOrdered(true);
+      setIsProcessing(false);
       setTimeout(() => {
         if (!buyNowProduct) {
           clearCart();
@@ -113,13 +133,14 @@ const Checkout: React.FC = () => {
       }, 2500);
     } catch (error) {
       console.error("Failed to place order:", error);
+      setIsProcessing(false);
       toast.error("Failed to place order. Please try again.");
     }
   };
 
   if (isOrdered) {
     return (
-      <div className="fixed inset-0 bg-white dark:bg-slate-900 z-50 flex flex-col items-center justify-center p-6 text-center max-w-md mx-auto">
+      <div className="fixed inset-0 bg-white dark:bg-slate-900 z-50 flex flex-col items-center justify-center p-6 text-center max-w-md md:max-w-3xl lg:max-w-5xl xl:max-w-7xl mx-auto">
         <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 text-green-500 rounded-full flex items-center justify-center mb-6 animate-bounce">
           <CheckCircle size={48} />
         </div>
@@ -292,11 +313,44 @@ const Checkout: React.FC = () => {
           </div>
           {paymentMethod !== 'COD' && (
             <div className="flex flex-col gap-3">
-              <div className="bg-amber-50 dark:bg-amber-950/20 p-3 rounded-xl border border-amber-100 dark:border-amber-900/30">
-                <p className="text-[9px] font-bold text-amber-700 dark:text-amber-500 leading-tight">
-                  {t('payment_notice')}
+              <div className="bg-amber-50 dark:bg-amber-950/20 p-4 rounded-xl border border-amber-100 dark:border-amber-900/30">
+                <p className="text-[11px] font-bold text-amber-700 dark:text-amber-500 mb-2">
+                  {t('payment_instructions') || 'Please send money to the following number and enter the Transaction ID below:'}
                 </p>
+                <div className="flex flex-col gap-2">
+                  {paymentMethod === 'bKash' && (
+                    <div className="flex justify-between items-center bg-white dark:bg-slate-800 p-2 rounded-lg">
+                      <span className="text-[10px] font-black uppercase tracking-widest">bKash (Personal)</span>
+                      <span className="text-sm font-black text-[#e2136e]">{bkashNumber}</span>
+                    </div>
+                  )}
+                  {paymentMethod === 'Nagad' && (
+                    <div className="flex justify-between items-center bg-white dark:bg-slate-800 p-2 rounded-lg">
+                      <span className="text-[10px] font-black uppercase tracking-widest">Nagad (Personal)</span>
+                      <span className="text-sm font-black text-[#f7941d]">{nagadNumber}</span>
+                    </div>
+                  )}
+                  {paymentMethod === 'Rocket' && (
+                    <div className="flex justify-between items-center bg-white dark:bg-slate-800 p-2 rounded-lg">
+                      <span className="text-[10px] font-black uppercase tracking-widest">Rocket (Personal)</span>
+                      <span className="text-sm font-black text-[#8c3494]">{rocketNumber}</span>
+                    </div>
+                  )}
+                </div>
               </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('transaction_id') || 'Transaction ID'}</label>
+                <input 
+                  required
+                  type="text" 
+                  className="bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-sm focus:ring-1 focus:ring-[#e62e04] outline-none dark:text-white"
+                  placeholder="TRX12345678"
+                  value={transactionId}
+                  onChange={(e) => setTransactionId(e.target.value)}
+                />
+              </div>
+
               {paymentMethodsImage && (
                 <div className="bg-white dark:bg-slate-800 p-2 rounded-xl border border-gray-100 dark:border-slate-700 overflow-hidden">
                   <img 
@@ -354,14 +408,23 @@ const Checkout: React.FC = () => {
 
         <button 
           type="submit" 
-          disabled={!useSavedAddress && (!formData.district || !formData.thana)}
+          disabled={isProcessing || (!useSavedAddress && (!formData.district || !formData.thana))}
           className="w-full bg-[#e62e04] text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 dark:shadow-none active:scale-[0.98] transition-all mt-2 text-sm disabled:opacity-50 disabled:grayscale relative overflow-hidden"
         >
-          {t('confirm_order')}
-          {paymentMethod === 'COD' && (
-            <span className="absolute top-0 right-0 bg-white/20 px-2 py-0.5 text-[8px] font-black rounded-bl-lg">
-              {t('cash')}
-            </span>
+          {isProcessing ? (
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              {t('processing') || 'Processing...'}
+            </div>
+          ) : (
+            <>
+              {t('confirm_order')}
+              {paymentMethod === 'COD' && (
+                <span className="absolute top-0 right-0 bg-white/20 px-2 py-0.5 text-[8px] font-black rounded-bl-lg">
+                  {t('cash')}
+                </span>
+              )}
+            </>
           )}
         </button>
       </form>

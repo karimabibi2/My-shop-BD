@@ -95,6 +95,12 @@ interface AuthContextType {
   updatePaymentMethodsImage: (image: string) => void;
   whatsappNumber: string;
   updateWhatsappNumber: (number: string) => void;
+  bkashNumber: string;
+  updateBkashNumber: (number: string) => void;
+  nagadNumber: string;
+  updateNagadNumber: (number: string) => void;
+  rocketNumber: string;
+  updateRocketNumber: (number: string) => void;
   facebookLink: string;
   updateFacebookLink: (link: string) => void;
   youtubeLink: string;
@@ -113,8 +119,6 @@ interface AuthContextType {
   trackingLogs: any[];
   customApiKey: string;
   updateCustomApiKey: (key: string) => Promise<void>;
-  twelvedataApiKey: string;
-  updateTwelvedataApiKey: (key: string) => Promise<void>;
   isPromoBannerEnabled: boolean;
   updatePromoBannerEnabled: (enabled: boolean) => void;
   isDarkModeDefault: boolean;
@@ -142,6 +146,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [bannerImage, setBannerImage] = useState<string>('');
   const [paymentMethodsImage, setPaymentMethodsImage] = useState<string>('');
   const [whatsappNumber, setWhatsappNumber] = useState<string>('8801304881109');
+  const [bkashNumber, setBkashNumber] = useState<string>('8801304881109');
+  const [nagadNumber, setNagadNumber] = useState<string>('8801304881109');
+  const [rocketNumber, setRocketNumber] = useState<string>('8801304881109');
   const [facebookLink, setFacebookLink] = useState<string>('https://facebook.com');
   const [youtubeLink, setYoutubeLink] = useState<string>('https://youtube.com');
   const [tiktokLink, setTiktokLink] = useState<string>('https://tiktok.com');
@@ -160,7 +167,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   });
 
   const [customApiKey, setCustomApiKey] = useState<string>('');
-  const [twelvedataApiKey, setTwelvedataApiKey] = useState<string>('');
   const [landingConfig, setLandingConfig] = useState<LandingConfig>({
     featuredProductId: '',
     description: '',
@@ -234,6 +240,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (data.bannerImage) setBannerImage(data.bannerImage);
         if (data.paymentMethodsImage) setPaymentMethodsImage(data.paymentMethodsImage);
         if (data.whatsappNumber) setWhatsappNumber(data.whatsappNumber);
+        if (data.bkashNumber) setBkashNumber(data.bkashNumber);
+        if (data.nagadNumber) setNagadNumber(data.nagadNumber);
+        if (data.rocketNumber) setRocketNumber(data.rocketNumber);
         if (data.facebookLink) setFacebookLink(data.facebookLink);
         if (data.youtubeLink) setYoutubeLink(data.youtubeLink);
         if (data.tiktokLink) setTiktokLink(data.tiktokLink);
@@ -244,7 +253,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (data.adminPassword) setAdminPassword(data.adminPassword);
         if (data.visitorCount) setVisitorCount(data.visitorCount);
         if (data.customApiKey) setCustomApiKey(data.customApiKey);
-        if (data.twelvedataApiKey) setTwelvedataApiKey(data.twelvedataApiKey);
         if (data.isPromoBannerEnabled !== undefined) setIsPromoBannerEnabled(data.isPromoBannerEnabled);
         if (data.isDarkModeDefault !== undefined) setIsDarkModeDefault(data.isDarkModeDefault);
       }
@@ -305,9 +313,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const saveConfig = async () => {
       try {
         const config = {
-          bannerImage, paymentMethodsImage, whatsappNumber, facebookLink, youtubeLink, tiktokLink,
+          bannerImage, paymentMethodsImage, whatsappNumber, bkashNumber, nagadNumber, rocketNumber, facebookLink, youtubeLink, tiktokLink,
           globalOrderPolicy, shippingRates, categories, trackingConfig,
-          adminUsername, adminPassword, visitorCount, customApiKey, twelvedataApiKey,
+          adminUsername, adminPassword, visitorCount, customApiKey,
           isPromoBannerEnabled, isDarkModeDefault
         };
         await setDoc(doc(db, 'config', 'settings'), config);
@@ -317,9 +325,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
     saveConfig();
   }, [
-    bannerImage, paymentMethodsImage, whatsappNumber, facebookLink, youtubeLink, tiktokLink,
+    bannerImage, paymentMethodsImage, whatsappNumber, bkashNumber, nagadNumber, rocketNumber, facebookLink, youtubeLink, tiktokLink,
     globalOrderPolicy, shippingRates, categories, trackingConfig,
-    adminUsername, adminPassword, visitorCount, customApiKey, twelvedataApiKey,
+    adminUsername, adminPassword, visitorCount, customApiKey,
     isPromoBannerEnabled, isDarkModeDefault,
     isAuthReady, user?.isAdmin
   ]);
@@ -593,6 +601,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const updateWhatsappNumber = (number: string) => {
     setWhatsappNumber(number);
   };
+  const updateBkashNumber = (number: string) => {
+    setBkashNumber(number);
+  };
+  const updateNagadNumber = (number: string) => {
+    setNagadNumber(number);
+  };
+  const updateRocketNumber = (number: string) => {
+    setRocketNumber(number);
+  };
 
   const updateFacebookLink = (link: string) => {
     setFacebookLink(link);
@@ -624,10 +641,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setCustomApiKey(key);
   };
 
-  const updateTwelvedataApiKey = async (key: string) => {
-    setTwelvedataApiKey(key);
-  };
-
   const updatePromoBannerEnabled = (enabled: boolean) => {
     setIsPromoBannerEnabled(enabled);
   };
@@ -648,6 +661,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   return (
     <AuthContext.Provider value={{ 
       user, orders, allProducts, categories, addresses, shippingRates, bannerImage, paymentMethodsImage, whatsappNumber, 
+      bkashNumber, updateBkashNumber, nagadNumber, updateNagadNumber, rocketNumber, updateRocketNumber,
       facebookLink, youtubeLink, tiktokLink,
       login, signup, adminLogin, logout, 
       signInWithGoogle, resetPassword,
@@ -661,7 +675,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       trackingConfig, updateTrackingConfig, clearTrackingLogs,
       visitorCount, trackingLogs,
       customApiKey, updateCustomApiKey,
-      twelvedataApiKey, updateTwelvedataApiKey,
       isPromoBannerEnabled, updatePromoBannerEnabled,
       isDarkModeDefault, updateDarkModeDefault,
       landingConfig, updateLandingConfig,

@@ -84,7 +84,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-slate-950 max-w-md mx-auto relative shadow-xl overflow-hidden font-sans border-x border-gray-100 dark:border-slate-900 transition-colors duration-300">
+    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-slate-950 max-w-md md:max-w-3xl lg:max-w-5xl xl:max-w-7xl mx-auto relative shadow-xl overflow-hidden font-sans border-x border-gray-100 dark:border-slate-900 transition-colors duration-300">
       
       {/* --- Main Sidebar (Hamburger Menu) --- */}
       <div className={`fixed inset-0 z-[70] transition-all duration-300 ${isMenuOpen ? 'visible opacity-100' : 'invisible opacity-0'}`}>
@@ -331,7 +331,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 px-1 py-1 flex justify-around items-center z-50 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] transition-colors duration-300">
+      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md md:max-w-3xl lg:max-w-5xl xl:max-w-7xl bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 px-1 py-1 flex justify-around items-center z-50 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] transition-colors duration-300">
         <NavLink to="/" onClick={() => setActiveCategory('All')} className={({ isActive }) => `flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-all ${isActive && !isDrawerOpen ? 'text-[#e62e04]' : 'text-gray-400 dark:text-gray-500'}`}>
           <Home size={22} />
           <span className="text-[9px] font-bold">{t('home')}</span>

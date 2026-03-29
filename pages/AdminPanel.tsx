@@ -2,13 +2,14 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../components/AdminLayout';
 import { useAuth } from '../context/AuthContext';
+import { Order } from '../types';
 import { 
   BarChart3, Package, ShoppingCart, Settings, 
   Plus, Edit2, Trash2, CheckCircle, Clock, 
   XCircle, ArrowLeft, Save, Globe, Truck, ShieldAlert,
   Image as ImageIcon, Upload, Link as LinkIcon,
   Layers, MessageCircle, Youtube, Facebook, Lock, Key, FileText,
-  Users, Activity, Terminal, RefreshCw, Trash, CreditCard
+  Users, Activity, Terminal, RefreshCw, Trash, CreditCard, Printer
 } from 'lucide-react';
 import ConfirmationModal from '../components/ConfirmationModal';
 import { resizeImage } from '../utils/imageUtils';
@@ -31,13 +32,13 @@ const AdminPanel: React.FC = () => {
     shippingRates, updateShippingRates, categories, updateCategory, deleteCategory, addCategory,
     syncProducts, syncCategories,
     bannerImage, updateBannerImage, paymentMethodsImage, updatePaymentMethodsImage, whatsappNumber, updateWhatsappNumber,
+    bkashNumber, updateBkashNumber, nagadNumber, updateNagadNumber, rocketNumber, updateRocketNumber,
     facebookLink, updateFacebookLink, youtubeLink, updateYoutubeLink, tiktokLink, updateTiktokLink,
     adminUsername, adminPassword, updateAdminCredentials,
     globalOrderPolicy, updateGlobalOrderPolicy,
     trackingConfig, updateTrackingConfig, clearTrackingLogs,
     visitorCount, trackingLogs,
     customApiKey, updateCustomApiKey,
-    twelvedataApiKey, updateTwelvedataApiKey,
     isPromoBannerEnabled, updatePromoBannerEnabled,
     isDarkModeDefault, updateDarkModeDefault,
     landingConfig, updateLandingConfig,
@@ -85,9 +86,11 @@ const AdminPanel: React.FC = () => {
   const [newAdminUser, setNewAdminUser] = useState(adminUsername);
   const [newAdminPass, setNewAdminPass] = useState(adminPassword);
   const [newGlobalPolicy, setNewGlobalPolicy] = useState(globalOrderPolicy);
+  const [newBkashNumber, setNewBkashNumber] = useState(bkashNumber);
+  const [newNagadNumber, setNewNagadNumber] = useState(nagadNumber);
+  const [newRocketNumber, setNewRocketNumber] = useState(rocketNumber);
   const [localTracking, setLocalTracking] = useState(trackingConfig);
   const [localApiKey, setLocalApiKey] = useState(customApiKey);
-  const [localTwelvedataKey, setLocalTwelvedataKey] = useState(twelvedataApiKey);
   const [localLandingConfig, setLocalLandingConfig] = useState(landingConfig);
   const [hasApiKey, setHasApiKey] = useState(false);
   const [confirmModal, setConfirmModal] = useState<{
@@ -199,6 +202,8 @@ const AdminPanel: React.FC = () => {
       reader.readAsDataURL(file);
     }
   };
+
+  const [showInvoice, setShowInvoice] = useState<Order | null>(null);
 
   const handleCategoryImageUpload = (e: React.ChangeEvent<HTMLInputElement>, isNew: boolean) => {
     const file = e.target.files?.[0];
@@ -701,6 +706,12 @@ const AdminPanel: React.FC = () => {
                      <div className="flex justify-between items-center">
                         <span className="text-[10px] font-black text-[#e62e04]">Total: ৳{order.total}</span>
                         <div className="flex gap-2">
+                          <button 
+                            onClick={() => setShowInvoice(order)}
+                            className="bg-blue-500 text-white p-1.5 rounded-lg text-[8px] font-black uppercase flex items-center gap-1"
+                          >
+                            <FileText size={12} /> Invoice
+                          </button>
                           {order.status === 'Pending' && (
                             <button 
                               onClick={async () => {
@@ -1025,6 +1036,93 @@ const AdminPanel: React.FC = () => {
                 <p className="text-[8px] text-gray-400 font-bold uppercase leading-tight px-1">
                   {t('whatsapp_number_desc')}
                 </p>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                <CreditCard size={18} className="text-[#e62e04]" />
+                <h4 className="text-[11px] font-black uppercase tracking-widest">Payment Methods Settings</h4>
+              </div>
+              
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[9px] font-black text-gray-400 uppercase">bKash Number</label>
+                  <div className="flex gap-2">
+                    <input 
+                      type="text" 
+                      value={newBkashNumber}
+                      onChange={(e) => setNewBkashNumber(e.target.value)}
+                      className="flex-1 bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-[10px] font-bold dark:text-white"
+                      placeholder="8801XXXXXXXXX"
+                    />
+                    <button 
+                      onClick={async () => {
+                        try {
+                          await updateBkashNumber(newBkashNumber);
+                          toast.success('bKash number updated');
+                        } catch (e) {
+                          toast.error('Failed to update bKash number');
+                        }
+                      }}
+                      className="bg-[#e62e04] text-white px-4 rounded-xl text-[10px] font-black uppercase tracking-widest"
+                    >
+                      {t('save')}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[9px] font-black text-gray-400 uppercase">Nagad Number</label>
+                  <div className="flex gap-2">
+                    <input 
+                      type="text" 
+                      value={newNagadNumber}
+                      onChange={(e) => setNewNagadNumber(e.target.value)}
+                      className="flex-1 bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-[10px] font-bold dark:text-white"
+                      placeholder="8801XXXXXXXXX"
+                    />
+                    <button 
+                      onClick={async () => {
+                        try {
+                          await updateNagadNumber(newNagadNumber);
+                          toast.success('Nagad number updated');
+                        } catch (e) {
+                          toast.error('Failed to update Nagad number');
+                        }
+                      }}
+                      className="bg-[#e62e04] text-white px-4 rounded-xl text-[10px] font-black uppercase tracking-widest"
+                    >
+                      {t('save')}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[9px] font-black text-gray-400 uppercase">Rocket Number</label>
+                  <div className="flex gap-2">
+                    <input 
+                      type="text" 
+                      value={newRocketNumber}
+                      onChange={(e) => setNewRocketNumber(e.target.value)}
+                      className="flex-1 bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-[10px] font-bold dark:text-white"
+                      placeholder="8801XXXXXXXXX"
+                    />
+                    <button 
+                      onClick={async () => {
+                        try {
+                          await updateRocketNumber(newRocketNumber);
+                          toast.success('Rocket number updated');
+                        } catch (e) {
+                          toast.error('Failed to update Rocket number');
+                        }
+                      }}
+                      className="bg-[#e62e04] text-white px-4 rounded-xl text-[10px] font-black uppercase tracking-widest"
+                    >
+                      {t('save')}
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -1465,15 +1563,45 @@ const AdminPanel: React.FC = () => {
                       />
                     </label>
                   </div>
-
-                  {paymentMethodsImage && (
+                  
+                  <div className="flex items-center gap-3">
                     <button 
-                      onClick={() => updatePaymentMethodsImage('')}
-                      className="text-[10px] font-black text-red-500 uppercase tracking-widest flex items-center justify-center gap-1 self-center"
+                      onClick={() => {
+                        const input = document.getElementById('payment-methods-upload') as HTMLInputElement;
+                        if (input) input.click();
+                      }}
+                      className="flex-1 bg-blue-500 text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-blue-100"
                     >
-                      <Trash size={12} /> {t('remove')}
+                      <Upload size={14} />
+                      {t('upload_new_image')}
                     </button>
-                  )}
+                    <input 
+                      id="payment-methods-upload"
+                      type="file" 
+                      className="hidden" 
+                      accept="image/*"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          try {
+                            const resized = await resizeImage(file, 800, 400);
+                            updatePaymentMethodsImage(resized);
+                            toast.success(t('update_success') || 'Update successful');
+                          } catch (err) {
+                            toast.error('Failed to upload image');
+                          }
+                        }
+                      }}
+                    />
+                    {paymentMethodsImage && (
+                      <button 
+                        onClick={() => updatePaymentMethodsImage('')}
+                        className="px-4 py-3 bg-red-50 text-red-500 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-1 border border-red-100"
+                      >
+                        <Trash size={14} />
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -1676,31 +1804,6 @@ const AdminPanel: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-1 mt-2">
-                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{t('twelvedata_api_key')}</label>
-                    <div className="flex gap-2">
-                      <input 
-                        type="password" 
-                        value={localTwelvedataKey}
-                        onChange={(e) => setLocalTwelvedataKey(e.target.value)}
-                        className="flex-1 bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-[10px] font-bold dark:text-white"
-                        placeholder="Enter Twelvedata API key..."
-                      />
-                      <button 
-                        onClick={async () => {
-                          try {
-                            await updateTwelvedataApiKey(localTwelvedataKey);
-                            toast.success(t('api_key_saved') || 'API key saved');
-                          } catch (e) {
-                            toast.error(t('failed_to_update_settings') || 'Failed to update settings');
-                          }
-                        }}
-                        className="bg-[#e62e04] text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2"
-                      >
-                        <Save size={12} /> {t('save')}
-                      </button>
-                    </div>
-                  </div>
                 </div>
               </div>
 
@@ -2198,6 +2301,134 @@ const AdminPanel: React.FC = () => {
             </div>
           </div>
         )}
+      {/* Invoice Modal */}
+      {showInvoice && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="p-8 flex flex-col gap-6 max-h-[90vh] overflow-y-auto print:max-h-none print:overflow-visible" id="invoice-content">
+              <div className="flex justify-between items-start">
+                <div className="flex flex-col">
+                  <h2 className="text-2xl font-black text-[#e62e04] italic uppercase tracking-tighter">MY shopBD</h2>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Premium Shopping Experience</p>
+                </div>
+                <div className="text-right">
+                  <h3 className="text-xl font-black uppercase tracking-tighter">INVOICE</h3>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Order #{showInvoice.id}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-8 py-6 border-y border-gray-100 dark:border-slate-800">
+                <div className="flex flex-col gap-2">
+                  <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Bill To:</h4>
+                  <p className="text-sm font-black uppercase">{showInvoice.customerName}</p>
+                  <p className="text-[10px] text-gray-500 leading-relaxed">{showInvoice.address}</p>
+                  <p className="text-[10px] font-bold text-[#e62e04]">{showInvoice.phone}</p>
+                </div>
+                <div className="flex flex-col gap-2 text-right">
+                  <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Order Details:</h4>
+                  <p className="text-[10px] font-bold uppercase"><span className="text-gray-400">Date:</span> {new Date(showInvoice.date).toLocaleDateString()}</p>
+                  <p className="text-[10px] font-bold uppercase"><span className="text-gray-400">Payment:</span> {showInvoice.paymentMethod || 'COD'}</p>
+                  {(showInvoice as any).transactionId && (
+                    <p className="text-[10px] font-bold uppercase text-[#e62e04]"><span className="text-gray-400">Trx ID:</span> {(showInvoice as any).transactionId}</p>
+                  )}
+                  <p className="text-[10px] font-bold uppercase"><span className="text-gray-400">Status:</span> {showInvoice.status}</p>
+                </div>
+              </div>
+
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="border-b border-gray-100 dark:border-slate-800">
+                    <th className="py-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">Item</th>
+                    <th className="py-3 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Qty</th>
+                    <th className="py-3 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Price</th>
+                    <th className="py-3 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {showInvoice.items.map((item, idx) => (
+                    <tr key={idx} className="border-b border-gray-50 dark:border-slate-800/50">
+                      <td className="py-4">
+                        <p className="text-[11px] font-black uppercase tracking-tighter">{item.name}</p>
+                        {item.selectedSize && <p className="text-[8px] font-bold text-[#e62e04] uppercase">Size: {item.selectedSize}</p>}
+                      </td>
+                      <td className="py-4 text-center text-[11px] font-bold">{item.quantity}</td>
+                      <td className="py-4 text-right text-[11px] font-bold">৳{item.price.toLocaleString()}</td>
+                      <td className="py-4 text-right text-[11px] font-black">৳{(item.price * item.quantity).toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              <div className="flex flex-col gap-2 items-end pt-4">
+                <div className="flex justify-between w-48 text-[10px] font-bold uppercase">
+                  <span className="text-gray-400">Subtotal</span>
+                  <span>৳{(showInvoice.total - (shippingRates[showInvoice.address.split(', ').pop() || ''] || 0)).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between w-48 text-[10px] font-bold uppercase">
+                  <span className="text-gray-400">Shipping</span>
+                  <span>৳{(shippingRates[showInvoice.address.split(', ').pop() || ''] || 0).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between w-48 text-sm font-black uppercase pt-2 border-t border-gray-100 dark:border-slate-800">
+                  <span>Total</span>
+                  <span className="text-[#e62e04]">৳{showInvoice.total.toLocaleString()}</span>
+                </div>
+              </div>
+
+              <div className="mt-8 pt-8 border-t border-gray-100 dark:border-slate-800 text-center">
+                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Thank you for shopping with us!</p>
+                <p className="text-[8px] text-gray-300 uppercase">This is a computer generated invoice and does not require a signature.</p>
+              </div>
+            </div>
+            
+            <div className="p-6 bg-gray-50 dark:bg-slate-800/50 flex gap-3">
+              <button 
+                onClick={() => {
+                  const content = document.getElementById('invoice-content');
+                  if (content) {
+                    const printWindow = window.open('', '_blank');
+                    if (printWindow) {
+                      printWindow.document.write(`
+                        <html>
+                          <head>
+                            <title>Invoice - ${showInvoice.id}</title>
+                            <script src="https://cdn.tailwindcss.com"></script>
+                            <style>
+                              @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+                              body { font-family: 'Inter', sans-serif; }
+                              @media print {
+                                .no-print { display: none; }
+                              }
+                            </style>
+                          </head>
+                          <body class="bg-white p-10">
+                            ${content.innerHTML}
+                            <script>
+                              window.onload = () => {
+                                window.print();
+                                window.onafterprint = () => window.close();
+                              }
+                            </script>
+                          </body>
+                        </html>
+                      `);
+                      printWindow.document.close();
+                    }
+                  }
+                }}
+                className="flex-1 bg-[#e62e04] text-white py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
+              >
+                <Printer size={14} /> Print Invoice
+              </button>
+              <button 
+                onClick={() => setShowInvoice(null)}
+                className="flex-1 bg-white dark:bg-slate-800 text-gray-900 dark:text-white py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-gray-200 dark:border-slate-700"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
         {/* --- Confirmation Modal --- */}
         <ConfirmationModal
           isOpen={confirmModal.isOpen}

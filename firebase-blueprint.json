@@ -79,7 +79,8 @@
         "globalOrderPolicy": { "type": "string" },
         "shippingRates": { "type": "object" },
         "adminUsername": { "type": "string" },
-        "adminPassword": { "type": "string" }
+        "adminPassword": { "type": "string" },
+        "twelvedataApiKey": { "type": "string" }
       }
     },
     "LandingConfig": {

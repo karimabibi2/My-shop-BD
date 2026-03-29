@@ -39,7 +39,7 @@ const Categories: React.FC = () => {
           {t('shop_by_category')}
         </h2>
         
-        <div className="grid grid-cols-1 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {!isDataReady ? (
             <div className="flex flex-col items-center justify-center py-20 gap-4 bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-gray-200 dark:border-slate-800">
               <div className="w-10 h-10 border-4 border-[#e62e04] border-t-transparent rounded-full animate-spin"></div>

@@ -139,7 +139,7 @@ const Home: React.FC = () => {
         </div>
 
         {/* Product Grid */}
-        <div className="grid grid-cols-2 gap-3 pb-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 pb-2">
           {filteredProducts.map(product => (
             <ProductCard 
               key={product.id} 
@@ -195,7 +195,7 @@ const Home: React.FC = () => {
                     {t('view_all')}
                   </button>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
                   {group.products.map(product => (
                     <ProductCard 
                       key={product.id} 
