@@ -94,11 +94,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           <div className="flex flex-col h-full py-4 w-64">
             <nav className="flex-1 px-3 space-y-1">
               <AdminNavLink to="/admin" icon={<BarChart3 size={20} />} label="Dashboard" collapsed={!isSidebarOpen} onClick={() => window.innerWidth < 640 && setIsSidebarOpen(false)} />
-              <AdminNavLink to="/admin?tab=products" icon={<Package size={20} />} label="Products" collapsed={!isSidebarOpen} onClick={() => window.innerWidth < 640 && setIsSidebarOpen(false)} />
-              <AdminNavLink to="/admin?tab=orders" icon={<ShoppingCart size={20} />} label="Orders" collapsed={!isSidebarOpen} onClick={() => window.innerWidth < 640 && setIsSidebarOpen(false)} />
-              <AdminNavLink to="/admin?tab=categories" icon={<Layers size={20} />} label="Categories" collapsed={!isSidebarOpen} onClick={() => window.innerWidth < 640 && setIsSidebarOpen(false)} />
-              <AdminNavLink to="/admin?tab=landing" icon={<Globe size={20} />} label="Landing Page" collapsed={!isSidebarOpen} onClick={() => window.innerWidth < 640 && setIsSidebarOpen(false)} />
-              <AdminNavLink to="/admin?tab=settings" icon={<Settings size={20} />} label="Settings" collapsed={!isSidebarOpen} onClick={() => window.innerWidth < 640 && setIsSidebarOpen(false)} />
+              <AdminNavLink to="/admin/products" icon={<Package size={20} />} label="Products" collapsed={!isSidebarOpen} onClick={() => window.innerWidth < 640 && setIsSidebarOpen(false)} />
+              <AdminNavLink to="/admin/orders" icon={<ShoppingCart size={20} />} label="Orders" collapsed={!isSidebarOpen} onClick={() => window.innerWidth < 640 && setIsSidebarOpen(false)} />
+              <AdminNavLink to="/admin/categories" icon={<Layers size={20} />} label="Categories" collapsed={!isSidebarOpen} onClick={() => window.innerWidth < 640 && setIsSidebarOpen(false)} />
+              <AdminNavLink to="/admin/landing" icon={<Globe size={20} />} label="Landing Page" collapsed={!isSidebarOpen} onClick={() => window.innerWidth < 640 && setIsSidebarOpen(false)} />
+              <AdminNavLink to="/admin/settings" icon={<Settings size={20} />} label="Settings" collapsed={!isSidebarOpen} onClick={() => window.innerWidth < 640 && setIsSidebarOpen(false)} />
             </nav>
             
             <div className="px-6 py-4 border-t border-gray-100 dark:border-slate-800">
@@ -139,16 +139,17 @@ interface AdminNavLinkProps {
 const AdminNavLink: React.FC<AdminNavLinkProps> = ({ to, icon, label, collapsed, onClick }) => {
   const location = useLocation();
   
-  // Custom isActive check for query params
+  // Custom isActive check for routes
   const isActive = React.useMemo(() => {
-    const toUrl = new URL(to, window.location.origin);
-    const toTab = toUrl.searchParams.get('tab') || 'dashboard';
+    const currentPath = location.pathname;
+    const targetPath = to.split('?')[0];
     
-    const currentParams = new URLSearchParams(location.search);
-    const currentTab = currentParams.get('tab') || 'dashboard';
+    if (targetPath === '/admin') {
+      return currentPath === '/admin' || currentPath === '/admin/';
+    }
     
-    return toTab === currentTab;
-  }, [to, location.search]);
+    return currentPath.startsWith(targetPath);
+  }, [to, location.pathname]);
 
   return (
     <NavLink 

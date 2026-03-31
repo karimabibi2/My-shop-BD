@@ -86,44 +86,44 @@ interface AuthContextType {
   updateCategoryImage: (categoryName: string, image: string) => Promise<void>;
   addAddress: (address: Address) => void;
   removeAddress: (addressId: string) => void;
-  updateShippingRates: (rates: Record<string, number>) => void;
+  updateShippingRates: (rates: Record<string, number>) => Promise<void>;
   updateUser: (name: string, avatar: string) => void;
   syncProducts: () => void;
   syncCategories: () => void;
   bannerImage: string;
-  updateBannerImage: (image: string) => void;
+  updateBannerImage: (image: string) => Promise<void>;
   paymentMethodsImage: string;
-  updatePaymentMethodsImage: (image: string) => void;
+  updatePaymentMethodsImage: (image: string) => Promise<void>;
   whatsappNumber: string;
-  updateWhatsappNumber: (number: string) => void;
+  updateWhatsappNumber: (number: string) => Promise<void>;
   bkashNumber: string;
-  updateBkashNumber: (number: string) => void;
+  updateBkashNumber: (number: string) => Promise<void>;
   nagadNumber: string;
-  updateNagadNumber: (number: string) => void;
+  updateNagadNumber: (number: string) => Promise<void>;
   rocketNumber: string;
-  updateRocketNumber: (number: string) => void;
+  updateRocketNumber: (number: string) => Promise<void>;
   facebookLink: string;
-  updateFacebookLink: (link: string) => void;
+  updateFacebookLink: (link: string) => Promise<void>;
   youtubeLink: string;
-  updateYoutubeLink: (link: string) => void;
+  updateYoutubeLink: (link: string) => Promise<void>;
   tiktokLink: string;
-  updateTiktokLink: (link: string) => void;
+  updateTiktokLink: (link: string) => Promise<void>;
   adminUsername: string;
   adminPassword: string;
-  updateAdminCredentials: (username: string, password: string) => void;
+  updateAdminCredentials: (username: string, password: string) => Promise<void>;
   globalOrderPolicy: string;
-  updateGlobalOrderPolicy: (policy: string) => void;
+  updateGlobalOrderPolicy: (policy: string) => Promise<void>;
   trackingConfig: TrackingConfig;
-  updateTrackingConfig: (config: TrackingConfig) => void;
+  updateTrackingConfig: (config: TrackingConfig) => Promise<void>;
   clearTrackingLogs: () => void;
   visitorCount: number;
   trackingLogs: any[];
   customApiKey: string;
   updateCustomApiKey: (key: string) => Promise<void>;
   isPromoBannerEnabled: boolean;
-  updatePromoBannerEnabled: (enabled: boolean) => void;
+  updatePromoBannerEnabled: (enabled: boolean) => Promise<void>;
   isDarkModeDefault: boolean;
-  updateDarkModeDefault: (enabled: boolean) => void;
+  updateDarkModeDefault: (enabled: boolean) => Promise<void>;
   landingConfig: LandingConfig;
   updateLandingConfig: (config: LandingConfig) => Promise<void>;
   uploadImage: (file: File | Blob, path: string, onProgress?: (progress: number) => void) => Promise<string>;
@@ -257,6 +257,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (data.customApiKey) setCustomApiKey(data.customApiKey);
         if (data.isPromoBannerEnabled !== undefined) setIsPromoBannerEnabled(data.isPromoBannerEnabled);
         if (data.isDarkModeDefault !== undefined) setIsDarkModeDefault(data.isDarkModeDefault);
+      } else {
+        // Initialize settings if missing
+        setDoc(doc(db, 'config', 'settings'), {
+          bannerImage: '',
+          whatsappNumber: '8801304881109',
+          siteName: 'Niloy Shop BD',
+          visitorCount: 0
+        }).catch(e => console.error("Failed to initialize settings:", e));
       }
       configSynced = true;
       checkDataReady();
@@ -309,37 +317,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return () => unsubscribeOrders();
   }, [user, isAuthReady]);
 
-  // Save config to Firestore whenever it changes (only for admin)
-  useEffect(() => {
-    if (!isAuthReady || !user?.isAdmin) return;
-    const saveConfig = async () => {
-      try {
-        const config = {
-          bannerImage, paymentMethodsImage, whatsappNumber, bkashNumber, nagadNumber, rocketNumber, facebookLink, youtubeLink, tiktokLink,
-          globalOrderPolicy, shippingRates, categories, trackingConfig,
-          adminUsername, adminPassword, visitorCount, customApiKey,
-          isPromoBannerEnabled, isDarkModeDefault
-        };
-        await setDoc(doc(db, 'config', 'settings'), config);
-      } catch (e) {
-        console.error("Failed to save config to Firestore:", e);
-      }
-    };
-    saveConfig();
-  }, [
-    bannerImage, paymentMethodsImage, whatsappNumber, bkashNumber, nagadNumber, rocketNumber, facebookLink, youtubeLink, tiktokLink,
-    globalOrderPolicy, shippingRates, categories, trackingConfig,
-    adminUsername, adminPassword, visitorCount, customApiKey,
-    isPromoBannerEnabled, isDarkModeDefault,
-    isAuthReady, user?.isAdmin
-  ]);
-
   // Visitor count logic
   useEffect(() => {
     const hasVisited = sessionStorage.getItem('shopbd_visited');
     if (!hasVisited && isAuthReady) {
-      setVisitorCount(prev => prev + 1);
+      const newCount = visitorCount + 1;
+      setVisitorCount(newCount);
       sessionStorage.setItem('shopbd_visited', 'true');
+      
+      // Update in Firestore
+      setDoc(doc(db, 'config', 'settings'), { visitorCount: newCount }, { merge: true })
+        .catch(e => console.error("Failed to update visitor count:", e));
     }
   }, [isAuthReady]);
 
@@ -447,9 +435,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const updateAdminCredentials = (username: string, password: string) => {
-    setAdminUsername(username);
-    setAdminPassword(password);
+  const updateAdminCredentials = async (username: string, password: string) => {
+    try {
+      setAdminUsername(username);
+      setAdminPassword(password);
+      await setDoc(doc(db, 'config', 'settings'), {
+        adminUsername: username,
+        adminPassword: password
+      }, { merge: true });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, 'config/settings');
+    }
   };
 
   const logout = async () => {
@@ -572,8 +568,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setAddresses(prev => prev.filter(a => a.id !== addressId));
   };
 
-  const updateShippingRates = (rates: Record<string, number>) => {
-    setShippingRates(rates);
+  const updateShippingRates = async (rates: Record<string, number>) => {
+    try {
+      setShippingRates(rates);
+      await setDoc(doc(db, 'config', 'settings'), { shippingRates: rates }, { merge: true });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, 'config/settings');
+    }
   };
 
   const updateUser = (name: string, avatar: string) => {
@@ -592,46 +593,101 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setCategories(defaultCategories);
   };
 
-  const updateBannerImage = (image: string) => {
-    setBannerImage(image);
+  const updateBannerImage = async (image: string) => {
+    try {
+      setBannerImage(image);
+      await setDoc(doc(db, 'config', 'settings'), { bannerImage: image }, { merge: true });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, 'config/settings');
+    }
   };
 
-  const updatePaymentMethodsImage = (image: string) => {
-    setPaymentMethodsImage(image);
+  const updatePaymentMethodsImage = async (image: string) => {
+    try {
+      setPaymentMethodsImage(image);
+      await setDoc(doc(db, 'config', 'settings'), { paymentMethodsImage: image }, { merge: true });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, 'config/settings');
+    }
   };
 
-  const updateWhatsappNumber = (number: string) => {
-    setWhatsappNumber(number);
+  const updateWhatsappNumber = async (number: string) => {
+    try {
+      setWhatsappNumber(number);
+      await setDoc(doc(db, 'config', 'settings'), { whatsappNumber: number }, { merge: true });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, 'config/settings');
+    }
   };
-  const updateBkashNumber = (number: string) => {
-    setBkashNumber(number);
+  const updateBkashNumber = async (number: string) => {
+    try {
+      setBkashNumber(number);
+      await setDoc(doc(db, 'config', 'settings'), { bkashNumber: number }, { merge: true });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, 'config/settings');
+    }
   };
-  const updateNagadNumber = (number: string) => {
-    setNagadNumber(number);
+  const updateNagadNumber = async (number: string) => {
+    try {
+      setNagadNumber(number);
+      await setDoc(doc(db, 'config', 'settings'), { nagadNumber: number }, { merge: true });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, 'config/settings');
+    }
   };
-  const updateRocketNumber = (number: string) => {
-    setRocketNumber(number);
+  const updateRocketNumber = async (number: string) => {
+    try {
+      setRocketNumber(number);
+      await setDoc(doc(db, 'config', 'settings'), { rocketNumber: number }, { merge: true });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, 'config/settings');
+    }
   };
 
-  const updateFacebookLink = (link: string) => {
-    setFacebookLink(link);
+  const updateFacebookLink = async (link: string) => {
+    try {
+      setFacebookLink(link);
+      await setDoc(doc(db, 'config', 'settings'), { facebookLink: link }, { merge: true });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, 'config/settings');
+    }
   };
 
-  const updateYoutubeLink = (link: string) => {
-    setYoutubeLink(link);
+  const updateYoutubeLink = async (link: string) => {
+    try {
+      setYoutubeLink(link);
+      await setDoc(doc(db, 'config', 'settings'), { youtubeLink: link }, { merge: true });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, 'config/settings');
+    }
   };
 
-  const updateTiktokLink = (link: string) => {
-    setTiktokLink(link);
+  const updateTiktokLink = async (link: string) => {
+    try {
+      setTiktokLink(link);
+      await setDoc(doc(db, 'config', 'settings'), { tiktokLink: link }, { merge: true });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, 'config/settings');
+    }
   };
 
-  const updateGlobalOrderPolicy = (policy: string) => {
-    setGlobalOrderPolicy(policy);
+  const updateGlobalOrderPolicy = async (policy: string) => {
+    try {
+      setGlobalOrderPolicy(policy);
+      await setDoc(doc(db, 'config', 'settings'), { globalOrderPolicy: policy }, { merge: true });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, 'config/settings');
+    }
   };
 
-  const updateTrackingConfig = (config: TrackingConfig) => {
-    setTrackingConfig(config);
-    trackingService.init(config);
+  const updateTrackingConfig = async (config: TrackingConfig) => {
+    try {
+      setTrackingConfig(config);
+      trackingService.init(config);
+      await setDoc(doc(db, 'config', 'settings'), { trackingConfig: config }, { merge: true });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, 'config/settings');
+    }
   };
 
   const clearTrackingLogs = () => {
@@ -640,15 +696,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const updateCustomApiKey = async (key: string) => {
-    setCustomApiKey(key);
+    try {
+      setCustomApiKey(key);
+      await setDoc(doc(db, 'config', 'settings'), { customApiKey: key }, { merge: true });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, 'config/settings');
+    }
   };
 
-  const updatePromoBannerEnabled = (enabled: boolean) => {
-    setIsPromoBannerEnabled(enabled);
+  const updatePromoBannerEnabled = async (enabled: boolean) => {
+    try {
+      setIsPromoBannerEnabled(enabled);
+      await setDoc(doc(db, 'config', 'settings'), { isPromoBannerEnabled: enabled }, { merge: true });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, 'config/settings');
+    }
   };
 
-  const updateDarkModeDefault = (enabled: boolean) => {
-    setIsDarkModeDefault(enabled);
+  const updateDarkModeDefault = async (enabled: boolean) => {
+    try {
+      setIsDarkModeDefault(enabled);
+      await setDoc(doc(db, 'config', 'settings'), { isDarkModeDefault: enabled }, { merge: true });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, 'config/settings');
+    }
   };
 
   const updateLandingConfig = async (config: LandingConfig) => {
@@ -664,17 +735,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     console.log('Initiating upload to:', path, 'File:', file);
     return new Promise((resolve, reject) => {
       try {
+        if (!file) {
+          reject(new Error('No file provided for upload'));
+          return;
+        }
         const storageRef = ref(storage, path);
         const uploadTask = uploadBytesResumable(storageRef, file);
 
         uploadTask.on('state_changed', 
           (snapshot) => {
             const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            console.log('Upload progress for', path, ':', progress, '%');
+            console.log(`Upload progress for ${path}: ${progress.toFixed(2)}% (${snapshot.bytesTransferred}/${snapshot.totalBytes} bytes)`);
             if (onProgress) onProgress(progress);
           }, 
           (error) => {
             console.error('Error uploading image to', path, ':', error);
+            toast.error(`Upload failed: ${error.message}`);
             reject(error);
           }, 
           async () => {
@@ -683,14 +759,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
               console.log('Download URL for', path, ':', downloadURL);
               resolve(downloadURL);
-            } catch (error) {
+            } catch (error: any) {
               console.error('Error getting download URL for', path, ':', error);
+              toast.error(`Failed to get download URL: ${error.message}`);
               reject(error);
             }
           }
         );
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error initiating upload for', path, ':', error);
+        toast.error(`Failed to initiate upload: ${error.message}`);
         reject(error);
       }
     });

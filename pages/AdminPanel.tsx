@@ -56,16 +56,24 @@ const AdminPanel: React.FC = () => {
     }
   }, [user, navigate, isAuthReady]);
 
-  // Sync activeTab with URL query param
+  // Sync activeTab with URL path
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const tab = params.get('tab');
-    if (tab && ['dashboard', 'products', 'orders', 'settings', 'categories', 'landing'].includes(tab)) {
-      setActiveTab(tab as any);
-    } else {
-      setActiveTab('dashboard');
+    const path = location.pathname;
+    if (path.includes('/admin/orders')) setActiveTab('orders');
+    else if (path.includes('/admin/products')) setActiveTab('products');
+    else if (path.includes('/admin/categories')) setActiveTab('categories');
+    else if (path.includes('/admin/settings')) setActiveTab('settings');
+    else if (path.includes('/admin/landing')) setActiveTab('landing');
+    else {
+      const params = new URLSearchParams(location.search);
+      const tab = params.get('tab');
+      if (tab && ['dashboard', 'products', 'orders', 'settings', 'categories', 'landing'].includes(tab)) {
+        setActiveTab(tab as any);
+      } else {
+        setActiveTab('dashboard');
+      }
     }
-  }, [location.search]);
+  }, [location.pathname, location.search]);
   
   // Product Edit Modal State
   const [editingProduct, setEditingProduct] = useState<any>(null);
@@ -126,6 +134,27 @@ const AdminPanel: React.FC = () => {
     };
     checkKey();
   }, []);
+
+  // Sync local states with context values when they are loaded from Firestore
+  useEffect(() => {
+    if (isAuthReady) {
+      setRates(shippingRates);
+      setNewBannerUrl(bannerImage);
+      setNewWhatsappNumber(whatsappNumber);
+      setNewFacebookLink(facebookLink);
+      setNewYoutubeLink(youtubeLink);
+      setNewTiktokLink(tiktokLink);
+      setNewAdminUser(adminUsername);
+      setNewAdminPass(adminPassword);
+      setNewGlobalPolicy(globalOrderPolicy);
+      setNewBkashNumber(bkashNumber);
+      setNewNagadNumber(nagadNumber);
+      setNewRocketNumber(rocketNumber);
+      setLocalTracking(trackingConfig);
+      setLocalApiKey(customApiKey);
+      setLocalLandingConfig(landingConfig);
+    }
+  }, [isAuthReady, shippingRates, bannerImage, whatsappNumber, facebookLink, youtubeLink, tiktokLink, adminUsername, adminPassword, globalOrderPolicy, bkashNumber, nagadNumber, rocketNumber, trackingConfig, customApiKey, landingConfig]);
 
   const handleOpenKeySelector = async () => {
     if ((window as any).aistudio?.openSelectKey) {
@@ -1341,7 +1370,14 @@ const AdminPanel: React.FC = () => {
               <div className="flex justify-between items-center">
                 <span className="text-[10px] font-bold text-gray-500 uppercase">{t('promo_banner')}</span>
                 <button 
-                  onClick={() => updatePromoBannerEnabled(!isPromoBannerEnabled)}
+                  onClick={async () => {
+                    try {
+                      await updatePromoBannerEnabled(!isPromoBannerEnabled);
+                      toast.success(t('update_success') || 'Update successful');
+                    } catch (e) {
+                      toast.error(t('failed_to_update_settings') || 'Failed to update settings');
+                    }
+                  }}
                   className={`w-10 h-5 rounded-full relative transition-colors ${isPromoBannerEnabled ? 'bg-green-500' : 'bg-gray-200 dark:bg-slate-700'}`}
                 >
                   <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all ${isPromoBannerEnabled ? 'right-0.5' : 'left-0.5'}`}></div>
@@ -1350,7 +1386,14 @@ const AdminPanel: React.FC = () => {
               <div className="flex justify-between items-center">
                 <span className="text-[10px] font-bold text-gray-500 uppercase">{t('dark_mode_default')}</span>
                 <button 
-                  onClick={() => updateDarkModeDefault(!isDarkModeDefault)}
+                  onClick={async () => {
+                    try {
+                      await updateDarkModeDefault(!isDarkModeDefault);
+                      toast.success(t('update_success') || 'Update successful');
+                    } catch (e) {
+                      toast.error(t('failed_to_update_settings') || 'Failed to update settings');
+                    }
+                  }}
                   className={`w-10 h-5 rounded-full relative transition-colors ${isDarkModeDefault ? 'bg-green-500' : 'bg-gray-200 dark:bg-slate-700'}`}
                 >
                   <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all ${isDarkModeDefault ? 'right-0.5' : 'left-0.5'}`}></div>
@@ -1635,7 +1678,14 @@ const AdminPanel: React.FC = () => {
                     />
                     {paymentMethodsImage && (
                       <button 
-                        onClick={() => updatePaymentMethodsImage('')}
+                        onClick={async () => {
+                          try {
+                            await updatePaymentMethodsImage('');
+                            toast.success(t('update_success') || 'Update successful');
+                          } catch (e) {
+                            toast.error(t('failed_to_update_settings') || 'Failed to update settings');
+                          }
+                        }}
                         className="px-4 py-3 bg-red-50 text-red-500 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-1 border border-red-100"
                       >
                         <Trash size={14} />

@@ -47,6 +47,11 @@ const App: React.FC = () => {
                     <Route path="/orders" element={<Orders />} />
                     <Route path="/addresses" element={<Addresses />} />
                     <Route path="/admin" element={<AdminPanel />} />
+                    <Route path="/admin/orders" element={<AdminPanel />} />
+                    <Route path="/admin/categories" element={<AdminPanel />} />
+                    <Route path="/admin/settings" element={<AdminPanel />} />
+                    <Route path="/admin/products" element={<AdminPanel />} />
+                    <Route path="/admin/landing" element={<AdminPanel />} />
                     <Route path="/admin/login" element={<AdminLogin />} />
                     <Route path="/landing" element={<LandingPage />} />
                   </Routes>
