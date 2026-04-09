@@ -73,12 +73,13 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return isAuthenticated() &&
-        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
-          request.auth.token.email == "mstkarimabibi45@gmail.com" ||
-          request.auth.token.email == "jafor100khan@gmail.com" ||
-          request.auth.token.email == "sreemithunchandra021@gmail.com" ||
-          request.auth.token.email == "jafor100khan@gmail.com"); // Explicitly ensuring this email is admin
+      return isAuthenticated() && (
+        request.auth.token.email == "mstkarimabibi45@gmail.com" ||
+        request.auth.token.email == "jafor100khan@gmail.com" ||
+        request.auth.token.email == "sreemithunchandra021@gmail.com" ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
+      );
     }
 
     function isProductAdmin() {

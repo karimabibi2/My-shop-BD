@@ -348,6 +348,13 @@ const translations = {
     'review_text': 'Review Text',
     'customer_image_url': 'Customer Image URL',
     'save_reviews': 'Save Reviews',
+    'payment_settings': 'Payment Settings',
+    'bkash_number': 'bKash Number',
+    'nagad_number': 'Nagad Number',
+    'rocket_number': 'Rocket Number',
+    'payment_methods_image': 'Payment Methods Image',
+    'update_payment_image': 'Update Payment Image',
+    'invoice': 'Invoice',
   },
   bn: {
     'menu': 'মেনু',
@@ -687,6 +694,13 @@ const translations = {
     'review_text': 'রিভিউ টেক্সট',
     'customer_image_url': 'কাস্টমার ইমেজ ইউআরএল',
     'save_reviews': 'রিভিউ সেভ করুন',
+    'payment_settings': 'পেমেন্ট সেটিংস',
+    'bkash_number': 'বিকাশ নম্বর',
+    'nagad_number': 'নগদ নম্বর',
+    'rocket_number': 'রকেট নম্বর',
+    'payment_methods_image': 'পেমেন্ট মেথড ইমেজ',
+    'update_payment_image': 'পেমেন্ট ইমেজ আপডেট করুন',
+    'invoice': 'ইনভয়েস',
   }
 };
 

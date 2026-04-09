@@ -7,7 +7,7 @@ import {
   auth, db, googleProvider, 
   signInWithPopup, signOut, onAuthStateChanged,
   signInWithEmailAndPassword, createUserWithEmailAndPassword,
-  collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, addDoc, onSnapshot, query, where, orderBy, limit,
+  collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, addDoc, onSnapshot, query, where, orderBy, limit, increment,
   ref, uploadBytes, getDownloadURL, storage, uploadBytesResumable
 } from '../firebase';
 
@@ -201,6 +201,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (!userDoc.exists()) {
           await setDoc(doc(db, 'users', firebaseUser.uid), mockUser);
         }
+
+        // Initialize settings if missing - ONLY if user is an admin
+        if (isAdminEmail) {
+          try {
+            const settingsDoc = await getDoc(doc(db, 'config', 'settings'));
+            if (!settingsDoc.exists()) {
+              await setDoc(doc(db, 'config', 'settings'), {
+                bannerImage: '',
+                whatsappNumber: '8801304881109',
+                siteName: 'Niloy Shop BD',
+                visitorCount: 0
+              });
+              console.log("Settings initialized successfully");
+            }
+          } catch (e) {
+            console.error("Failed to initialize settings:", e);
+          }
+        }
       } else {
         setUser(null);
       }
@@ -257,14 +275,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (data.customApiKey) setCustomApiKey(data.customApiKey);
         if (data.isPromoBannerEnabled !== undefined) setIsPromoBannerEnabled(data.isPromoBannerEnabled);
         if (data.isDarkModeDefault !== undefined) setIsDarkModeDefault(data.isDarkModeDefault);
-      } else {
-        // Initialize settings if missing
-        setDoc(doc(db, 'config', 'settings'), {
-          bannerImage: '',
-          whatsappNumber: '8801304881109',
-          siteName: 'Niloy Shop BD',
-          visitorCount: 0
-        }).catch(e => console.error("Failed to initialize settings:", e));
       }
       configSynced = true;
       checkDataReady();
@@ -321,13 +331,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     const hasVisited = sessionStorage.getItem('shopbd_visited');
     if (!hasVisited && isAuthReady) {
-      const newCount = visitorCount + 1;
-      setVisitorCount(newCount);
       sessionStorage.setItem('shopbd_visited', 'true');
       
-      // Update in Firestore
-      setDoc(doc(db, 'config', 'settings'), { visitorCount: newCount }, { merge: true })
-        .catch(e => console.error("Failed to update visitor count:", e));
+      // Update in Firestore using increment
+      updateDoc(doc(db, 'config', 'settings'), { 
+        visitorCount: increment(1) 
+      }).catch(e => console.error("Failed to update visitor count:", e));
     }
   }, [isAuthReady]);
 
@@ -505,8 +514,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const updateCategory = async (oldName: string, newName: string, image?: string) => {
-    if (!newName) return;
+    if (!newName || oldName === newName && !image) return;
     try {
+      // 1. Update the category document
       const q = query(collection(db, 'categories'), where('name', '==', oldName));
       const querySnapshot = await getDocs(q);
       if (!querySnapshot.empty) {
@@ -517,19 +527,41 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       } else {
         await addDoc(collection(db, 'categories'), { name: newName, image: image || '' });
       }
+
+      // 2. Update all products in this category if name changed
+      if (oldName !== newName) {
+        const productsToUpdate = allProducts.filter(p => p.category === oldName);
+        for (const product of productsToUpdate) {
+          await updateDoc(doc(db, 'products', product.id), { category: newName });
+        }
+      }
     } catch (error) {
       handleFirestoreError(error, OperationType.UPDATE, 'categories');
     }
   };
 
   const deleteCategory = async (name: string) => {
-    if (!name) return;
+    if (!name || name === 'Uncategorized') return;
     try {
+      // 1. Find and delete the category document
       const q = query(collection(db, 'categories'), where('name', '==', name));
       const querySnapshot = await getDocs(q);
       if (!querySnapshot.empty) {
         const categoryDoc = querySnapshot.docs[0];
         await deleteDoc(doc(db, 'categories', categoryDoc.id));
+      }
+
+      // 2. Move products to "Uncategorized"
+      const productsToUpdate = allProducts.filter(p => p.category === name);
+      for (const product of productsToUpdate) {
+        await updateDoc(doc(db, 'products', product.id), { category: 'Uncategorized' });
+      }
+      
+      // 3. Ensure "Uncategorized" exists
+      const uncatQ = query(collection(db, 'categories'), where('name', '==', 'Uncategorized'));
+      const uncatSnap = await getDocs(uncatQ);
+      if (uncatSnap.empty) {
+        await addDoc(collection(db, 'categories'), { name: 'Uncategorized', image: '' });
       }
     } catch (error) {
       handleFirestoreError(error, OperationType.DELETE, 'categories');
@@ -584,13 +616,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const syncProducts = () => {
-    setAllProducts(MOCK_PRODUCTS);
+  const syncProducts = async () => {
+    try {
+      for (const product of MOCK_PRODUCTS) {
+        await setDoc(doc(db, 'products', product.id), product);
+      }
+      toast.success('Products synced to database');
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, 'products');
+    }
   };
 
-  const syncCategories = () => {
-    const defaultCategories = CATEGORIES.map(name => ({ id: name, name }));
-    setCategories(defaultCategories);
+  const syncCategories = async () => {
+    try {
+      for (const name of CATEGORIES) {
+        const q = query(collection(db, 'categories'), where('name', '==', name));
+        const snap = await getDocs(q);
+        if (snap.empty) {
+          await addDoc(collection(db, 'categories'), { name, image: '' });
+        }
+      }
+      toast.success('Categories synced to database');
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, 'categories');
+    }
   };
 
   const updateBannerImage = async (image: string) => {

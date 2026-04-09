@@ -91,7 +91,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsMenuOpen(false)} />
         <div className={`absolute top-0 left-0 h-full w-64 bg-white dark:bg-slate-900 shadow-2xl transition-transform duration-300 ease-out transform ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <div className="flex flex-col h-full">
-            <div className="p-5 border-b border-gray-100 dark:border-slate-800 flex justify-between items-center bg-[#e62e04] text-white">
+            <div className="p-5 border-b border-gray-100 dark:border-slate-800 flex justify-between items-center bg-primary text-white">
               <div className="flex flex-col leading-tight">
                 <span className="text-xl font-black tracking-tighter italic uppercase">{t('menu')}</span>
               </div>
@@ -125,13 +125,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <div className="flex px-6 pb-4 gap-2">
                   <button 
                     onClick={() => setLanguage('en')}
-                    className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${language === 'en' ? 'bg-[#e62e04] text-white border-[#e62e04]' : 'bg-gray-50 dark:bg-slate-800 text-gray-500 border-gray-100 dark:border-slate-700'}`}
+                    className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${language === 'en' ? 'bg-primary text-white border-primary' : 'bg-gray-50 dark:bg-slate-800 text-gray-500 border-gray-100 dark:border-slate-700'}`}
                   >
                     {t('english')}
                   </button>
                   <button 
                     onClick={() => setLanguage('bn')}
-                    className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${language === 'bn' ? 'bg-[#e62e04] text-white border-[#e62e04]' : 'bg-gray-50 dark:bg-slate-800 text-gray-500 border-gray-100 dark:border-slate-700'}`}
+                    className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${language === 'bn' ? 'bg-primary text-white border-primary' : 'bg-gray-50 dark:bg-slate-800 text-gray-500 border-gray-100 dark:border-slate-700'}`}
                   >
                     {t('bangla')}
                   </button>
@@ -154,7 +154,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       e.stopPropagation();
                       setIsMenuOpen(false);
                     }} 
-                    className="flex items-center justify-center gap-3 w-full py-4 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl text-[11px] font-black text-[#e62e04] uppercase tracking-[0.2em] shadow-sm hover:shadow-md hover:bg-red-50 dark:hover:bg-red-950/20 transition-all"
+                    className="flex items-center justify-center gap-3 w-full py-4 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl text-[11px] font-black text-primary uppercase tracking-[0.2em] shadow-sm hover:shadow-md hover:bg-red-50 dark:hover:bg-red-950/20 transition-all"
                   >
                     <ShieldAlert size={18} />
                     {t('admin_panel')}
@@ -203,10 +203,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 onClick={() => handleCategorySelect('All')}
                 className={`w-full flex items-center gap-3 px-4 py-3 transition-colors border-b border-gray-50 dark:border-slate-800 ${activeCategory === 'All' ? 'bg-red-50 dark:bg-red-950/20' : 'hover:bg-gray-50 dark:hover:bg-slate-800'}`}
               >
-                <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-slate-800 flex items-center justify-center text-[#e62e04]">
+                <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-slate-800 flex items-center justify-center text-primary">
                   <Grid size={20} />
                 </div>
-                <span className={`text-[12px] font-bold ${activeCategory === 'All' ? 'text-[#e62e04]' : 'text-gray-700 dark:text-gray-300'}`}>All Categories</span>
+                <span className={`text-[12px] font-bold ${activeCategory === 'All' ? 'text-primary' : 'text-gray-700 dark:text-gray-300'}`}>All Categories</span>
               </button>
 
               {categories.map((cat) => (
@@ -224,7 +224,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                         className="w-full h-full object-cover"
                       />
                     </div>
-                  <span className={`text-[12px] font-bold text-left flex-1 ${activeCategory === cat.name ? 'text-[#e62e04]' : 'text-gray-700 dark:text-gray-300'}`}>
+                  <span className={`text-[12px] font-bold text-left flex-1 ${activeCategory === cat.name ? 'text-primary' : 'text-gray-700 dark:text-gray-300'}`}>
                     {cat.name}
                   </span>
                 </button>
@@ -242,21 +242,21 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <Menu size={26} />
             </button>
             <div className="flex flex-col leading-none" onClick={() => { setActiveCategory('All'); navigate('/'); }}>
-              <span className="text-lg font-black text-[#e62e04] tracking-tighter italic cursor-pointer">MY SHOP</span>
+              <span className="text-lg font-black text-primary tracking-tighter italic cursor-pointer">MY SHOP</span>
               <span className="text-[8px] font-bold text-gray-900 dark:text-white tracking-[0.2em] uppercase cursor-pointer">BD</span>
             </div>
           </div>
           
           <div className="flex items-center gap-1">
             {user?.isAdmin && (
-              <NavLink to="/admin" className="p-2 text-gray-700 dark:text-gray-300 hover:text-[#e62e04] dark:hover:text-[#e62e04] hover:bg-gray-50 dark:hover:bg-slate-800 rounded-full transition-colors">
+              <NavLink to="/admin" className="p-2 text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary hover:bg-gray-50 dark:hover:bg-slate-800 rounded-full transition-colors">
                 <ShieldAlert size={22} />
               </NavLink>
             )}
             <button onClick={() => setIsNotificationsOpen(!isNotificationsOpen)} className="p-2 text-gray-700 dark:text-gray-300 relative hover:bg-gray-50 dark:hover:bg-slate-800 rounded-full transition-colors">
               <Bell size={22} />
               {unreadCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-[#e62e04] text-white text-[8px] font-bold rounded-full border border-white dark:border-slate-900 flex items-center justify-center animate-pulse">
+                <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-primary text-white text-[8px] font-bold rounded-full border border-white dark:border-slate-900 flex items-center justify-center animate-pulse">
                   {unreadCount}
                 </span>
               )}
@@ -303,7 +303,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         {/* Simple Footer with Admin Link */}
         <footer className="mt-auto py-10 px-6 border-t border-gray-100 dark:border-slate-900 bg-white dark:bg-slate-900/50 flex flex-col items-center gap-4">
           <div className="flex flex-col items-center leading-none mb-2">
-            <span className="text-xl font-black text-[#e62e04] tracking-tighter italic">MY SHOP</span>
+            <span className="text-xl font-black text-primary tracking-tighter italic">MY SHOP</span>
             <span className="text-[10px] font-bold text-gray-900 dark:text-white tracking-[0.2em] uppercase">BD</span>
           </div>
           <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest text-center">
@@ -311,7 +311,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </p>
           <div className="flex flex-wrap justify-center gap-6 mt-2">
             {user?.isAdmin && (
-              <NavLink to="/admin" className="text-[10px] font-black text-gray-400 hover:text-[#e62e04] uppercase tracking-widest transition-colors">
+              <NavLink to="/admin" className="text-[10px] font-black text-gray-400 hover:text-primary uppercase tracking-widest transition-colors">
                 {t('admin_panel')}
               </NavLink>
             )}
@@ -319,7 +319,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               href="https://my-shop-bd.vercel.app/#/admin" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-[10px] font-black text-gray-400 hover:text-[#e62e04] uppercase tracking-widest transition-colors"
+              className="text-[10px] font-black text-gray-400 hover:text-primary uppercase tracking-widest transition-colors"
             >
               {t('visit_live_dashboard')}
             </a>
@@ -331,36 +331,52 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md md:max-w-3xl lg:max-w-5xl xl:max-w-7xl bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 px-1 py-1 flex justify-around items-center z-50 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] transition-colors duration-300">
-        <NavLink to="/" onClick={() => setActiveCategory('All')} className={({ isActive }) => `flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-all ${isActive && !isDrawerOpen ? 'text-[#e62e04]' : 'text-gray-400 dark:text-gray-500'}`}>
-          <Home size={22} />
-          <span className="text-[9px] font-bold">{t('home')}</span>
+      <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-slate-800 px-1 py-2 flex justify-around items-center z-[100] shadow-[0_-4px_20px_rgba(0,0,0,0.1)] transition-all duration-300 pb-safe">
+        <NavLink to="/" onClick={() => setActiveCategory('All')} className={({ isActive }) => `flex flex-col items-center gap-1 px-2 transition-all ${isActive && !isDrawerOpen ? 'text-[#f85606]' : 'text-gray-400 dark:text-gray-500'}`}>
+          {({ isActive }) => (
+            <>
+              <Home size={22} strokeWidth={isActive && !isDrawerOpen ? 2.5 : 2} />
+              <span className="text-[10px] font-bold">{t('home')}</span>
+            </>
+          )}
         </NavLink>
+        
         <button 
           onClick={toggleCategoryDrawer}
-          className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-all ${isDrawerOpen ? 'text-[#e62e04]' : 'text-gray-400 dark:text-gray-500'}`}
+          className={`flex flex-col items-center gap-1 px-2 transition-all ${isDrawerOpen ? 'text-[#f85606]' : 'text-gray-400 dark:text-gray-500'}`}
         >
-          <Grid size={22} />
-          <span className="text-[9px] font-bold">{t('category')}</span>
+          <Grid size={22} strokeWidth={isDrawerOpen ? 2.5 : 2} />
+          <span className="text-[10px] font-bold">{t('category')}</span>
         </button>
-        <NavLink to="/orders" className={({ isActive }) => `flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-all ${isActive ? 'text-[#e62e04]' : 'text-gray-400 dark:text-gray-500'}`}>
-          <Package size={22} />
-          <span className="text-[9px] font-bold">{t('my_orders')}</span>
+
+        <NavLink to="/orders" className={({ isActive }) => `flex flex-col items-center gap-1 px-2 transition-all ${isActive ? 'text-[#f85606]' : 'text-gray-400 dark:text-gray-500'}`}>
+          {({ isActive }) => (
+            <>
+              <Package size={22} strokeWidth={isActive ? 2.5 : 2} />
+              <span className="text-[10px] font-bold">{t('my_orders')}</span>
+            </>
+          )}
         </NavLink>
-        <NavLink to="/cart" className={({ isActive }) => `flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg relative transition-all ${isActive ? 'text-[#e62e04]' : 'text-gray-400 dark:text-gray-500'}`}>
-          <div className="relative">
-            <ShoppingCart size={22} />
-            {totalItems > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 bg-[#e62e04] text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center font-bold border border-white dark:border-slate-900">
-                {totalItems}
-              </span>
-            )}
-          </div>
-          <span className="text-[9px] font-bold">{t('cart')}</span>
+
+        <NavLink to="/cart" className={({ isActive }) => `flex flex-col items-center gap-1 px-2 relative transition-all ${isActive ? 'text-[#f85606]' : 'text-gray-400 dark:text-gray-500'}`}>
+          {({ isActive }) => (
+            <>
+              <div className="relative">
+                <ShoppingCart size={22} strokeWidth={isActive ? 2.5 : 2} />
+                {totalItems > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 bg-[#f85606] text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center font-black border border-white dark:border-slate-900">
+                    {totalItems}
+                  </span>
+                )}
+              </div>
+              <span className="text-[10px] font-bold">{t('cart')}</span>
+            </>
+          )}
         </NavLink>
-        <a href={`https://wa.me/${whatsappNumber}`} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg text-[#25D366] transition-all">
-          <MessageCircle size={22} />
-          <span className="text-[9px] font-bold uppercase">{t('whatsapp')}</span>
+
+        <a href={`https://wa.me/${whatsappNumber}`} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-1 px-2 text-[#22c55e] transition-all">
+          <MessageCircle size={22} strokeWidth={2} />
+          <span className="text-[10px] font-bold uppercase">WHATSAPP</span>
         </a>
       </nav>
     </div>

@@ -1,6 +1,6 @@
 {
-  "name": "MY shopBD3",
-  "description": "A modern, mobile-first e-commerce application with a dedicated desktop-optimized Admin Panel, smart search, and seamless express checkout.",
+  "name": "MY shopBD - SaaS Marketplace",
+  "description": "A production-ready multi-vendor e-commerce SaaS platform with real-time analytics, AI support, and integrated payment systems.",
   "requestFramePermissions": [
     "camera"
   ]

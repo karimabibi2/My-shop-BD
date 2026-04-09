@@ -247,6 +247,35 @@ const AdminPanel: React.FC = () => {
     }
   };
 
+  const handleBannerImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedBannerFile(file);
+      const previewUrl = URL.createObjectURL(file);
+      setNewBannerUrl(previewUrl);
+    }
+  };
+
+  const handlePaymentMethodsImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      try {
+        setIsUploading(true);
+        setUploadProgress(0);
+        setSelectedPaymentMethodsFile(file);
+        const path = `settings/${Date.now()}_${file.name}`;
+        const imageUrl = await uploadImage(file, path, setUploadProgress);
+        await updatePaymentMethodsImage(imageUrl);
+        toast.success(t('update_success') || 'Update successful');
+        setSelectedPaymentMethodsFile(null);
+      } catch (err) {
+        toast.error('Failed to upload image');
+      } finally {
+        setIsUploading(false);
+      }
+    }
+  };
+
   if (!user?.isAdmin) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 text-center">
@@ -279,6 +308,30 @@ const AdminPanel: React.FC = () => {
     totalProducts: allProducts.length,
     pendingOrders: orders.filter(o => o.status === 'Pending').length
   };
+
+  const chartData = React.useMemo(() => {
+    const days = [...Array(7)].map((_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (6 - i));
+      return {
+        name: d.toLocaleDateString(undefined, { weekday: 'short' }),
+        dateStr: d.toISOString().split('T')[0],
+        sales: 0
+      };
+    });
+
+    orders.forEach(order => {
+      if (order.status !== 'Cancelled') {
+        const orderDate = order.date.split('T')[0];
+        const day = days.find(d => d.dateStr === orderDate);
+        if (day) {
+          day.sales += order.total;
+        }
+      }
+    });
+
+    return days;
+  }, [orders]);
 
   return (
     <AdminLayout>
@@ -363,15 +416,7 @@ const AdminPanel: React.FC = () => {
               
               <div className="h-64 w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={[
-                    { name: t('mon'), sales: 4000 },
-                    { name: t('tue'), sales: 3000 },
-                    { name: t('wed'), sales: 2000 },
-                    { name: t('thu'), sales: 2780 },
-                    { name: t('fri'), sales: 1890 },
-                    { name: t('sat'), sales: 2390 },
-                    { name: t('sun'), sales: 3490 },
-                  ]}>
+                  <LineChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                     <XAxis 
                       dataKey="name" 
@@ -726,7 +771,7 @@ const AdminPanel: React.FC = () => {
                             onClick={() => setShowInvoice(order)}
                             className="bg-blue-500 text-white p-1.5 rounded-lg text-[8px] font-black uppercase flex items-center gap-1"
                           >
-                            <FileText size={12} /> Invoice
+                            <FileText size={12} /> {t('invoice')}
                           </button>
                           {order.status === 'Pending' && (
                             <button 
@@ -740,7 +785,7 @@ const AdminPanel: React.FC = () => {
                               }}
                               className="bg-green-500 text-white p-1.5 rounded-lg text-[8px] font-black uppercase flex items-center gap-1"
                             >
-                              <CheckCircle size={12} /> Mark Delivered
+                              <CheckCircle size={12} /> {t('mark_delivered')}
                             </button>
                           )}
                           <button 
@@ -754,7 +799,7 @@ const AdminPanel: React.FC = () => {
                             }}
                             className="text-red-500 p-1.5 rounded-lg text-[8px] font-black uppercase"
                           >
-                            Cancel
+                            {t('cancel')}
                           </button>
                         </div>
                      </div>
@@ -1058,12 +1103,12 @@ const AdminPanel: React.FC = () => {
             <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
               <div className="flex items-center gap-2">
                 <CreditCard size={18} className="text-[#e62e04]" />
-                <h4 className="text-[11px] font-black uppercase tracking-widest">Payment Methods Settings</h4>
+                <h4 className="text-[11px] font-black uppercase tracking-widest">{t('payment_settings')}</h4>
               </div>
               
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[9px] font-black text-gray-400 uppercase">bKash Number</label>
+                  <label className="text-[9px] font-black text-gray-400 uppercase">{t('bkash_number')}</label>
                   <div className="flex gap-2">
                     <input 
                       type="text" 
@@ -1076,9 +1121,9 @@ const AdminPanel: React.FC = () => {
                       onClick={async () => {
                         try {
                           await updateBkashNumber(newBkashNumber);
-                          toast.success('bKash number updated');
+                          toast.success(t('update_success'));
                         } catch (e) {
-                          toast.error('Failed to update bKash number');
+                          toast.error(t('failed_to_update_settings'));
                         }
                       }}
                       className="bg-[#e62e04] text-white px-4 rounded-xl text-[10px] font-black uppercase tracking-widest"
@@ -1089,7 +1134,7 @@ const AdminPanel: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[9px] font-black text-gray-400 uppercase">Nagad Number</label>
+                  <label className="text-[9px] font-black text-gray-400 uppercase">{t('nagad_number')}</label>
                   <div className="flex gap-2">
                     <input 
                       type="text" 
@@ -1102,9 +1147,9 @@ const AdminPanel: React.FC = () => {
                       onClick={async () => {
                         try {
                           await updateNagadNumber(newNagadNumber);
-                          toast.success('Nagad number updated');
+                          toast.success(t('update_success'));
                         } catch (e) {
-                          toast.error('Failed to update Nagad number');
+                          toast.error(t('failed_to_update_settings'));
                         }
                       }}
                       className="bg-[#e62e04] text-white px-4 rounded-xl text-[10px] font-black uppercase tracking-widest"
@@ -1115,7 +1160,7 @@ const AdminPanel: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[9px] font-black text-gray-400 uppercase">Rocket Number</label>
+                  <label className="text-[9px] font-black text-gray-400 uppercase">{t('rocket_number')}</label>
                   <div className="flex gap-2">
                     <input 
                       type="text" 
@@ -1128,9 +1173,9 @@ const AdminPanel: React.FC = () => {
                       onClick={async () => {
                         try {
                           await updateRocketNumber(newRocketNumber);
-                          toast.success('Rocket number updated');
+                          toast.success(t('update_success'));
                         } catch (e) {
-                          toast.error('Failed to update Rocket number');
+                          toast.error(t('failed_to_update_settings'));
                         }
                       }}
                       className="bg-[#e62e04] text-white px-4 rounded-xl text-[10px] font-black uppercase tracking-widest"
@@ -1159,7 +1204,6 @@ const AdminPanel: React.FC = () => {
                         t('sync_products_warning') || 'Are you sure you want to sync products from the initial data? This will overwrite existing products with the same IDs.',
                         () => {
                           syncProducts();
-                          toast.success(t('products_synced') || 'Products synced successfully');
                         },
                         'warning'
                       );
@@ -1175,7 +1219,6 @@ const AdminPanel: React.FC = () => {
                         t('sync_categories_warning') || 'Are you sure you want to sync categories from the initial data?',
                         () => {
                           syncCategories();
-                          toast.success(t('categories_synced') || 'Categories synced successfully');
                         },
                         'warning'
                       );
@@ -1540,10 +1583,7 @@ const AdminPanel: React.FC = () => {
                         type="file" 
                         accept="image/*" 
                         className="hidden" 
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) setSelectedBannerFile(file);
-                        }}
+                        onChange={handleBannerImageUpload}
                       />
                     </label>
                   </div>
@@ -1582,7 +1622,7 @@ const AdminPanel: React.FC = () => {
                   </div>
                   <div className="flex flex-col">
                     <h4 className="text-sm font-black text-gray-900 dark:text-white uppercase italic tracking-tighter">{t('payment_method')}</h4>
-                    <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Payment Icons/Instructions Image</p>
+                    <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{t('payment_methods_image')}</p>
                   </div>
                 </div>
                 
@@ -1599,7 +1639,7 @@ const AdminPanel: React.FC = () => {
                       ) : (
                         <div className="flex flex-col items-center gap-2 text-gray-400">
                           <ImageIcon size={24} />
-                          <span className="text-[10px] font-bold uppercase tracking-widest">No Image Uploaded</span>
+                          <span className="text-[10px] font-bold uppercase tracking-widest">{t('no_image')}</span>
                         </div>
                       )}
                     </div>
@@ -1613,26 +1653,10 @@ const AdminPanel: React.FC = () => {
                         type="file" 
                         className="hidden" 
                         accept="image/*"
-                        onChange={async (e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            try {
-                              setIsUploading(true);
-                              setUploadProgress(0);
-                              const path = `settings/${Date.now()}_${file.name}`;
-                              const imageUrl = await uploadImage(file, path, setUploadProgress);
-                              await updatePaymentMethodsImage(imageUrl);
-                              toast.success(t('update_success') || 'Update successful');
-                            } catch (err) {
-                              toast.error('Failed to upload image');
-                            } finally {
-                              setIsUploading(false);
-                            }
-                          }
-                        }}
+                        onChange={handlePaymentMethodsImageUpload}
                       />
                     </label>
-                    {isUploading && !selectedBannerFile && !selectedFile && !selectedCategoryFile && (
+                    {isUploading && selectedPaymentMethodsFile && (
                       <div className="w-full bg-gray-100 dark:bg-slate-800 rounded-full h-1 overflow-hidden mt-2">
                         <div 
                           className="bg-blue-500 h-full transition-all duration-300 ease-out" 
@@ -2016,7 +2040,10 @@ const AdminPanel: React.FC = () => {
                  <h3 className="text-sm font-black uppercase tracking-widest text-[#e62e04] italic">
                    {editingProduct.id.toString().startsWith('new') ? t('add_new_product') : t('edit_product')}
                  </h3>
-                 <button onClick={() => setEditingProduct(null)} className="p-1 text-gray-400 hover:text-gray-800"><ArrowLeft size={20} /></button>
+                 <button onClick={() => {
+                    setEditingProduct(null);
+                    setSelectedFile(null);
+                  }} className="p-1 text-gray-400 hover:text-gray-800"><ArrowLeft size={20} /></button>
                </div>
 
                <div className="flex flex-col gap-4">
@@ -2243,7 +2270,10 @@ const AdminPanel: React.FC = () => {
             <div className="bg-white dark:bg-slate-900 w-full max-w-xs rounded-3xl p-6 animate-in zoom-in-95 duration-200 shadow-2xl">
                <div className="flex justify-between items-center mb-6">
                  <h3 className="text-sm font-black uppercase tracking-widest text-green-500 italic">{t('add_category')}</h3>
-                 <button onClick={() => setIsAddingCategory(false)} className="p-1 text-gray-400 hover:text-gray-800"><XCircle size={20} /></button>
+                 <button onClick={() => {
+                    setIsAddingCategory(false);
+                    setSelectedCategoryFile(null);
+                  }} className="p-1 text-gray-400 hover:text-gray-800"><XCircle size={20} /></button>
                </div>
 
                <div className="flex flex-col gap-4">
@@ -2333,7 +2363,10 @@ const AdminPanel: React.FC = () => {
             <div className="bg-white dark:bg-slate-900 w-full max-w-xs rounded-3xl p-6 animate-in zoom-in-95 duration-200 shadow-2xl">
                <div className="flex justify-between items-center mb-6">
                  <h3 className="text-sm font-black uppercase tracking-widest text-[#e62e04] italic">{t('edit_category')}</h3>
-                 <button onClick={() => setEditingCategory(null)} className="p-1 text-gray-400 hover:text-gray-800"><XCircle size={20} /></button>
+                 <button onClick={() => {
+                    setEditingCategory(null);
+                    setSelectedCategoryFile(null);
+                  }} className="p-1 text-gray-400 hover:text-gray-800"><XCircle size={20} /></button>
                </div>
 
                <div className="flex flex-col gap-4">

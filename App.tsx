@@ -7,6 +7,7 @@ import { CategoryProvider } from './context/CategoryContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { LanguageProvider } from './context/LanguageContext';
 import { Toaster } from 'sonner';
+import ChatBot from './components/ChatBot';
 
 // Lazy load pages for better performance
 const Home = lazy(() => import('./pages/Home'));
@@ -37,6 +38,7 @@ const App: React.FC = () => {
           <CartProvider>
             <CategoryProvider>
               <Router>
+                <ChatBot />
                 <Suspense fallback={<LoadingFallback />}>
                   <Routes>
                     <Route path="/" element={<Home />} />

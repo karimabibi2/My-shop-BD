@@ -1,4 +1,5 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getAnalytics } from 'firebase/analytics';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { 
   getFirestore, 
@@ -15,7 +16,8 @@ import {
   where, 
   orderBy, 
   limit,
-  getDocFromServer
+  getDocFromServer,
+  increment
 } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
 
@@ -28,6 +30,7 @@ export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 export const auth = getAuth(app);
 export const storage = getStorage(app);
 export const googleProvider = new GoogleAuthProvider();
+export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
 
 // Export Firestore and Storage functions for use in context
 export { 
@@ -48,6 +51,7 @@ export {
   signOut,
   onAuthStateChanged,
   getDocFromServer,
+  increment,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   ref,

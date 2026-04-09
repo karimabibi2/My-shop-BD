@@ -58,7 +58,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetails, onBuy
             alt={product.name} 
             loading="lazy"
             referrerPolicy="no-referrer"
-            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
           />
         ) : (
           <div className="flex flex-col items-center justify-center text-gray-300 dark:text-gray-600">
@@ -69,7 +69,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetails, onBuy
       </div>
       
       <div className="p-3 flex flex-col flex-1 border-t border-gray-50 dark:border-slate-800">
-        <h3 className="text-[12px] font-bold text-gray-800 dark:text-gray-200 leading-tight line-clamp-2 h-8 mb-1">
+        <h3 className="text-[12px] font-bold text-gray-800 dark:text-gray-200 leading-tight line-clamp-2 h-8 mb-1 group-hover:text-primary transition-colors">
           {product.name}
         </h3>
         
@@ -80,7 +80,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetails, onBuy
         )}
         
         <div className="flex items-baseline gap-2 mb-3">
-          <span className="text-base font-black text-[#e62e04]">৳{product.price.toLocaleString()}</span>
+          <span className="text-base font-black text-primary">৳{product.price.toLocaleString()}</span>
           <span className="text-[10px] text-gray-400 dark:text-gray-500 line-through font-bold">৳{oldPrice.toLocaleString()}</span>
         </div>
 
@@ -98,7 +98,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetails, onBuy
           </button>
           <button 
             onClick={handleBuyNow}
-            className="flex-[2.5] bg-[#e62e04] text-white text-[10px] font-black py-2.5 rounded-lg flex justify-center items-center gap-1.5 hover:bg-[#c42704] transition-all active:scale-95 uppercase tracking-widest shadow-sm"
+            className="flex-[2.5] bg-primary text-white text-[10px] font-black py-2.5 rounded-lg flex justify-center items-center gap-1.5 hover:bg-primary-hover transition-all active:scale-95 uppercase tracking-widest shadow-sm"
           >
             <Zap size={12} fill="currentColor" />
             {t('buy_now')}
