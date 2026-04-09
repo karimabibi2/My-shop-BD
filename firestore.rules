@@ -103,7 +103,12 @@ service cloud.firestore {
              data.name is string && data.name.size() > 0 && data.name.size() < 200 &&
              data.price is number &&
              data.image is string && data.image.size() < 2000 &&
-             data.category is string && data.category.size() < 100;
+             data.category is string && data.category.size() < 100 &&
+             (!('description' in data) || data.description is string) &&
+             (!('rating' in data) || data.rating is number) &&
+             (!('isAvailable' in data) || data.isAvailable is bool) &&
+             (!('sizes' in data) || data.sizes is list) &&
+             (!('orderPolicy' in data) || data.orderPolicy is string);
     }
 
     function isValidOrder(data) {
@@ -115,7 +120,8 @@ service cloud.firestore {
     }
 
     function isValidCategory(data) {
-      return data.name is string && data.name.size() > 0 && data.name.size() < 100;
+      return data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             (!('image' in data) || (data.image is string && data.image.size() < 2000));
     }
 
     function isValidUser(data) {

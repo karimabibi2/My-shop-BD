@@ -506,9 +506,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const addProduct = async (product: Product) => {
+    console.log('Adding product to Firestore:', product);
     try {
       await setDoc(doc(db, 'products', product.id), product);
+      console.log('Product added successfully');
     } catch (error) {
+      console.error('Error adding product:', error);
       handleFirestoreError(error, OperationType.WRITE, `products/${product.id}`);
     }
   };
@@ -569,10 +572,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const addCategory = async (name: string, image?: string) => {
-    if (!name || categories.some(c => c.name === name)) return;
+    if (!name) return;
+    console.log('Adding category to Firestore:', { name, image });
+    if (categories.some(c => c.name.toLowerCase() === name.toLowerCase())) {
+      toast.error(t('category_already_exists') || 'Category already exists');
+      return;
+    }
     try {
       await addDoc(collection(db, 'categories'), { name, image: image || '' });
+      console.log('Category added successfully');
     } catch (error) {
+      console.error('Error adding category:', error);
       handleFirestoreError(error, OperationType.WRITE, 'categories');
     }
   };
