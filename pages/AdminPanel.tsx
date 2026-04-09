@@ -224,6 +224,10 @@ const AdminPanel: React.FC = () => {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('File size too large. Please select an image under 5MB.');
+        return;
+      }
       setSelectedFile(file);
       // Create a local preview URL
       const previewUrl = URL.createObjectURL(file);
@@ -236,6 +240,10 @@ const AdminPanel: React.FC = () => {
   const handleCategoryImageUpload = (e: React.ChangeEvent<HTMLInputElement>, isNew: boolean) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('File size too large. Please select an image under 5MB.');
+        return;
+      }
       setSelectedCategoryFile(file);
       // Create a local preview URL
       const previewUrl = URL.createObjectURL(file);

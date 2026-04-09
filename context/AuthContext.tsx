@@ -802,6 +802,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const storageRef = ref(storage, path);
         const uploadTask = uploadBytesResumable(storageRef, file);
 
+        // Add a timeout of 60 seconds
+        const timeout = setTimeout(() => {
+          uploadTask.cancel();
+          reject(new Error('Upload timed out after 60 seconds'));
+        }, 60000);
+
         uploadTask.on('state_changed', 
           (snapshot) => {
             const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
@@ -809,11 +815,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             if (onProgress) onProgress(progress);
           }, 
           (error) => {
+            clearTimeout(timeout);
             console.error('Error uploading image to', path, ':', error);
             toast.error(`Upload failed: ${error.message}`);
             reject(error);
           }, 
           async () => {
+            clearTimeout(timeout);
             try {
               console.log('Upload complete for', path);
               const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
