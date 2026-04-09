@@ -100,10 +100,10 @@ service cloud.firestore {
 
     function isValidProduct(data) {
       return data.id is string && data.id.size() < 100 &&
-             data.name is string && data.name.size() > 0 && data.name.size() < 200 &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 500 &&
              data.price is number &&
-             data.image is string && data.image.size() < 2000 &&
-             data.category is string && data.category.size() < 100 &&
+             data.image is string && data.image.size() < 5000 &&
+             data.category is string && data.category.size() < 200 &&
              (!('description' in data) || data.description is string) &&
              (!('rating' in data) || data.rating is number) &&
              (!('isAvailable' in data) || data.isAvailable is bool) &&
@@ -120,8 +120,8 @@ service cloud.firestore {
     }
 
     function isValidCategory(data) {
-      return data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
-             (!('image' in data) || (data.image is string && data.image.size() < 2000));
+      return data.name is string && data.name.size() > 0 && data.name.size() < 200 &&
+             (!('image' in data) || (data.image is string && data.image.size() < 5000));
     }
 
     function isValidUser(data) {

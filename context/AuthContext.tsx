@@ -438,6 +438,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           role: 'admin'
         };
         setUser(adminUser);
+        toast.info('Logged in as Local Admin. Note: Some features like image uploads may require Google Login for full Firebase permissions.');
         return true;
       }
       return false;
@@ -575,7 +576,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (!name) return;
     console.log('Adding category to Firestore:', { name, image });
     if (categories.some(c => c.name.toLowerCase() === name.toLowerCase())) {
-      toast.error(t('category_already_exists') || 'Category already exists');
+      toast.error('Category already exists');
       return;
     }
     try {

@@ -2216,13 +2216,16 @@ const AdminPanel: React.FC = () => {
                   <button 
                     disabled={isUploading}
                     onClick={async () => {
+                      console.log('Save Product clicked. EditingProduct:', editingProduct);
                       setIsUploading(true);
                       setUploadProgress(0);
                       try {
                         let imageUrl = editingProduct.image;
                         if (selectedFile) {
+                          console.log('Uploading product image:', selectedFile.name);
                           const path = `products/${Date.now()}_${selectedFile.name}`;
                           imageUrl = await uploadImage(selectedFile, path, setUploadProgress);
+                          console.log('Product image uploaded. URL:', imageUrl);
                         }
 
                         if (editingProduct.id.toString().startsWith('new')) {
@@ -2315,14 +2318,17 @@ const AdminPanel: React.FC = () => {
                   <button 
                     disabled={isUploading}
                     onClick={async () => {
+                      console.log('Add Category clicked. NewCategory:', newCategory);
                       if (newCategory.name.trim()) {
                         setIsUploading(true);
                         setUploadProgress(0);
                         try {
                           let imageUrl = newCategory.image;
                           if (selectedCategoryFile) {
+                            console.log('Uploading category image:', selectedCategoryFile.name);
                             const path = `categories/${Date.now()}_${selectedCategoryFile.name}`;
                             imageUrl = await uploadImage(selectedCategoryFile, path, setUploadProgress);
+                            console.log('Category image uploaded. URL:', imageUrl);
                           }
                           await addCategory(newCategory.name.trim(), imageUrl);
                           toast.success(t('category_added') || 'Category added successfully');

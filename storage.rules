@@ -9,7 +9,10 @@ service firebase.storage {
       return isAuthenticated() && (
         request.auth.token.email == "jafor100khan@gmail.com" || 
         request.auth.token.email == "mstkarimabibi45@gmail.com" ||
-        request.auth.token.email == "sreemithunchandra021@gmail.com"
+        request.auth.token.email == "sreemithunchandra021@gmail.com" ||
+        request.auth.token.email == "mstkarimabibi45@gmail.com" ||
+        firestore.exists(/databases/(default)/documents/users/$(request.auth.uid)) &&
+        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin'
       );
     }
 
@@ -22,6 +25,12 @@ service firebase.storage {
       allow write: if isAdmin();
     }
     match /settings/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    // Fallback for other authenticated uploads if needed for debugging
+    match /{allPaths=**} {
       allow read: if true;
       allow write: if isAdmin();
     }
