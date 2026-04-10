@@ -51,15 +51,15 @@ const AdminLogin: React.FC = () => {
           )}
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">{t('email')}</label>
+            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">{t('username') || 'Username'}</label>
             <div className="relative">
               <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
               <input 
-                type="email" 
+                type="text" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-2xl py-4 pl-12 pr-4 text-sm font-bold focus:ring-2 focus:ring-[#e62e04] outline-none dark:text-white transition-all"
-                placeholder="admin@example.com"
+                placeholder="Admin Username"
                 required
               />
             </div>

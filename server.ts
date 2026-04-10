@@ -240,7 +240,11 @@ async function startServer() {
       res.json(userWithoutPassword);
     } else {
       // Default admin check
-      if ((email === "Niloyshop" && password === "Niloyshop12#") || (email === "Amiadmin" && password === "Amiadmin12#")) {
+      const config = await readData("config", {});
+      const adminUser = config.adminUsername || "Amiadmin";
+      const adminPass = config.adminPassword || "Amiadmin12#";
+
+      if ((email === "Niloyshop" && password === "Niloyshop12#") || (email === adminUser && password === adminPass)) {
         res.json({ id: "admin", name: "Admin", email, role: "admin", isAdmin: true });
       } else {
         res.status(401).json({ error: "Invalid credentials" });
