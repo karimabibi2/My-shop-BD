@@ -1,8 +1,6 @@
-
 import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect, useRef } from 'react';
 import { Product, CartItem } from '../types';
 import { useAuth } from './AuthContext';
-import { db, doc, getDoc, setDoc, onSnapshot } from '../firebase';
 
 interface CartContextType {
   cart: CartItem[];
@@ -20,89 +18,21 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const { user, isAuthReady } = useAuth();
   const [cart, setCart] = useState<CartItem[]>([]);
   const isInitialLoad = useRef(true);
-  const skipSync = useRef(false);
 
-  // Load cart based on user status
+  // Load cart from localStorage
   useEffect(() => {
-    if (!isAuthReady) return;
+    const savedCart = localStorage.getItem('shopbd_cart');
+    if (savedCart) {
+      setCart(JSON.parse(savedCart));
+    }
+    isInitialLoad.current = false;
+  }, []);
 
-    let unsubscribe: (() => void) | undefined;
-
-    const loadCart = async () => {
-      if (user) {
-        // Logged in: Sync with Firestore
-        const cartRef = doc(db, 'carts', user.id);
-        
-        // Initial fetch
-        try {
-          const cartDoc = await getDoc(cartRef);
-          if (cartDoc.exists()) {
-            const data = cartDoc.data();
-            setCart(data.items || []);
-          } else {
-            // Check if there's a local cart to migrate
-            const localCart = localStorage.getItem('shopbd_cart_guest');
-            if (localCart) {
-              const items = JSON.parse(localCart);
-              setCart(items);
-              await setDoc(cartRef, { items, updatedAt: new Date().toISOString() });
-              localStorage.removeItem('shopbd_cart_guest');
-            } else {
-              setCart([]);
-            }
-          }
-        } catch (e) {
-          console.error("Error loading Firestore cart:", e);
-        }
-
-        // Listen for remote changes (e.g. from another tab/device)
-        unsubscribe = onSnapshot(cartRef, (snapshot) => {
-          if (snapshot.exists() && !skipSync.current) {
-            const data = snapshot.data();
-            setCart(data.items || []);
-          }
-        });
-      } else {
-        // Guest: Use localStorage
-        const savedCart = localStorage.getItem('shopbd_cart_guest');
-        setCart(savedCart ? JSON.parse(savedCart) : []);
-      }
-      isInitialLoad.current = false;
-    };
-
-    loadCart();
-
-    return () => {
-      if (unsubscribe) unsubscribe();
-    };
-  }, [user, isAuthReady]);
-
-  // Save cart changes
+  // Save cart changes to localStorage
   useEffect(() => {
-    if (isInitialLoad.current || !isAuthReady) return;
-
-    const saveCart = async () => {
-      if (user) {
-        // Save to Firestore
-        skipSync.current = true;
-        try {
-          await setDoc(doc(db, 'carts', user.id), {
-            items: cart,
-            updatedAt: new Date().toISOString()
-          });
-        } catch (e) {
-          console.error("Error saving Firestore cart:", e);
-        } finally {
-          setTimeout(() => { skipSync.current = false; }, 1000);
-        }
-      } else {
-        // Save to guest localStorage
-        localStorage.setItem('shopbd_cart_guest', JSON.stringify(cart));
-      }
-    };
-
-    saveCart();
-  }, [cart, user, isAuthReady]);
+    if (isInitialLoad.current) return;
+    localStorage.setItem('shopbd_cart', JSON.stringify(cart));
+  }, [cart]);
 
   const addToCart = useCallback((product: Product, selectedSize?: string) => {
     setCart(prev => {

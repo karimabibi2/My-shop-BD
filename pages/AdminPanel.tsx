@@ -2224,31 +2224,30 @@ const AdminPanel: React.FC = () => {
                   <button 
                     disabled={isUploading}
                     onClick={async () => {
-                      console.log('Save Product clicked. EditingProduct:', editingProduct);
-                      setIsUploading(true);
-                      setUploadProgress(0);
-                      try {
-                        let imageUrl = editingProduct.image;
-                        if (selectedFile) {
-                          console.log('Uploading product image:', selectedFile.name);
-                          const path = `products/${Date.now()}_${selectedFile.name}`;
-                          imageUrl = await uploadImage(selectedFile, path, setUploadProgress);
-                          console.log('Product image uploaded. URL:', imageUrl);
-                        }
+                      if (editingProduct) {
+                        setIsUploading(true);
+                        setUploadProgress(0);
+                        try {
+                          let imageUrl = editingProduct.image;
+                          if (selectedFile) {
+                            const path = `products/${Date.now()}_${selectedFile.name}`;
+                            imageUrl = await uploadImage(selectedFile, path, setUploadProgress);
+                          }
 
-                        if (editingProduct.id.toString().startsWith('new')) {
-                          await addProduct({ ...editingProduct, image: imageUrl, id: 'prod-' + Date.now() });
-                          toast.success(t('product_added') || 'Product added successfully');
-                        } else {
-                          await updateProduct({ ...editingProduct, image: imageUrl });
-                          toast.success(t('product_updated') || 'Product updated successfully');
+                          if (editingProduct.id.toString().startsWith('new')) {
+                            await addProduct({ ...editingProduct, image: imageUrl, id: 'prod-' + Date.now() });
+                            toast.success(t('product_added') || 'Product added successfully');
+                          } else {
+                            await updateProduct({ ...editingProduct, image: imageUrl });
+                            toast.success(t('product_updated') || 'Product updated successfully');
+                          }
+                          setEditingProduct(null);
+                          setSelectedFile(null);
+                        } catch (e: any) {
+                          toast.error(e.message || t('failed_to_save_product') || 'Failed to save product');
+                        } finally {
+                          setIsUploading(false);
                         }
-                        setEditingProduct(null);
-                        setSelectedFile(null);
-                      } catch (e: any) {
-                        toast.error(e.message || t('failed_to_save_product') || 'Failed to save product');
-                      } finally {
-                        setIsUploading(false);
                       }
                     }}
                     className={`w-full bg-[#e62e04] text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 mt-4 text-xs flex items-center justify-center gap-2 ${isUploading ? 'opacity-70 cursor-not-allowed' : ''}`}
@@ -2326,17 +2325,14 @@ const AdminPanel: React.FC = () => {
                   <button 
                     disabled={isUploading}
                     onClick={async () => {
-                      console.log('Add Category clicked. NewCategory:', newCategory);
                       if (newCategory.name.trim()) {
                         setIsUploading(true);
                         setUploadProgress(0);
                         try {
                           let imageUrl = newCategory.image;
                           if (selectedCategoryFile) {
-                            console.log('Uploading category image:', selectedCategoryFile.name);
                             const path = `categories/${Date.now()}_${selectedCategoryFile.name}`;
                             imageUrl = await uploadImage(selectedCategoryFile, path, setUploadProgress);
-                            console.log('Category image uploaded. URL:', imageUrl);
                           }
                           await addCategory(newCategory.name.trim(), imageUrl);
                           toast.success(t('category_added') || 'Category added successfully');
