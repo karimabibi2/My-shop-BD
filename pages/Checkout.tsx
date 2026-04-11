@@ -21,7 +21,7 @@ const Checkout: React.FC = () => {
     return (
       <Layout>
         <div className="flex items-center justify-center py-20">
-          <div className="animate-spin text-[#e62e04]">
+          <div className="animate-spin text-primary">
             <CheckCircle size={40} />
           </div>
         </div>
@@ -166,7 +166,7 @@ const Checkout: React.FC = () => {
               <button 
                 type="button" 
                 onClick={() => setUseSavedAddress(!useSavedAddress)}
-                className="text-[10px] font-black text-[#e62e04] uppercase tracking-tighter border border-red-50 dark:border-red-900/30 px-2 py-1 rounded"
+                className="text-[10px] font-black text-primary uppercase tracking-tighter border border-red-50 dark:border-red-900/30 px-2 py-1 rounded"
               >
                 {useSavedAddress ? t('new_address') : t('use_saved')}
               </button>
@@ -180,14 +180,14 @@ const Checkout: React.FC = () => {
                   key={addr.id}
                   className={`flex items-start gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer ${
                     selectedAddressId === addr.id 
-                    ? 'border-[#e62e04] bg-red-50/30 dark:bg-red-950/10' 
+                    ? 'border-primary bg-red-50/30 dark:bg-red-950/10' 
                     : 'border-gray-50 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30'
                   }`}
                 >
                   <input 
                     type="radio" 
                     name="address" 
-                    className="mt-1 accent-[#e62e04]" 
+                    className="mt-1 accent-primary" 
                     checked={selectedAddressId === addr.id}
                     onChange={() => setSelectedAddressId(addr.id)}
                   />
@@ -207,7 +207,7 @@ const Checkout: React.FC = () => {
                   <input 
                     required
                     type="text" 
-                    className="bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-sm focus:ring-1 focus:ring-[#e62e04] outline-none dark:text-white"
+                    className="bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-sm focus:ring-1 focus:ring-primary outline-none dark:text-white"
                     value={formData.fullName}
                     onChange={(e) => setFormData({...formData, fullName: e.target.value})}
                   />
@@ -217,7 +217,7 @@ const Checkout: React.FC = () => {
                   <input 
                     required
                     type="tel" 
-                    className="bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-sm focus:ring-1 focus:ring-[#e62e04] outline-none dark:text-white"
+                    className="bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-sm focus:ring-1 focus:ring-primary outline-none dark:text-white"
                     placeholder="017XXXXXXXX"
                     value={formData.phone}
                     onChange={(e) => setFormData({...formData, phone: e.target.value})}
@@ -230,7 +230,7 @@ const Checkout: React.FC = () => {
                 <div className="relative">
                   <select 
                     required
-                    className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-sm focus:ring-1 focus:ring-[#e62e04] outline-none dark:text-white appearance-none"
+                    className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-sm focus:ring-1 focus:ring-primary outline-none dark:text-white appearance-none"
                     value={formData.district}
                     onChange={(e) => setFormData({...formData, district: e.target.value, thana: ''})}
                   >
@@ -247,7 +247,7 @@ const Checkout: React.FC = () => {
                   <select 
                     required
                     disabled={!formData.district}
-                    className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-sm focus:ring-1 focus:ring-[#e62e04] outline-none dark:text-white appearance-none disabled:opacity-50"
+                    className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-sm focus:ring-1 focus:ring-primary outline-none dark:text-white appearance-none disabled:opacity-50"
                     value={formData.thana}
                     onChange={(e) => setFormData({...formData, thana: e.target.value})}
                   >
@@ -263,7 +263,7 @@ const Checkout: React.FC = () => {
                 <textarea 
                   required
                   rows={2}
-                  className="bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-sm focus:ring-1 focus:ring-[#e62e04] outline-none dark:text-white"
+                  className="bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-sm focus:ring-1 focus:ring-primary outline-none dark:text-white"
                   placeholder={t('street_area')}
                   value={formData.details}
                   onChange={(e) => setFormData({...formData, details: e.target.value})}
@@ -279,9 +279,9 @@ const Checkout: React.FC = () => {
             <button 
               type="button"
               onClick={() => setPaymentMethod('COD')}
-              className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all gap-3 ${paymentMethod === 'COD' ? 'border-[#e62e04] bg-red-50/30 dark:bg-red-950/10' : 'border-gray-50 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30 hover:border-gray-200'}`}
+              className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all gap-3 ${paymentMethod === 'COD' ? 'border-primary bg-red-50/30 dark:bg-red-950/10' : 'border-gray-50 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/30 hover:border-gray-200'}`}
             >
-              <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-[#e62e04]">
+              <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-primary">
                 <Truck size={28} />
               </div>
               <span className="text-[9px] font-black uppercase leading-tight text-center">{t('cash')}</span>
@@ -344,7 +344,7 @@ const Checkout: React.FC = () => {
                 <input 
                   required
                   type="text" 
-                  className="bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-sm focus:ring-1 focus:ring-[#e62e04] outline-none dark:text-white"
+                  className="bg-gray-50 dark:bg-slate-800 border-none rounded-xl p-3 text-sm focus:ring-1 focus:ring-primary outline-none dark:text-white"
                   placeholder="TRX12345678"
                   value={transactionId}
                   onChange={(e) => setTransactionId(e.target.value)}
@@ -376,7 +376,7 @@ const Checkout: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] font-bold text-gray-400">Qty: {item.quantity}</span>
                     {(item as any).selectedSize && (
-                      <span className="text-[10px] font-bold text-[#e62e04] uppercase">Size: {(item as any).selectedSize}</span>
+                      <span className="text-[10px] font-bold text-primary uppercase">Size: {(item as any).selectedSize}</span>
                     )}
                   </div>
                 </div>
@@ -397,19 +397,19 @@ const Checkout: React.FC = () => {
             {currentShipping > 0 ? (
               <span className="text-sm font-black text-gray-800 dark:text-white">৳{currentShipping.toLocaleString()}</span>
             ) : (
-              <span className="text-[10px] font-black text-[#e62e04] uppercase italic">{t('select_address')}</span>
+              <span className="text-[10px] font-black text-primary uppercase italic">{t('select_address')}</span>
             )}
           </div>
           <div className="flex justify-between items-center pt-3">
             <span className="text-sm font-black text-gray-800 dark:text-white uppercase">{t('total_payable')}</span>
-            <span className="text-xl font-black text-[#e62e04]">৳{totalPayable.toLocaleString()}</span>
+            <span className="text-xl font-black text-primary">৳{totalPayable.toLocaleString()}</span>
           </div>
         </div>
 
         <button 
           type="submit" 
           disabled={isProcessing || (!useSavedAddress && (!formData.district || !formData.thana))}
-          className="w-full bg-[#e62e04] text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 dark:shadow-none active:scale-[0.98] transition-all mt-2 text-sm disabled:opacity-50 disabled:grayscale relative overflow-hidden"
+          className="w-full bg-primary text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 dark:shadow-none active:scale-[0.98] transition-all mt-2 text-sm disabled:opacity-50 disabled:grayscale relative overflow-hidden"
         >
           {isProcessing ? (
             <div className="flex items-center justify-center gap-2">

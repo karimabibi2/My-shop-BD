@@ -47,7 +47,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetails, onBuy
       className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col hover:shadow-md transition-all relative group h-full rounded-xl overflow-hidden cursor-pointer"
     >
       {/* Discount Badge */}
-      <div className="absolute top-0 left-0 z-10 bg-[#e62e04] text-white text-[10px] font-black px-2 py-0.5 uppercase tracking-tighter">
+      <div className="absolute top-0 left-0 z-10 bg-primary text-white text-[10px] font-black px-2 py-0.5 uppercase tracking-tighter">
         -{discountPercent}% {t('off')}
       </div>
 

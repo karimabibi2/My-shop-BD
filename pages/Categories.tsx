@@ -42,7 +42,7 @@ const Categories: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {!isDataReady ? (
             <div className="flex flex-col items-center justify-center py-20 gap-4 bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-gray-200 dark:border-slate-800">
-              <div className="w-10 h-10 border-4 border-[#e62e04] border-t-transparent rounded-full animate-spin"></div>
+              <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
               <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Loading...</p>
             </div>
           ) : (
@@ -53,7 +53,7 @@ const Categories: React.FC = () => {
                 className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-gray-100 dark:border-slate-800 shadow-sm flex items-center justify-between group active:scale-[0.98] transition-all"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gray-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-[#e62e04] group-hover:bg-[#e62e04] group-hover:text-white transition-colors overflow-hidden">
+                  <div className="w-12 h-12 bg-gray-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors overflow-hidden">
                     {cat.image ? (
                       <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                     ) : (
@@ -65,7 +65,7 @@ const Categories: React.FC = () => {
                     <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">{t('explore_collection')}</span>
                   </div>
                 </div>
-                <ChevronRight size={18} className="text-gray-300 group-hover:text-[#e62e04] transition-colors" />
+                <ChevronRight size={18} className="text-gray-300 group-hover:text-primary transition-colors" />
               </button>
             ))
           )}

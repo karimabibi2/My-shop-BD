@@ -14,7 +14,7 @@ const Orders: React.FC = () => {
     return (
       <Layout>
         <div className="flex items-center justify-center py-20">
-          <div className="animate-spin text-[#e62e04]">
+          <div className="animate-spin text-primary">
             <Package size={40} />
           </div>
         </div>
@@ -33,7 +33,7 @@ const Orders: React.FC = () => {
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('sign_in_orders')}</h2>
             <p className="text-gray-500 dark:text-gray-400 text-sm">{t('track_history')}</p>
           </div>
-          <Link to="/profile" className="bg-[#e62e04] text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-red-100 dark:shadow-none active:scale-95 transition-all uppercase tracking-widest text-xs">
+          <Link to="/profile" className="bg-primary text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-red-100 dark:shadow-none active:scale-95 transition-all uppercase tracking-widest text-xs">
             {t('go_to_profile')}
           </Link>
         </div>
@@ -52,7 +52,7 @@ const Orders: React.FC = () => {
               <div key={order.id} className="bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 flex flex-col gap-4">
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gray-50 dark:bg-slate-800 text-[#e62e04] rounded-xl flex items-center justify-center border border-gray-100 dark:border-slate-700">
+                    <div className="w-10 h-10 bg-gray-50 dark:bg-slate-800 text-primary rounded-xl flex items-center justify-center border border-gray-100 dark:border-slate-700">
                       <Package size={20} />
                     </div>
                     <div>
@@ -92,7 +92,7 @@ const Orders: React.FC = () => {
                   <div className="flex flex-col gap-1">
                     <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">{t('delivery_details')}</span>
                     <p className="text-[10px] font-bold text-gray-800 dark:text-white uppercase">{order.customerName}</p>
-                    {order.phone && <p className="text-[10px] font-black text-[#e62e04]">{order.phone}</p>}
+                    {order.phone && <p className="text-[10px] font-black text-primary">{order.phone}</p>}
                     <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">{t('method')}: {order.paymentMethod || 'COD'}</p>
                     <p className="text-[10px] text-gray-500 dark:text-gray-400 italic mt-1 leading-tight">{order.address}</p>
                   </div>
@@ -114,7 +114,7 @@ const Orders: React.FC = () => {
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('no_orders')}</h2>
               <p className="text-gray-500 dark:text-gray-400 text-sm">{t('no_orders_desc')}</p>
             </div>
-            <Link to="/" className="bg-[#e62e04] text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-red-100 dark:shadow-none active:scale-95 transition-all uppercase tracking-widest text-xs">
+            <Link to="/" className="bg-primary text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-red-100 dark:shadow-none active:scale-95 transition-all uppercase tracking-widest text-xs">
               {t('start_sourcing')}
             </Link>
           </div>

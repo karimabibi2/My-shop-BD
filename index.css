@@ -1,19 +1,21 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
-  --color-primary: #f85606; /* Daraz Orange */
-  --color-primary-hover: #e62e04;
+  --color-primary: #e62e04;
+  --color-primary-hover: #cc2904;
   --color-secondary: #212121;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
-  --primary: #f85606;
-  --primary-hover: #e62e04;
+  --primary: #e62e04;
+  --primary-hover: #cc2904;
 }
 
 body {
-  @apply bg-gray-50 text-gray-900 font-sans;
+  @apply bg-gray-50 dark:bg-slate-950 text-gray-900 dark:text-gray-100 font-sans transition-colors duration-300;
 }
 
 /* Custom Utilities */

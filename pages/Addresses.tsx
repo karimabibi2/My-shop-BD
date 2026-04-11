@@ -15,7 +15,7 @@ const Addresses: React.FC = () => {
     return (
       <Layout>
         <div className="flex items-center justify-center py-20">
-          <MapPin className="animate-spin text-[#e62e04]" size={40} />
+          <MapPin className="animate-spin text-primary" size={40} />
         </div>
       </Layout>
     );
@@ -32,7 +32,7 @@ const Addresses: React.FC = () => {
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">Sign in to see addresses</h2>
             <p className="text-gray-500 dark:text-gray-400 text-sm">Manage your delivery locations</p>
           </div>
-          <button onClick={() => navigate('/profile')} className="bg-[#e62e04] text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-red-100 dark:shadow-none active:scale-95 transition-all uppercase tracking-widest text-xs">
+          <button onClick={() => navigate('/profile')} className="bg-primary text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-red-100 dark:shadow-none active:scale-95 transition-all uppercase tracking-widest text-xs">
             GO TO PROFILE
           </button>
         </div>
@@ -88,7 +88,7 @@ const Addresses: React.FC = () => {
           </div>
           <button 
             onClick={() => setShowAddForm(!showAddForm)}
-            className={`p-2 rounded-xl transition-all ${showAddForm ? 'bg-gray-100 dark:bg-slate-800 text-gray-500' : 'bg-[#e62e04] text-white shadow-lg shadow-red-100 dark:shadow-none'}`}
+            className={`p-2 rounded-xl transition-all ${showAddForm ? 'bg-gray-100 dark:bg-slate-800 text-gray-500' : 'bg-primary text-white shadow-lg shadow-red-100 dark:shadow-none'}`}
           >
             {showAddForm ? <ArrowLeft size={20} className="rotate-90" /> : <Plus size={20} />}
           </button>
@@ -107,7 +107,7 @@ const Addresses: React.FC = () => {
                     onClick={() => setFormData({...formData, label: l})}
                     className={`flex-1 py-2 px-3 rounded-lg text-[10px] font-black uppercase transition-all border ${
                       formData.label === l 
-                      ? 'bg-[#e62e04] text-white border-transparent' 
+                      ? 'bg-primary text-white border-transparent' 
                       : 'bg-gray-50 dark:bg-slate-800 text-gray-400 dark:text-gray-500 border-transparent'
                     }`}
                   >
@@ -125,7 +125,7 @@ const Addresses: React.FC = () => {
                   required
                   value={formData.fullName}
                   onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-                  className="w-full bg-gray-50 dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-xl py-3 px-4 focus:border-[#e62e04] focus:ring-0 text-xs dark:text-white transition-all"
+                  className="w-full bg-gray-50 dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-xl py-3 px-4 focus:border-primary focus:ring-0 text-xs dark:text-white transition-all"
                   placeholder="Name"
                 />
               </div>
@@ -136,7 +136,7 @@ const Addresses: React.FC = () => {
                   required
                   value={formData.phone}
                   onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                  className="w-full bg-gray-50 dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-xl py-3 px-4 focus:border-[#e62e04] focus:ring-0 text-xs dark:text-white transition-all"
+                  className="w-full bg-gray-50 dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-xl py-3 px-4 focus:border-primary focus:ring-0 text-xs dark:text-white transition-all"
                   placeholder="017XXXXXXXX"
                 />
               </div>
@@ -149,7 +149,7 @@ const Addresses: React.FC = () => {
                   required
                   value={formData.district}
                   onChange={handleDistrictChange}
-                  className="w-full bg-gray-50 dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-xl py-3 px-4 focus:border-[#e62e04] focus:ring-0 text-xs dark:text-white appearance-none transition-all"
+                  className="w-full bg-gray-50 dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-xl py-3 px-4 focus:border-primary focus:ring-0 text-xs dark:text-white appearance-none transition-all"
                 >
                   <option value="">Select District</option>
                   {districts.map(d => <option key={d} value={d}>{d}</option>)}
@@ -166,7 +166,7 @@ const Addresses: React.FC = () => {
                   disabled={!formData.district}
                   value={formData.thana}
                   onChange={(e) => setFormData({...formData, thana: e.target.value})}
-                  className="w-full bg-gray-50 dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-xl py-3 px-4 focus:border-[#e62e04] focus:ring-0 text-xs dark:text-white appearance-none transition-all disabled:opacity-50"
+                  className="w-full bg-gray-50 dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-xl py-3 px-4 focus:border-primary focus:ring-0 text-xs dark:text-white appearance-none transition-all disabled:opacity-50"
                 >
                   <option value="">Select Thana</option>
                   {thanas.map(t => <option key={t} value={t}>{t}</option>)}
@@ -182,12 +182,12 @@ const Addresses: React.FC = () => {
                 rows={2}
                 value={formData.details}
                 onChange={(e) => setFormData({...formData, details: e.target.value})}
-                className="w-full bg-gray-50 dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-xl py-3 px-4 focus:border-[#e62e04] focus:ring-0 text-xs dark:text-white transition-all"
+                className="w-full bg-gray-50 dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-xl py-3 px-4 focus:border-primary focus:ring-0 text-xs dark:text-white transition-all"
                 placeholder="House #, Road #, Area..."
               />
             </div>
 
-            <button type="submit" className="w-full bg-[#e62e04] text-white py-3.5 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 dark:shadow-none active:scale-95 transition-all text-[11px] mt-2">
+            <button type="submit" className="w-full bg-primary text-white py-3.5 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 dark:shadow-none active:scale-95 transition-all text-[11px] mt-2">
               Save Delivery Address
             </button>
           </form>
@@ -197,12 +197,12 @@ const Addresses: React.FC = () => {
         <div className="flex flex-col gap-3 pb-10">
           {addresses.map(addr => (
             <div key={addr.id} className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 p-4 rounded-2xl shadow-sm flex items-start gap-4 group transition-all hover:border-gray-200 dark:hover:border-slate-700">
-              <div className="w-10 h-10 bg-gray-50 dark:bg-slate-800 rounded-xl flex items-center justify-center text-[#e62e04] flex-shrink-0">
+              <div className="w-10 h-10 bg-gray-50 dark:bg-slate-800 rounded-xl flex items-center justify-center text-primary flex-shrink-0">
                 {addr.label === 'Home' ? <Home size={20} /> : addr.label === 'Office' ? <Building size={20} /> : <MapPin size={20} />}
               </div>
               <div className="flex-1 flex flex-col gap-0.5">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-black text-[#e62e04] uppercase tracking-widest">{addr.label}</span>
+                  <span className="text-[10px] font-black text-primary uppercase tracking-widest">{addr.label}</span>
                   <div className="w-1 h-1 bg-gray-300 rounded-full"></div>
                   <span className="text-[11px] font-bold text-gray-800 dark:text-white">{addr.fullName}</span>
                 </div>
@@ -225,7 +225,7 @@ const Addresses: React.FC = () => {
                 <MapPin size={32} />
               </div>
               <p className="text-sm font-bold text-gray-400 dark:text-gray-500">No delivery addresses saved yet.</p>
-              <button onClick={() => setShowAddForm(true)} className="mt-4 text-[#e62e04] text-[10px] font-black uppercase tracking-widest border border-red-100 dark:border-red-900 px-6 py-2 rounded-full hover:bg-red-50 dark:hover:bg-red-950/20">
+              <button onClick={() => setShowAddForm(true)} className="mt-4 text-primary text-[10px] font-black uppercase tracking-widest border border-red-100 dark:border-red-900 px-6 py-2 rounded-full hover:bg-red-50 dark:hover:bg-red-950/20">
                 Add Address
               </button>
             </div>

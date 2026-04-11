@@ -24,7 +24,7 @@ const LandingPage = lazy(() => import('./pages/LandingPage'));
 // Loading fallback
 const LoadingFallback = () => (
   <div className="min-h-screen bg-white dark:bg-slate-950 flex flex-col items-center justify-center gap-4">
-    <div className="w-12 h-12 border-4 border-[#e62e04] border-t-transparent rounded-full animate-spin"></div>
+    <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
     <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 animate-pulse">Loading MY shopBD...</p>
   </div>
 );

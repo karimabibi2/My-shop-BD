@@ -21,7 +21,7 @@ const Cart: React.FC = () => {
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('cart_empty')}</h2>
             <p className="text-gray-500 dark:text-gray-400 text-sm">{t('cart_empty_desc')}</p>
           </div>
-          <Link to="/" className="bg-[#e62e04] text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-red-100 dark:shadow-none active:scale-95 transition-all uppercase tracking-widest text-xs">
+          <Link to="/" className="bg-primary text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-red-100 dark:shadow-none active:scale-95 transition-all uppercase tracking-widest text-xs">
             {t('start_shopping')}
           </Link>
         </div>
@@ -51,14 +51,14 @@ const Cart: React.FC = () => {
               </div>
               <div className="flex-1 flex flex-col gap-0.5">
                 <h4 className="font-bold text-gray-800 dark:text-gray-200 text-[12px] line-clamp-1">{item.name}</h4>
-                <p className="text-[#e62e04] font-black text-sm">৳{item.price.toLocaleString()}</p>
+                <p className="text-primary font-black text-sm">৳{item.price.toLocaleString()}</p>
                 <div className="flex items-center justify-between mt-1">
                   <div className="flex items-center gap-3 bg-gray-50 dark:bg-slate-800 rounded-lg px-2 py-1 border border-gray-100 dark:border-slate-700">
-                    <button onClick={() => updateQuantity(item.id, -1)} className="p-0.5 hover:text-[#e62e04] dark:text-gray-400">
+                    <button onClick={() => updateQuantity(item.id, -1)} className="p-0.5 hover:text-primary dark:text-gray-400">
                       <Minus size={14} />
                     </button>
                     <span className="text-xs font-black w-4 text-center dark:text-white">{item.quantity}</span>
-                    <button onClick={() => updateQuantity(item.id, 1)} className="p-0.5 hover:text-[#e62e04] dark:text-gray-400">
+                    <button onClick={() => updateQuantity(item.id, 1)} className="p-0.5 hover:text-primary dark:text-gray-400">
                       <Plus size={14} />
                     </button>
                   </div>
@@ -78,14 +78,14 @@ const Cart: React.FC = () => {
           </div>
           <div className="flex justify-between items-center text-[11px] uppercase tracking-wider">
             <span className="text-gray-500 dark:text-gray-400 font-bold">{t('delivery')}</span>
-            <span className="font-black text-[#e62e04] text-[9px]">{t('calc_at_checkout')}</span>
+            <span className="font-black text-primary text-[9px]">{t('calc_at_checkout')}</span>
           </div>
           <div className="h-[1px] bg-gray-50 dark:bg-slate-800 my-1"></div>
           <div className="flex justify-between items-center">
             <span className="text-xs font-black text-gray-800 dark:text-white uppercase tracking-[0.2em]">{t('total')}</span>
-            <span className="text-xl font-black text-[#e62e04]">৳{totalPrice.toLocaleString()}</span>
+            <span className="text-xl font-black text-primary">৳{totalPrice.toLocaleString()}</span>
           </div>
-          <Link to="/checkout" className="w-full bg-[#e62e04] text-white text-center py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 dark:shadow-none mt-2 active:scale-95 transition-all text-sm">
+          <Link to="/checkout" className="w-full bg-primary text-white text-center py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 dark:shadow-none mt-2 active:scale-95 transition-all text-sm">
             {t('checkout_now')}
           </Link>
         </div>

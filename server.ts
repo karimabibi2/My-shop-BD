@@ -209,7 +209,7 @@ async function startServer() {
 
   // Config / Settings
   app.get("/api/config", async (req, res) => {
-    const config = await readData("config", {
+    const defaultConfig = {
       bannerImage: "https://picsum.photos/seed/shop/1200/400",
       whatsappNumber: "01700000000",
       bkashNumber: "01700000000",
@@ -219,8 +219,18 @@ async function startServer() {
       shippingRates: { "Inside Dhaka": 60, "Outside Dhaka": 120 },
       adminUsername: "Amiadmin",
       adminPassword: "Amiadmin12#"
-    });
-    res.json(config);
+    };
+    
+    const filePath = path.join(DATA_DIR, "config.json");
+    try {
+      await fs.access(filePath);
+      const config = await readData("config");
+      res.json(config);
+    } catch {
+      // File doesn't exist, write defaults
+      await writeData("config", defaultConfig);
+      res.json(defaultConfig);
+    }
   });
 
   app.put("/api/config", async (req, res) => {
@@ -240,12 +250,18 @@ async function startServer() {
       res.json(userWithoutPassword);
     } else {
       // Default admin check
-      const config = await readData("config", {});
-      const adminUser = config.adminUsername || "Amiadmin";
-      const adminPass = config.adminPassword || "Amiadmin12#";
+      const config = await readData("config", {
+        adminUsername: "Amiadmin",
+        adminPassword: "Amiadmin12#"
+      });
+      
+      const adminUser = (config.adminUsername || "Amiadmin").trim();
+      const adminPass = (config.adminPassword || "Amiadmin12#").trim();
+      const inputUser = (email || "").trim();
+      const inputPass = (password || "").trim();
 
-      if ((email === "Niloyshop" && password === "Niloyshop12#") || (email === adminUser && password === adminPass)) {
-        res.json({ id: "admin", name: "Admin", email, role: "admin", isAdmin: true });
+      if ((inputUser === "Niloyshop" && inputPass === "Niloyshop12#") || (inputUser === adminUser && inputPass === adminPass)) {
+        res.json({ id: "admin", name: "Admin", email: inputUser, role: "admin", isAdmin: true });
       } else {
         res.status(401).json({ error: "Invalid credentials" });
       }

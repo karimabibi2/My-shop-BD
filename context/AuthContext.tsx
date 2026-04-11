@@ -96,8 +96,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [facebookLink, setFacebookLink] = useState<string>('https://facebook.com');
   const [youtubeLink, setYoutubeLink] = useState<string>('https://youtube.com');
   const [tiktokLink, setTiktokLink] = useState<string>('https://tiktok.com');
-  const [adminUsername, setAdminUsername] = useState<string>('Niloyshop');
-  const [adminPassword, setAdminPassword] = useState<string>('Niloyshop12#');
+  const [adminUsername, setAdminUsername] = useState<string>('Amiadmin');
+  const [adminPassword, setAdminPassword] = useState<string>('Amiadmin12#');
   const [globalOrderPolicy, setGlobalOrderPolicy] = useState<string>('Cash on delivery available all over Bangladesh.\nDelivery within 24-48 hours inside Dhaka.\n7 days easy return policy if product is damaged.\nCheck the product before paying the delivery man.');
   const [trackingConfig, setTrackingConfig] = useState<TrackingConfig>({
     fbPixelId: '',
@@ -124,30 +124,41 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // Initial Data Fetch
   useEffect(() => {
     const fetchData = async () => {
+      const timeoutId = setTimeout(() => {
+        setIsDataReady(true);
+        setIsAuthReady(true);
+      }, 5000); // 5 second safety timeout
+
       try {
         const [productsRes, categoriesRes, configRes, ordersRes] = await Promise.all([
-          fetch('/api/products'),
-          fetch('/api/categories'),
-          fetch('/api/config'),
-          fetch('/api/orders')
+          fetch('/api/products').catch(() => ({ json: () => [] })),
+          fetch('/api/categories').catch(() => ({ json: () => [] })),
+          fetch('/api/config').catch(() => ({ json: () => ({}) })),
+          fetch('/api/orders').catch(() => ({ json: () => [] }))
         ]);
 
-        let products = await productsRes.json();
-        let categoriesData = await categoriesRes.json();
-        const config = await configRes.json();
-        const ordersData = await ordersRes.json();
+        let products = await (productsRes as Response).json().catch(() => []);
+        let categoriesData = await (categoriesRes as Response).json().catch(() => []);
+        const config = await (configRes as Response).json().catch(() => ({}));
+        const ordersData = await (ordersRes as Response).json().catch(() => []);
 
         if (products.length === 0) {
-          await fetch('/api/seed', { method: 'POST' });
-          const pRes = await fetch('/api/products');
-          const cRes = await fetch('/api/categories');
-          products = await pRes.json();
-          categoriesData = await cRes.json();
+          try {
+            await fetch('/api/seed', { method: 'POST' });
+            const [pRes, cRes] = await Promise.all([
+              fetch('/api/products'),
+              fetch('/api/categories')
+            ]);
+            products = await pRes.json();
+            categoriesData = await cRes.json();
+          } catch (seedErr) {
+            console.error("Seeding failed:", seedErr);
+          }
         }
 
-        setAllProducts(products);
-        setCategories(categoriesData);
-        setOrders(ordersData);
+        setAllProducts(products || []);
+        setCategories(categoriesData || []);
+        setOrders(ordersData || []);
 
         if (config) {
           if (config.bannerImage) setBannerImage(config.bannerImage);
@@ -169,11 +180,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           if (config.isPromoBannerEnabled !== undefined) setIsPromoBannerEnabled(config.isPromoBannerEnabled);
           if (config.isDarkModeDefault !== undefined) setIsDarkModeDefault(config.isDarkModeDefault);
         }
-
-        setIsDataReady(true);
-        setIsAuthReady(true);
       } catch (err) {
         console.error("Error fetching initial data:", err);
+      } finally {
+        clearTimeout(timeoutId);
+        setIsDataReady(true);
         setIsAuthReady(true);
       }
     };
@@ -183,7 +194,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // Check for logged in user in localStorage
     const savedUser = localStorage.getItem('shopbd_user');
     if (savedUser) {
-      setUser(JSON.parse(savedUser));
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (e) {
+        localStorage.removeItem('shopbd_user');
+      }
     }
   }, []);
 

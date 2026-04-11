@@ -323,7 +323,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             >
               {t('visit_live_dashboard')}
             </a>
-            <NavLink to="/profile" className="text-[10px] font-black text-gray-400 hover:text-[#e62e04] uppercase tracking-widest transition-colors">
+            <NavLink to="/profile" className="text-[10px] font-black text-gray-400 hover:text-primary uppercase tracking-widest transition-colors">
               {t('account')}
             </NavLink>
           </div>
@@ -332,7 +332,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-slate-800 px-1 py-2 flex justify-around items-center z-[100] shadow-[0_-4px_20px_rgba(0,0,0,0.1)] transition-all duration-300 pb-safe">
-        <NavLink to="/" onClick={() => setActiveCategory('All')} className={({ isActive }) => `flex flex-col items-center gap-1 px-2 transition-all ${isActive && !isDrawerOpen ? 'text-[#f85606]' : 'text-gray-400 dark:text-gray-500'}`}>
+        <NavLink to="/" onClick={() => setActiveCategory('All')} className={({ isActive }) => `flex flex-col items-center gap-1 px-2 transition-all ${isActive && !isDrawerOpen ? 'text-primary' : 'text-gray-400 dark:text-gray-500'}`}>
           {({ isActive }) => (
             <>
               <Home size={22} strokeWidth={isActive && !isDrawerOpen ? 2.5 : 2} />
@@ -343,13 +343,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         
         <button 
           onClick={toggleCategoryDrawer}
-          className={`flex flex-col items-center gap-1 px-2 transition-all ${isDrawerOpen ? 'text-[#f85606]' : 'text-gray-400 dark:text-gray-500'}`}
+          className={`flex flex-col items-center gap-1 px-2 transition-all ${isDrawerOpen ? 'text-primary' : 'text-gray-400 dark:text-gray-500'}`}
         >
           <Grid size={22} strokeWidth={isDrawerOpen ? 2.5 : 2} />
           <span className="text-[10px] font-bold">{t('category')}</span>
         </button>
 
-        <NavLink to="/orders" className={({ isActive }) => `flex flex-col items-center gap-1 px-2 transition-all ${isActive ? 'text-[#f85606]' : 'text-gray-400 dark:text-gray-500'}`}>
+        <NavLink to="/orders" className={({ isActive }) => `flex flex-col items-center gap-1 px-2 transition-all ${isActive ? 'text-primary' : 'text-gray-400 dark:text-gray-500'}`}>
           {({ isActive }) => (
             <>
               <Package size={22} strokeWidth={isActive ? 2.5 : 2} />
@@ -358,13 +358,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           )}
         </NavLink>
 
-        <NavLink to="/cart" className={({ isActive }) => `flex flex-col items-center gap-1 px-2 relative transition-all ${isActive ? 'text-[#f85606]' : 'text-gray-400 dark:text-gray-500'}`}>
+        <NavLink to="/cart" className={({ isActive }) => `flex flex-col items-center gap-1 px-2 relative transition-all ${isActive ? 'text-primary' : 'text-gray-400 dark:text-gray-500'}`}>
           {({ isActive }) => (
             <>
               <div className="relative">
                 <ShoppingCart size={22} strokeWidth={isActive ? 2.5 : 2} />
                 {totalItems > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 bg-[#f85606] text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center font-black border border-white dark:border-slate-900">
+                  <span className="absolute -top-1.5 -right-1.5 bg-primary text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center font-black border border-white dark:border-slate-900">
                     {totalItems}
                   </span>
                 )}

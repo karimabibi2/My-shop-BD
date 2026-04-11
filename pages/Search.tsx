@@ -53,11 +53,11 @@ const Search: React.FC = () => {
             autoFocus
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-[#e62e04] text-sm shadow-sm dark:text-white transition-all"
+            className="w-full bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-primary text-sm shadow-sm dark:text-white transition-all"
           />
           <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-600" size={20} />
           {isSearching && (
-            <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 text-[#e62e04] animate-spin" size={20} />
+            <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 text-primary animate-spin" size={20} />
           )}
         </div>
 

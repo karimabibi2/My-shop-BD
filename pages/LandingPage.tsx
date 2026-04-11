@@ -169,7 +169,7 @@ const LandingPage: React.FC = () => {
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"
               />
-              <div className="absolute top-4 left-4 bg-[#e62e04] text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">
+              <div className="absolute top-4 left-4 bg-primary text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">
                 HOT DEAL
               </div>
             </div>
@@ -189,7 +189,7 @@ const LandingPage: React.FC = () => {
                   <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">(48 Reviews)</span>
                 </div>
                 <div className="flex items-baseline gap-4">
-                  <span className="text-4xl font-black text-[#e62e04]">৳{featuredProduct.price}</span>
+                  <span className="text-4xl font-black text-primary">৳{featuredProduct.price}</span>
                   <span className="text-lg text-gray-400 line-through font-bold">৳{oldPrice}</span>
                 </div>
               </div>
@@ -204,7 +204,7 @@ const LandingPage: React.FC = () => {
                       onClick={() => setSelectedSize(size)}
                       className={`w-12 h-12 rounded-xl flex items-center justify-center font-black text-sm transition-all border-2 ${
                         selectedSize === size
-                          ? 'border-[#e62e04] bg-[#e62e04] text-white shadow-lg shadow-red-100'
+                          ? 'border-primary bg-primary text-white shadow-lg shadow-red-100'
                           : 'border-gray-100 dark:border-slate-800 bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-gray-400 hover:border-gray-200'
                       }`}
                     >
@@ -213,7 +213,7 @@ const LandingPage: React.FC = () => {
                   ))}
                 </div>
                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                  Selected: <span className="text-[#e62e04]">{selectedSize || 'None'}</span>
+                  Selected: <span className="text-primary">{selectedSize || 'None'}</span>
                 </p>
               </div>
 
@@ -221,7 +221,7 @@ const LandingPage: React.FC = () => {
               <div className="flex flex-col gap-3">
                 <button 
                   onClick={handleBuyNow}
-                  className="w-full bg-[#e62e04] text-white py-4 rounded-2xl flex flex-col justify-center items-center gap-0.5 font-black text-xs uppercase tracking-widest shadow-lg shadow-red-100 dark:shadow-none active:scale-95 transition-all"
+                  className="w-full bg-primary text-white py-4 rounded-2xl flex flex-col justify-center items-center gap-0.5 font-black text-xs uppercase tracking-widest shadow-lg shadow-red-100 dark:shadow-none active:scale-95 transition-all"
                 >
                   <div className="flex items-center gap-2">
                     <Zap size={18} fill="currentColor" />
@@ -241,14 +241,14 @@ const LandingPage: React.FC = () => {
               {/* Details Tabs */}
               <div className="flex flex-col gap-6 mt-4">
                 <section className="bg-blue-50 dark:bg-blue-950/20 p-6 rounded-[2rem] border border-blue-100 dark:border-blue-900/30 shadow-sm">
-                  <h3 className="text-sm font-black text-blue-800 dark:text-blue-300 uppercase tracking-widest mb-3 border-l-4 border-[#e62e04] pl-3">Description</h3>
+                  <h3 className="text-sm font-black text-blue-800 dark:text-blue-300 uppercase tracking-widest mb-3 border-l-4 border-primary pl-3">Description</h3>
                   <p className="text-sm text-blue-700 dark:text-blue-400 leading-relaxed font-medium">
                     {featuredProduct.description}
                   </p>
                 </section>
 
                 <section className="bg-amber-50 dark:bg-amber-950/20 p-6 rounded-[2rem] border border-amber-100 dark:border-amber-900/30 shadow-sm">
-                  <h3 className="text-sm font-black text-amber-800 dark:text-amber-300 uppercase tracking-widest mb-3 border-l-4 border-[#e62e04] pl-3">Order Policy</h3>
+                  <h3 className="text-sm font-black text-amber-800 dark:text-amber-300 uppercase tracking-widest mb-3 border-l-4 border-primary pl-3">Order Policy</h3>
                   <div className="flex flex-col gap-2">
                     {(featuredProduct.orderPolicy || '').split('\n').map((line, i) => (
                       <p key={i} className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed font-bold">
@@ -259,7 +259,7 @@ const LandingPage: React.FC = () => {
                 </section>
 
                 <section className="bg-purple-50 dark:bg-purple-950/20 p-6 rounded-[2rem] border border-purple-100 dark:border-purple-900/30 shadow-sm">
-                  <h3 className="text-sm font-black text-purple-800 dark:text-purple-300 uppercase tracking-widest mb-6 border-l-4 border-[#e62e04] pl-3">Customer Reviews</h3>
+                  <h3 className="text-sm font-black text-purple-800 dark:text-purple-300 uppercase tracking-widest mb-6 border-l-4 border-primary pl-3">Customer Reviews</h3>
                   <div className="grid grid-cols-1 gap-4">
                     {reviews.map((review, index) => (
                       <div key={index} className="bg-white/60 dark:bg-slate-900/50 p-4 rounded-2xl border border-purple-100 dark:border-purple-900/30 flex gap-4">
@@ -337,7 +337,7 @@ const LandingPage: React.FC = () => {
                 {/* Trust Features */}
                 <div className="grid grid-cols-2 gap-4 mt-8">
                   <div className="flex flex-col items-center text-center p-4 bg-gray-50 dark:bg-slate-800/30 rounded-2xl border border-gray-100 dark:border-slate-800">
-                    <div className="w-10 h-10 bg-red-50 dark:bg-red-950/20 text-[#e62e04] rounded-full flex items-center justify-center mb-3">
+                    <div className="w-10 h-10 bg-red-50 dark:bg-red-950/20 text-primary rounded-full flex items-center justify-center mb-3">
                       <Truck size={20} />
                     </div>
                     <h5 className="text-[10px] font-black uppercase tracking-widest text-gray-800 dark:text-white mb-1">Fast Delivery</h5>
@@ -395,7 +395,7 @@ const LandingPage: React.FC = () => {
                 </section>
 
                 {/* Final CTA */}
-                <div className="mt-12 mb-8 p-8 bg-[#e62e04] rounded-[2.5rem] text-center shadow-2xl shadow-red-200 dark:shadow-none relative overflow-hidden">
+                <div className="mt-12 mb-8 p-8 bg-primary rounded-[2.5rem] text-center shadow-2xl shadow-red-200 dark:shadow-none relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
                   <div className="absolute bottom-0 left-0 w-24 h-24 bg-black/10 rounded-full -ml-12 -mb-12 blur-xl"></div>
                   
@@ -404,7 +404,7 @@ const LandingPage: React.FC = () => {
                   
                   <button 
                     onClick={handleBuyNow}
-                    className="w-full bg-white text-[#e62e04] py-4 rounded-2xl flex flex-col justify-center items-center gap-0.5 font-black text-sm uppercase tracking-[0.2em] shadow-xl active:scale-95 transition-all relative z-10"
+                    className="w-full bg-white text-primary py-4 rounded-2xl flex flex-col justify-center items-center gap-0.5 font-black text-sm uppercase tracking-[0.2em] shadow-xl active:scale-95 transition-all relative z-10"
                   >
                     <div className="flex items-center gap-2">
                       <Zap size={20} fill="currentColor" />

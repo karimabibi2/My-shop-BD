@@ -56,7 +56,7 @@ const Home: React.FC = () => {
               placeholder={t('search')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg py-2.5 pl-4 pr-10 focus:border-[#e62e04] dark:focus:border-[#e62e04] focus:ring-0 text-sm transition-all shadow-sm dark:text-white"
+              className="w-full bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-lg py-2.5 pl-4 pr-10 focus:border-primary dark:focus:border-primary focus:ring-0 text-sm transition-all shadow-sm dark:text-white"
             />
             {searchQuery ? (
               <button 
@@ -73,7 +73,7 @@ const Home: React.FC = () => {
           </div>
           <button 
             onClick={() => setIsDrawerOpen(true)}
-            className="bg-[#e62e04] text-white p-2.5 rounded-lg flex items-center justify-center shadow-md shadow-red-100 dark:shadow-none active:scale-95 transition-all"
+            className="bg-primary text-white p-2.5 rounded-lg flex items-center justify-center shadow-md shadow-red-100 dark:shadow-none active:scale-95 transition-all"
           >
             <SlidersHorizontal size={20} />
           </button>
@@ -95,7 +95,7 @@ const Home: React.FC = () => {
               <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-80 mb-1">{t('premium_collection')}</span>
               <h2 className="text-2xl font-black italic tracking-tighter leading-none mb-2 text-white">MY shopBD</h2>
               <div className="flex items-center gap-2">
-                <span className="bg-white text-[#e62e04] text-[9px] font-bold px-2 py-0.5 rounded-full uppercase">{t('best_prices')}</span>
+                <span className="bg-white text-primary text-[9px] font-bold px-2 py-0.5 rounded-full uppercase">{t('best_prices')}</span>
               </div>
             </div>
           </div>
@@ -108,7 +108,7 @@ const Home: React.FC = () => {
               <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest whitespace-nowrap">{t('filter')}</span>
               <div className="flex gap-1 overflow-x-auto no-scrollbar">
                 {activeCategory !== 'All' && (
-                  <span className="bg-red-50 dark:bg-red-950/30 text-[#e62e04] text-[10px] font-black px-2 py-0.5 rounded-md border border-red-100 dark:border-red-900 uppercase whitespace-nowrap">
+                  <span className="bg-red-50 dark:bg-red-950/30 text-primary text-[10px] font-black px-2 py-0.5 rounded-md border border-red-100 dark:border-red-900 uppercase whitespace-nowrap">
                     {activeCategory}
                   </span>
                 )}
@@ -121,7 +121,7 @@ const Home: React.FC = () => {
             </div>
             <button 
               onClick={() => { setActiveCategory('All'); setSearchQuery(''); }} 
-              className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase hover:text-[#e62e04] ml-2"
+              className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase hover:text-primary ml-2"
             >
               {t('clear')}
             </button>
@@ -152,7 +152,7 @@ const Home: React.FC = () => {
             <div className="col-span-2 text-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-gray-200 dark:border-slate-800">
               {!isDataReady ? (
                 <div className="flex flex-col items-center gap-4">
-                  <div className="w-10 h-10 border-4 border-[#e62e04] border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
                   <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Loading...</p>
                 </div>
               ) : (
@@ -163,7 +163,7 @@ const Home: React.FC = () => {
                   <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{t('no_items_matched')}</p>
                   <button 
                     onClick={() => { setActiveCategory('All'); setSearchQuery(''); }} 
-                    className="mt-4 text-[#e62e04] text-[10px] font-black uppercase tracking-widest border border-red-100 dark:border-red-900 px-4 py-2 rounded-full hover:bg-red-50 dark:hover:bg-red-950/20"
+                    className="mt-4 text-primary text-[10px] font-black uppercase tracking-widest border border-red-100 dark:border-red-900 px-4 py-2 rounded-full hover:bg-red-50 dark:hover:bg-red-950/20"
                   >
                     {t('reset_filter')}
                   </button>
@@ -178,19 +178,19 @@ const Home: React.FC = () => {
           <div className="flex flex-col gap-10 pt-6 pb-10 border-t border-gray-100 dark:border-slate-800">
             <div className="text-center mb-2">
               <h2 className="text-lg font-black text-gray-900 dark:text-white uppercase tracking-[0.2em] mb-1">{t('shop_by_category')}</h2>
-              <div className="w-12 h-1 bg-[#e62e04] mx-auto rounded-full"></div>
+              <div className="w-12 h-1 bg-primary mx-auto rounded-full"></div>
             </div>
             
             {categorizedProducts.map(group => (
               <div key={group.name} className="flex flex-col gap-3">
                 <div className="flex justify-between items-center px-1">
                   <h3 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-widest flex items-center gap-2">
-                    <span className="w-1 h-4 bg-[#e62e04] rounded-full"></span>
+                    <span className="w-1 h-4 bg-primary rounded-full"></span>
                     {group.name}
                   </h3>
                   <button 
                     onClick={() => setActiveCategory(group.name)}
-                    className="text-[10px] font-black text-[#e62e04] uppercase tracking-widest hover:underline"
+                    className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline"
                   >
                     {t('view_all')}
                   </button>

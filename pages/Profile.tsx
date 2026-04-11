@@ -118,7 +118,7 @@ const Profile: React.FC = () => {
     return (
       <Layout>
         <div className="flex items-center justify-center py-20">
-          <RefreshCw className="animate-spin text-[#e62e04]" size={40} />
+          <RefreshCw className="animate-spin text-primary" size={40} />
         </div>
       </Layout>
     );
@@ -144,7 +144,7 @@ const Profile: React.FC = () => {
                 onClick={() => resetForm('login')}
                 className={`flex-1 py-4 text-[11px] font-black uppercase tracking-widest transition-all ${
                   activeTab === 'login' 
-                  ? 'text-[#e62e04] border-b-2 border-[#e62e04]' 
+                  ? 'text-primary border-b-2 border-primary' 
                   : 'text-gray-400 dark:text-gray-500 hover:text-gray-600'
                 }`}
               >
@@ -154,7 +154,7 @@ const Profile: React.FC = () => {
                 onClick={() => resetForm('signup')}
                 className={`flex-1 py-4 text-[11px] font-black uppercase tracking-widest transition-all ${
                   activeTab === 'signup' 
-                  ? 'text-[#e62e04] border-b-2 border-[#e62e04]' 
+                  ? 'text-primary border-b-2 border-primary' 
                   : 'text-gray-400 dark:text-gray-500 hover:text-gray-600'
                 }`}
               >
@@ -185,7 +185,7 @@ const Profile: React.FC = () => {
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full bg-gray-50 dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-xl py-3.5 pl-11 pr-4 focus:border-[#e62e04] focus:ring-0 text-sm dark:text-white transition-all"
+                      className="w-full bg-gray-50 dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-xl py-3.5 pl-11 pr-4 focus:border-primary focus:ring-0 text-sm dark:text-white transition-all"
                       placeholder="example@gmail.com"
                     />
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
@@ -201,7 +201,7 @@ const Profile: React.FC = () => {
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full bg-gray-50 dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-xl py-3.5 pl-11 pr-4 focus:border-[#e62e04] focus:ring-0 text-sm dark:text-white transition-all"
+                      className="w-full bg-gray-50 dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-xl py-3.5 pl-11 pr-4 focus:border-primary focus:ring-0 text-sm dark:text-white transition-all"
                       placeholder="••••••••"
                     />
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
@@ -214,7 +214,7 @@ const Profile: React.FC = () => {
                       type="button" 
                       onClick={handleForgotPassword}
                       disabled={isLoading}
-                      className="text-[10px] font-bold text-[#e62e04] hover:underline uppercase tracking-wider disabled:opacity-50"
+                      className="text-[10px] font-bold text-primary hover:underline uppercase tracking-wider disabled:opacity-50"
                     >
                       {t('forgot_password')}
                     </button>
@@ -225,7 +225,7 @@ const Profile: React.FC = () => {
               <button 
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-[#e62e04] text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 dark:shadow-none active:scale-95 transition-all text-sm mt-2 flex items-center justify-center gap-3 disabled:opacity-70"
+                className="w-full bg-primary text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 dark:shadow-none active:scale-95 transition-all text-sm mt-2 flex items-center justify-center gap-3 disabled:opacity-70"
               >
                 {isLoading ? (
                   <RefreshCw className="animate-spin" size={20} />
@@ -286,7 +286,7 @@ const Profile: React.FC = () => {
                 setNewAvatar(user.avatar);
                 setIsEditing(true);
               }}
-              className="mt-1 text-[9px] font-black text-[#e62e04] uppercase tracking-widest hover:underline"
+              className="mt-1 text-[9px] font-black text-primary uppercase tracking-widest hover:underline"
             >
               {t('edit_profile')}
             </button>
@@ -302,7 +302,7 @@ const Profile: React.FC = () => {
             <h4 className="text-[10px] font-black text-red-500 dark:text-red-400 uppercase tracking-[0.2em] ml-1 mb-1">{t('administrative_access')}</h4>
             <button 
               onClick={() => navigate('/admin')}
-              className="flex items-center justify-between p-5 bg-gradient-to-r from-[#e62e04] to-red-500 text-white rounded-2xl shadow-lg shadow-red-100 dark:shadow-none hover:scale-[1.02] transition-all border border-red-400"
+              className="flex items-center justify-between p-5 bg-gradient-to-r from-primary to-red-500 text-white rounded-2xl shadow-lg shadow-red-100 dark:shadow-none hover:scale-[1.02] transition-all border border-red-400"
             >
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-white/20 backdrop-blur-md text-white rounded-xl flex items-center justify-center border border-white/30">
@@ -320,7 +320,7 @@ const Profile: React.FC = () => {
               href="https://my-shop-bd.vercel.app/#/admin" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-3 w-full py-4 bg-white dark:bg-slate-900 border-2 border-red-50 dark:border-red-950/20 rounded-2xl text-[11px] font-black text-[#e62e04] uppercase tracking-[0.2em] shadow-sm hover:bg-red-50 dark:hover:bg-red-950/20 transition-all"
+              className="flex items-center justify-center gap-3 w-full py-4 bg-white dark:bg-slate-900 border-2 border-red-50 dark:border-red-950/20 rounded-2xl text-[11px] font-black text-primary uppercase tracking-[0.2em] shadow-sm hover:bg-red-50 dark:hover:bg-red-950/20 transition-all"
             >
               <Globe size={18} />
               {t('visit_live_dashboard')}
@@ -338,7 +338,7 @@ const Profile: React.FC = () => {
               className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-xl shadow-sm hover:bg-gray-50 dark:hover:bg-slate-800 transition-all border border-gray-100 dark:border-slate-800"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-red-50 dark:bg-red-950/20 text-[#e62e04] rounded-xl flex items-center justify-center border border-red-100 dark:border-red-900/30">
+                <div className="w-10 h-10 bg-red-50 dark:bg-red-950/20 text-primary rounded-xl flex items-center justify-center border border-red-100 dark:border-red-900/30">
                   <ShieldCheck size={20} />
                 </div>
                 <div className="flex flex-col items-start">
@@ -355,7 +355,7 @@ const Profile: React.FC = () => {
             className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-xl shadow-sm hover:bg-gray-50 dark:hover:bg-slate-800 transition-all border border-gray-100 dark:border-slate-800"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-red-50 dark:bg-red-950/20 text-[#e62e04] rounded-xl flex items-center justify-center border border-red-100 dark:border-red-900/30">
+              <div className="w-10 h-10 bg-red-50 dark:bg-red-950/20 text-primary rounded-xl flex items-center justify-center border border-red-100 dark:border-red-900/30">
                 <Package size={20} />
               </div>
               <div className="flex flex-col items-start">
@@ -420,7 +420,7 @@ const Profile: React.FC = () => {
           <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl p-6 animate-in zoom-in-95 duration-200 shadow-2xl">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-sm font-black uppercase tracking-widest text-[#e62e04] italic">{t('update_profile')}</h3>
+                <h3 className="text-sm font-black uppercase tracking-widest text-primary italic">{t('update_profile')}</h3>
                 <button onClick={() => setIsEditing(false)} className="p-1 text-gray-400 hover:text-gray-800">
                   <XCircle size={20} />
                 </button>
@@ -449,7 +449,7 @@ const Profile: React.FC = () => {
                     required
                     value={newName}
                     onChange={(e) => setNewName(e.target.value)}
-                    className="w-full bg-gray-50 dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-xl py-3.5 px-4 focus:border-[#e62e04] focus:ring-0 text-sm dark:text-white font-bold"
+                    className="w-full bg-gray-50 dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-xl py-3.5 px-4 focus:border-primary focus:ring-0 text-sm dark:text-white font-bold"
                     placeholder="Your Name"
                   />
                 </div>
@@ -460,14 +460,14 @@ const Profile: React.FC = () => {
                     type="text" 
                     value={newAvatar}
                     onChange={(e) => setNewAvatar(e.target.value)}
-                    className="w-full bg-gray-50 dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-xl py-3 px-4 focus:border-[#e62e04] focus:ring-0 text-[10px] dark:text-gray-300"
+                    className="w-full bg-gray-50 dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-xl py-3 px-4 focus:border-primary focus:ring-0 text-[10px] dark:text-gray-300"
                     placeholder="https://example.com/image.jpg"
                   />
                 </div>
 
                 <button 
                   type="submit"
-                  className="w-full bg-[#e62e04] text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 dark:shadow-none mt-2 text-xs"
+                  className="w-full bg-primary text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 dark:shadow-none mt-2 text-xs"
                 >
                   {t('save_changes')}
                 </button>

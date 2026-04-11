@@ -38,12 +38,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/admin')}>
-            <div className="w-8 h-8 bg-[#e62e04] rounded-lg flex items-center justify-center text-white">
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white">
               <ShieldAlert size={18} />
             </div>
             <div className="flex flex-col leading-none">
               <span className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-tighter">Admin</span>
-              <span className="text-[10px] font-bold text-[#e62e04] uppercase tracking-widest">Dashboard</span>
+              <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Dashboard</span>
             </div>
           </div>
         </div>
@@ -158,7 +158,7 @@ const AdminNavLink: React.FC<AdminNavLinkProps> = ({ to, icon, label, collapsed,
       className={`
         flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative
         ${isActive 
-          ? 'bg-red-50 dark:bg-red-950/20 text-[#e62e04]' 
+          ? 'bg-red-50 dark:bg-red-950/20 text-primary' 
           : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'}
       `}
     >

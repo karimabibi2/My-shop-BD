@@ -294,7 +294,7 @@ const AdminPanel: React.FC = () => {
           <div className="flex flex-col w-full gap-3 mt-8">
             <button 
               onClick={() => navigate('/admin/login')} 
-              className="bg-[#e62e04] text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-red-100"
+              className="bg-primary text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-red-100"
             >
               {t('go_to_admin_login')}
             </button>
@@ -367,12 +367,12 @@ const AdminPanel: React.FC = () => {
               rel="noopener noreferrer"
               className="hidden sm:flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl text-[10px] font-black text-gray-600 dark:text-gray-300 uppercase tracking-widest hover:bg-gray-50 dark:hover:bg-slate-800 transition-all shadow-sm"
             >
-              <Globe size={14} className="text-[#e62e04]" />
+              <Globe size={14} className="text-primary" />
               {t('visit_live_dashboard')}
             </a>
             <div className="bg-red-50 dark:bg-red-950/20 px-4 py-1.5 rounded-full border border-red-100 dark:border-red-900 flex items-center gap-2">
               <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-              <span className="text-[10px] font-black text-[#e62e04] uppercase tracking-widest">{t('system_live')}</span>
+              <span className="text-[10px] font-black text-primary uppercase tracking-widest">{t('system_live')}</span>
             </div>
           </div>
         </div>
@@ -385,7 +385,7 @@ const AdminPanel: React.FC = () => {
               href="https://my-shop-bd.vercel.app/#/admin" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="sm:hidden flex items-center justify-center gap-3 w-full py-4 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl text-[11px] font-black text-[#e62e04] uppercase tracking-[0.2em] shadow-sm active:scale-95 transition-all"
+              className="sm:hidden flex items-center justify-center gap-3 w-full py-4 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl text-[11px] font-black text-primary uppercase tracking-[0.2em] shadow-sm active:scale-95 transition-all"
             >
               <Globe size={18} />
               {t('visit_live_dashboard')}
@@ -417,7 +417,7 @@ const AdminPanel: React.FC = () => {
                   <p className="text-[9px] text-gray-400 font-bold uppercase mt-1">{t('last_7_days')}</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-[#e62e04] rounded-full" />
+                  <div className="w-2 h-2 bg-primary rounded-full" />
                   <span className="text-[9px] font-black uppercase tracking-widest text-gray-500">{t('revenue')}</span>
                 </div>
               </div>
@@ -454,9 +454,9 @@ const AdminPanel: React.FC = () => {
                     <Line 
                       type="monotone" 
                       dataKey="sales" 
-                      stroke="#e62e04" 
+                      stroke="#f85606" 
                       strokeWidth={4} 
-                      dot={{ r: 4, fill: '#e62e04', strokeWidth: 2, stroke: '#fff' }}
+                      dot={{ r: 4, fill: '#f85606', strokeWidth: 2, stroke: '#fff' }}
                       activeDot={{ r: 6, strokeWidth: 0 }}
                     />
                   </LineChart>
@@ -464,12 +464,12 @@ const AdminPanel: React.FC = () => {
               </div>
             </div>
 
-            <div className="col-span-1 sm:col-span-2 bg-gradient-to-r from-[#e62e04] to-red-400 p-5 rounded-2xl shadow-lg text-white">
+            <div className="col-span-1 sm:col-span-2 bg-gradient-to-r from-primary to-red-400 p-5 rounded-2xl shadow-lg text-white">
               <h4 className="text-sm font-black uppercase italic mb-1">{t('quick_action')}</h4>
               <p className="text-[11px] opacity-90 mb-4">{t('add_trending_desc')}</p>
               <button 
                 onClick={() => setActiveTab('products')}
-                className="w-full bg-white text-[#e62e04] py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest"
+                className="w-full bg-white text-primary py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest"
               >
                 {t('go_to_inventory')}
               </button>
@@ -510,7 +510,7 @@ const AdminPanel: React.FC = () => {
                 return (
                   <div key={cat.id} className="flex flex-col gap-3">
                     <div className="flex items-center gap-2 px-1">
-                      <div className="h-4 w-1 bg-[#e62e04] rounded-full"></div>
+                      <div className="h-4 w-1 bg-primary rounded-full"></div>
                       <h4 className="text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-widest">{category}</h4>
                       <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest ml-auto">{categoryProducts.length} Items</span>
                     </div>
@@ -535,7 +535,7 @@ const AdminPanel: React.FC = () => {
                               <p className="text-[8px] text-gray-400 truncate mt-0.5">{product.description}</p>
                             )}
                             <div className="flex items-center gap-2 mt-0.5">
-                              <span className="text-[10px] font-black text-[#e62e04]">৳{product.price}</span>
+                              <span className="text-[10px] font-black text-primary">৳{product.price}</span>
                               <span className={`text-[8px] font-bold uppercase px-1.5 py-0.5 rounded ${product.isAvailable ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
                                 {product.isAvailable ? t('in_stock') : t('out_of_stock')}
                               </span>
@@ -585,7 +585,7 @@ const AdminPanel: React.FC = () => {
             {/* Category Wise Image Gallery at the Bottom */}
             <div className="mt-10 pt-10 border-t border-gray-100 dark:border-slate-800">
               <h3 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-widest px-1 mb-6 flex items-center gap-2">
-                <ImageIcon size={18} className="text-[#e62e04]" />
+                <ImageIcon size={18} className="text-primary" />
                 {t('category_gallery')}
               </h3>
               <div className="flex flex-col gap-8">
@@ -600,7 +600,7 @@ const AdminPanel: React.FC = () => {
                           {cat.image ? (
                             <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center text-[#e62e04] bg-red-50">
+                            <div className="w-full h-full flex items-center justify-center text-primary bg-red-50">
                               <ImageIcon size={14} />
                             </div>
                           )}
@@ -657,7 +657,7 @@ const AdminPanel: React.FC = () => {
                       {cat.image ? (
                         <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                       ) : (
-                        <div className="text-[#e62e04]">
+                        <div className="text-primary">
                           <ImageIcon size={20} />
                         </div>
                       )}
@@ -730,7 +730,7 @@ const AdminPanel: React.FC = () => {
                          <h4 className="text-xs font-black text-gray-800 dark:text-white mt-1 uppercase">{order.customerName}</h4>
                          <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mt-1">{t('payment')}: {order.paymentMethod || 'COD'}</p>
                           {order.phone && (
-                            <p className="text-[10px] font-bold text-[#e62e04] mt-0.5">{order.phone}</p>
+                            <p className="text-[10px] font-bold text-primary mt-0.5">{order.phone}</p>
                           )}
                        </div>
                        <div className={`px-2 py-1 rounded-lg text-[8px] font-black uppercase ${order.status === 'Pending' ? 'bg-amber-50 text-amber-500' : order.status === 'Delivered' ? 'bg-green-50 text-green-500' : 'bg-red-50 text-red-500'}`}>
@@ -752,7 +752,7 @@ const AdminPanel: React.FC = () => {
                              />
                              <div className="absolute -top-1 -right-1 flex flex-col gap-0.5 items-end">
                                {item.quantity > 1 && (
-                                 <span className="bg-[#e62e04] text-white text-[8px] font-black w-4 h-4 flex items-center justify-center rounded-full border-2 border-white dark:border-slate-900 shadow-sm">
+                                 <span className="bg-primary text-white text-[8px] font-black w-4 h-4 flex items-center justify-center rounded-full border-2 border-white dark:border-slate-900 shadow-sm">
                                    {item.quantity}
                                  </span>
                                )}
@@ -773,7 +773,7 @@ const AdminPanel: React.FC = () => {
                      </div>
 
                      <div className="flex justify-between items-center">
-                        <span className="text-[10px] font-black text-[#e62e04]">Total: ৳{order.total}</span>
+                        <span className="text-[10px] font-black text-primary">Total: ৳{order.total}</span>
                         <div className="flex gap-2">
                           <button 
                             onClick={() => setShowInvoice(order)}
@@ -824,7 +824,7 @@ const AdminPanel: React.FC = () => {
             {/* Featured Product Selection */}
             <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
               <div className="flex items-center gap-2">
-                <Package size={18} className="text-[#e62e04]" />
+                <Package size={18} className="text-primary" />
                 <h4 className="text-[11px] font-black uppercase tracking-widest">{t('featured_product')}</h4>
               </div>
               <div className="flex flex-col gap-3">
@@ -880,7 +880,7 @@ const AdminPanel: React.FC = () => {
                       toast.error(t('failed_to_update_settings') || 'Failed to update settings');
                     }
                   }}
-                  className="w-full bg-[#e62e04] text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
+                  className="w-full bg-primary text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
                 >
                   <Save size={14} /> {t('save_featured_product')}
                 </button>
@@ -1110,7 +1110,7 @@ const AdminPanel: React.FC = () => {
 
             <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
               <div className="flex items-center gap-2">
-                <CreditCard size={18} className="text-[#e62e04]" />
+                <CreditCard size={18} className="text-primary" />
                 <h4 className="text-[11px] font-black uppercase tracking-widest">{t('payment_settings')}</h4>
               </div>
               
@@ -1134,7 +1134,7 @@ const AdminPanel: React.FC = () => {
                           toast.error(t('failed_to_update_settings'));
                         }
                       }}
-                      className="bg-[#e62e04] text-white px-4 rounded-xl text-[10px] font-black uppercase tracking-widest"
+                      className="bg-primary text-white px-4 rounded-xl text-[10px] font-black uppercase tracking-widest"
                     >
                       {t('save')}
                     </button>
@@ -1160,7 +1160,7 @@ const AdminPanel: React.FC = () => {
                           toast.error(t('failed_to_update_settings'));
                         }
                       }}
-                      className="bg-[#e62e04] text-white px-4 rounded-xl text-[10px] font-black uppercase tracking-widest"
+                      className="bg-primary text-white px-4 rounded-xl text-[10px] font-black uppercase tracking-widest"
                     >
                       {t('save')}
                     </button>
@@ -1186,7 +1186,7 @@ const AdminPanel: React.FC = () => {
                           toast.error(t('failed_to_update_settings'));
                         }
                       }}
-                      className="bg-[#e62e04] text-white px-4 rounded-xl text-[10px] font-black uppercase tracking-widest"
+                      className="bg-primary text-white px-4 rounded-xl text-[10px] font-black uppercase tracking-widest"
                     >
                       {t('save')}
                     </button>
@@ -1241,7 +1241,7 @@ const AdminPanel: React.FC = () => {
 
             <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
               <div className="flex items-center gap-2">
-                <Globe size={18} className="text-[#e62e04]" />
+                <Globe size={18} className="text-primary" />
                 <h4 className="text-[11px] font-black uppercase tracking-widest">{t('landing_page_management')}</h4>
               </div>
               <p className="text-[9px] text-gray-400 font-bold uppercase leading-tight px-1">
@@ -1249,7 +1249,7 @@ const AdminPanel: React.FC = () => {
               </p>
               <button 
                 onClick={() => setActiveTab('landing')}
-                className="w-full bg-[#e62e04] text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
+                className="w-full bg-primary text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
               >
                 <Edit2 size={14} /> {t('edit_landing_page')}
               </button>
@@ -1257,7 +1257,7 @@ const AdminPanel: React.FC = () => {
 
             <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
               <div className="flex items-center gap-2">
-                <Truck size={18} className="text-[#e62e04]" />
+                <Truck size={18} className="text-primary" />
                 <h4 className="text-[11px] font-black uppercase tracking-widest">{t('delivery_settings')}</h4>
               </div>
               
@@ -1270,7 +1270,7 @@ const AdminPanel: React.FC = () => {
                       type="number" 
                       value={rates.Dhaka}
                       onChange={(e) => setRates({...rates, Dhaka: parseInt(e.target.value)})}
-                      className="w-16 bg-gray-50 dark:bg-slate-800 border-none rounded-lg p-1.5 text-center text-xs font-black focus:ring-1 focus:ring-[#e62e04]" 
+                      className="w-16 bg-gray-50 dark:bg-slate-800 border-none rounded-lg p-1.5 text-center text-xs font-black focus:ring-1 focus:ring-primary" 
                     />
                   </div>
                 </div>
@@ -1282,7 +1282,7 @@ const AdminPanel: React.FC = () => {
                       type="number" 
                       value={rates.Bogura}
                       onChange={(e) => setRates({...rates, Bogura: parseInt(e.target.value)})}
-                      className="w-16 bg-gray-50 dark:bg-slate-800 border-none rounded-lg p-1.5 text-center text-xs font-black focus:ring-1 focus:ring-[#e62e04]" 
+                      className="w-16 bg-gray-50 dark:bg-slate-800 border-none rounded-lg p-1.5 text-center text-xs font-black focus:ring-1 focus:ring-primary" 
                     />
                   </div>
                 </div>
@@ -1294,7 +1294,7 @@ const AdminPanel: React.FC = () => {
                       type="number" 
                       value={rates.Default}
                       onChange={(e) => setRates({...rates, Default: parseInt(e.target.value)})}
-                      className="w-16 bg-gray-50 dark:bg-slate-800 border-none rounded-lg p-1.5 text-center text-xs font-black focus:ring-1 focus:ring-[#e62e04]" 
+                      className="w-16 bg-gray-50 dark:bg-slate-800 border-none rounded-lg p-1.5 text-center text-xs font-black focus:ring-1 focus:ring-primary" 
                     />
                   </div>
                 </div>
@@ -1309,7 +1309,7 @@ const AdminPanel: React.FC = () => {
                     toast.error(t('failed_to_update_settings') || 'Failed to update settings');
                   }
                 }}
-                className="w-full bg-[#e62e04] text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest mt-2 flex items-center justify-center gap-2"
+                className="w-full bg-primary text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest mt-2 flex items-center justify-center gap-2"
               >
                 <Save size={14} /> {t('update_shipping_rates')}
               </button>
@@ -1496,7 +1496,7 @@ const AdminPanel: React.FC = () => {
                         toast.error(t('failed_to_update_settings') || 'Failed to update settings');
                       }
                     }}
-                    className="bg-[#e62e04] text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
+                    className="bg-primary text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
                   >
                     <Save size={14} /> {t('update_credentials')}
                   </button>
@@ -1517,7 +1517,7 @@ const AdminPanel: React.FC = () => {
 
             <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
               <div className="flex items-center gap-2">
-                <ImageIcon size={18} className="text-[#e62e04]" />
+                <ImageIcon size={18} className="text-primary" />
                 <h4 className="text-[11px] font-black uppercase tracking-widest">{t('home_banner_management')}</h4>
               </div>
               
@@ -1570,7 +1570,7 @@ const AdminPanel: React.FC = () => {
                             setIsUploading(false);
                           }
                         }}
-                        className={`bg-[#e62e04] text-white px-4 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-1 ${isUploading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                        className={`bg-primary text-white px-4 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-1 ${isUploading ? 'opacity-70 cursor-not-allowed' : ''}`}
                       >
                         {isUploading ? <RefreshCw className="animate-spin" size={12} /> : null}
                         {t('update')}
@@ -1579,12 +1579,12 @@ const AdminPanel: React.FC = () => {
                     {isUploading && selectedBannerFile && (
                       <div className="w-full bg-gray-100 dark:bg-slate-800 rounded-full h-1 overflow-hidden mt-1">
                         <div 
-                          className="bg-[#e62e04] h-full transition-all duration-300 ease-out" 
+                          className="bg-primary h-full transition-all duration-300 ease-out" 
                           style={{ width: `${uploadProgress}%` }}
                         />
                       </div>
                     )}
-                    <label className="cursor-pointer bg-gray-50 dark:bg-slate-800 border-2 border-dashed border-gray-200 dark:border-slate-700 rounded-xl p-3 flex flex-col items-center justify-center gap-1 hover:border-[#e62e04] transition-colors">
+                    <label className="cursor-pointer bg-gray-50 dark:bg-slate-800 border-2 border-dashed border-gray-200 dark:border-slate-700 rounded-xl p-3 flex flex-col items-center justify-center gap-1 hover:border-primary transition-colors">
                       <Upload size={16} className="text-gray-400" />
                       <span className="text-[10px] font-black uppercase text-gray-500">{selectedBannerFile ? selectedBannerFile.name : t('upload_banner_image')}</span>
                       <input 
@@ -1602,19 +1602,19 @@ const AdminPanel: React.FC = () => {
                   <div className="flex gap-2">
                     <button 
                       onClick={() => setNewBannerUrl('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&q=80')}
-                      className="text-[8px] font-black text-[#e62e04] uppercase border border-red-100 dark:border-red-900 px-2 py-1 rounded hover:bg-red-50"
+                      className="text-[8px] font-black text-primary uppercase border border-red-100 dark:border-red-900 px-2 py-1 rounded hover:bg-red-50"
                     >
                       {t('sale')}
                     </button>
                     <button 
                       onClick={() => setNewBannerUrl('https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80')}
-                      className="text-[8px] font-black text-[#e62e04] uppercase border border-red-100 dark:border-red-900 px-2 py-1 rounded hover:bg-red-50"
+                      className="text-[8px] font-black text-primary uppercase border border-red-100 dark:border-red-900 px-2 py-1 rounded hover:bg-red-50"
                     >
                       {t('store')}
                     </button>
                     <button 
                       onClick={() => setNewBannerUrl('https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80')}
-                      className="text-[8px] font-black text-[#e62e04] uppercase border border-red-100 dark:border-red-900 px-2 py-1 rounded hover:bg-red-50"
+                      className="text-[8px] font-black text-primary uppercase border border-red-100 dark:border-red-900 px-2 py-1 rounded hover:bg-red-50"
                     >
                       {t('fashion')}
                     </button>
@@ -1730,7 +1730,7 @@ const AdminPanel: React.FC = () => {
               {/* Global Order Policy */}
               <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-6">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-red-50 dark:bg-red-950/20 text-[#e62e04] rounded-xl flex items-center justify-center border border-red-100 dark:border-red-900/30">
+                  <div className="w-10 h-10 bg-red-50 dark:bg-red-950/20 text-primary rounded-xl flex items-center justify-center border border-red-100 dark:border-red-900/30">
                     <FileText size={20} />
                   </div>
                   <div className="flex flex-col">
@@ -1757,7 +1757,7 @@ const AdminPanel: React.FC = () => {
                           toast.error(t('failed_to_update_settings') || 'Failed to update settings');
                         }
                       }}
-                      className="bg-[#e62e04] text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
+                      className="bg-primary text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
                     >
                       <Save size={14} /> {t('update')}
                     </button>
@@ -1767,7 +1767,7 @@ const AdminPanel: React.FC = () => {
 
               <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
                 <div className="flex items-center gap-2">
-                  <BarChart3 size={18} className="text-[#e62e04]" />
+                  <BarChart3 size={18} className="text-primary" />
                   <h4 className="text-[11px] font-black uppercase tracking-widest">{t('tracking_settings')}</h4>
                 </div>
                 
@@ -1849,7 +1849,7 @@ const AdminPanel: React.FC = () => {
                         id="trackingEnabled"
                         checked={localTracking.isEnabled}
                         onChange={(e) => setLocalTracking({...localTracking, isEnabled: e.target.checked})}
-                        className="w-4 h-4 rounded border-gray-300 text-[#e62e04] focus:ring-[#e62e04]"
+                        className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
                       />
                       <label htmlFor="trackingEnabled" className="text-[10px] font-black uppercase tracking-widest cursor-pointer">
                         {t('enable_tracking')}
@@ -1866,7 +1866,7 @@ const AdminPanel: React.FC = () => {
                         toast.error(t('failed_to_update_settings') || 'Failed to update settings');
                       }
                     }}
-                    className="bg-[#e62e04] text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
+                    className="bg-primary text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
                   >
                     <Save size={14} /> {t('update_tracking')}
                   </button>
@@ -1876,7 +1876,7 @@ const AdminPanel: React.FC = () => {
               {/* API Settings */}
               <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
                 <div className="flex items-center gap-2">
-                  <Key size={18} className="text-[#e62e04]" />
+                  <Key size={18} className="text-primary" />
                   <h4 className="text-[11px] font-black uppercase tracking-widest">{t('api_settings')}</h4>
                 </div>
                 
@@ -1919,7 +1919,7 @@ const AdminPanel: React.FC = () => {
                             toast.error(t('failed_to_update_settings') || 'Failed to update settings');
                           }
                         }}
-                        className="bg-[#e62e04] text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2"
+                        className="bg-primary text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2"
                       >
                         <Save size={12} /> {t('save')}
                       </button>
@@ -1933,7 +1933,7 @@ const AdminPanel: React.FC = () => {
               <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Activity size={18} className="text-[#e62e04]" />
+                    <Activity size={18} className="text-primary" />
                     <h4 className="text-[11px] font-black uppercase tracking-widest">{t('conversion_dashboard')}</h4>
                   </div>
                   <div className="bg-green-50 dark:bg-green-900/20 text-green-600 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest">
@@ -1983,7 +1983,7 @@ const AdminPanel: React.FC = () => {
               <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm flex flex-col gap-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Terminal size={18} className="text-[#e62e04]" />
+                    <Terminal size={18} className="text-primary" />
                     <h4 className="text-[11px] font-black uppercase tracking-widest">{t('pixel_debug_tool')}</h4>
                   </div>
                   <div className="flex gap-2">
@@ -2045,7 +2045,7 @@ const AdminPanel: React.FC = () => {
           <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
             <div className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl p-6 animate-in slide-in-from-bottom-10 duration-300 shadow-2xl overflow-y-auto max-h-[90vh]">
                <div className="flex justify-between items-center mb-6">
-                 <h3 className="text-sm font-black uppercase tracking-widest text-[#e62e04] italic">
+                 <h3 className="text-sm font-black uppercase tracking-widest text-primary italic">
                    {editingProduct.id.toString().startsWith('new') ? t('add_new_product') : t('edit_product')}
                  </h3>
                  <button onClick={() => {
@@ -2123,7 +2123,7 @@ const AdminPanel: React.FC = () => {
                           }}
                           className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase transition-all ${
                             editingProduct.sizes?.includes(size)
-                              ? 'bg-[#e62e04] text-white shadow-md shadow-red-100'
+                              ? 'bg-primary text-white shadow-md shadow-red-100'
                               : 'bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-gray-500 hover:bg-gray-200'
                           }`}
                         >
@@ -2139,7 +2139,7 @@ const AdminPanel: React.FC = () => {
                       id="avail"
                       checked={editingProduct.isAvailable}
                       onChange={(e) => setEditingProduct({...editingProduct, isAvailable: e.target.checked})}
-                      className="accent-[#e62e04]"
+                      className="accent-primary"
                     />
                     <label htmlFor="avail" className="text-[10px] font-bold text-gray-600 uppercase">{t('mark_in_stock')}</label>
                   </div>
@@ -2190,7 +2190,7 @@ const AdminPanel: React.FC = () => {
                         </div>
                         
                         <div className="flex-1 flex flex-col gap-2">
-                          <label className="cursor-pointer bg-gray-50 dark:bg-slate-800 border-2 border-dashed border-gray-200 dark:border-slate-700 rounded-xl p-3 flex flex-col items-center justify-center gap-1 hover:border-[#e62e04] transition-colors">
+                          <label className="cursor-pointer bg-gray-50 dark:bg-slate-800 border-2 border-dashed border-gray-200 dark:border-slate-700 rounded-xl p-3 flex flex-col items-center justify-center gap-1 hover:border-primary transition-colors">
                             <Upload size={16} className="text-gray-400" />
                             <span className="text-[10px] font-black uppercase text-gray-500">{t('upload_image')}</span>
                             <input 
@@ -2211,7 +2211,7 @@ const AdminPanel: React.FC = () => {
                           type="text" 
                           value={editingProduct.image}
                           onChange={(e) => setEditingProduct({...editingProduct, image: e.target.value})}
-                          className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-xl py-2.5 pl-9 pr-3 text-[10px] font-medium dark:text-gray-300 focus:ring-1 focus:ring-[#e62e04]"
+                          className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-xl py-2.5 pl-9 pr-3 text-[10px] font-medium dark:text-gray-300 focus:ring-1 focus:ring-primary"
                           placeholder={t('image_url_placeholder')}
                         />
                       </div>
@@ -2250,7 +2250,7 @@ const AdminPanel: React.FC = () => {
                         }
                       }
                     }}
-                    className={`w-full bg-[#e62e04] text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 mt-4 text-xs flex items-center justify-center gap-2 ${isUploading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                    className={`w-full bg-primary text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 mt-4 text-xs flex items-center justify-center gap-2 ${isUploading ? 'opacity-70 cursor-not-allowed' : ''}`}
                   >
                     {isUploading ? <RefreshCw className="animate-spin" size={16} /> : null}
                     {isUploading ? t('saving') || 'Saving...' : t('save_product_changes')}
@@ -2259,12 +2259,12 @@ const AdminPanel: React.FC = () => {
                   {isUploading && (
                     <div className="mt-4">
                       <div className="flex justify-between items-center mb-1">
-                        <span className="text-[9px] font-black text-[#e62e04] uppercase tracking-widest">{t('uploading') || 'Uploading...'}</span>
+                        <span className="text-[9px] font-black text-primary uppercase tracking-widest">{t('uploading') || 'Uploading...'}</span>
                         <span className="text-[9px] font-black text-gray-400">{Math.round(uploadProgress)}%</span>
                       </div>
                       <div className="w-full bg-gray-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
                         <div 
-                          className="bg-[#e62e04] h-full transition-all duration-300 ease-out" 
+                          className="bg-primary h-full transition-all duration-300 ease-out" 
                           style={{ width: `${uploadProgress}%` }}
                         />
                       </div>
@@ -2372,7 +2372,7 @@ const AdminPanel: React.FC = () => {
           <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-white dark:bg-slate-900 w-full max-w-xs rounded-3xl p-6 animate-in zoom-in-95 duration-200 shadow-2xl">
                <div className="flex justify-between items-center mb-6">
-                 <h3 className="text-sm font-black uppercase tracking-widest text-[#e62e04] italic">{t('edit_category')}</h3>
+                 <h3 className="text-sm font-black uppercase tracking-widest text-primary italic">{t('edit_category')}</h3>
                  <button onClick={() => {
                     setEditingCategory(null);
                     setSelectedCategoryFile(null);
@@ -2401,7 +2401,7 @@ const AdminPanel: React.FC = () => {
                           <ImageIcon size={20} className="text-gray-300" />
                         )}
                       </div>
-                      <label className="flex-1 cursor-pointer bg-gray-50 dark:bg-slate-800 border-2 border-dashed border-gray-200 dark:border-slate-700 rounded-xl p-2 flex flex-col items-center justify-center gap-1 hover:border-[#e62e04] transition-colors">
+                      <label className="flex-1 cursor-pointer bg-gray-50 dark:bg-slate-800 border-2 border-dashed border-gray-200 dark:border-slate-700 rounded-xl p-2 flex flex-col items-center justify-center gap-1 hover:border-primary transition-colors">
                         <Upload size={14} className="text-gray-400" />
                         <span className="text-[8px] font-black uppercase text-gray-500">{t('upload')}</span>
                         <input 
@@ -2439,7 +2439,7 @@ const AdminPanel: React.FC = () => {
                         setIsUploading(false);
                       }
                     }}
-                    className={`w-full bg-[#e62e04] text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 mt-2 text-xs flex items-center justify-center gap-2 ${isUploading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                    className={`w-full bg-primary text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-red-100 mt-2 text-xs flex items-center justify-center gap-2 ${isUploading ? 'opacity-70 cursor-not-allowed' : ''}`}
                   >
                     {isUploading ? <RefreshCw className="animate-spin" size={16} /> : null}
                     {isUploading ? t('updating') || 'Updating...' : t('update_category_name')}
@@ -2449,7 +2449,7 @@ const AdminPanel: React.FC = () => {
                     <div className="mt-2">
                       <div className="w-full bg-gray-100 dark:bg-slate-800 rounded-full h-1 overflow-hidden">
                         <div 
-                          className="bg-[#e62e04] h-full transition-all duration-300 ease-out" 
+                          className="bg-primary h-full transition-all duration-300 ease-out" 
                           style={{ width: `${uploadProgress}%` }}
                         />
                       </div>
@@ -2515,7 +2515,7 @@ const AdminPanel: React.FC = () => {
             <div className="p-8 flex flex-col gap-6 max-h-[90vh] overflow-y-auto print:max-h-none print:overflow-visible" id="invoice-content">
               <div className="flex justify-between items-start">
                 <div className="flex flex-col">
-                  <h2 className="text-2xl font-black text-[#e62e04] italic uppercase tracking-tighter">MY shopBD</h2>
+                  <h2 className="text-2xl font-black text-primary italic uppercase tracking-tighter">MY shopBD</h2>
                   <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Premium Shopping Experience</p>
                 </div>
                 <div className="text-right">
@@ -2529,14 +2529,14 @@ const AdminPanel: React.FC = () => {
                   <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Bill To:</h4>
                   <p className="text-sm font-black uppercase">{showInvoice.customerName}</p>
                   <p className="text-[10px] text-gray-500 leading-relaxed">{showInvoice.address}</p>
-                  <p className="text-[10px] font-bold text-[#e62e04]">{showInvoice.phone}</p>
+                  <p className="text-[10px] font-bold text-primary">{showInvoice.phone}</p>
                 </div>
                 <div className="flex flex-col gap-2 text-right">
                   <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Order Details:</h4>
                   <p className="text-[10px] font-bold uppercase"><span className="text-gray-400">Date:</span> {new Date(showInvoice.date).toLocaleDateString()}</p>
                   <p className="text-[10px] font-bold uppercase"><span className="text-gray-400">Payment:</span> {showInvoice.paymentMethod || 'COD'}</p>
                   {(showInvoice as any).transactionId && (
-                    <p className="text-[10px] font-bold uppercase text-[#e62e04]"><span className="text-gray-400">Trx ID:</span> {(showInvoice as any).transactionId}</p>
+                    <p className="text-[10px] font-bold uppercase text-primary"><span className="text-gray-400">Trx ID:</span> {(showInvoice as any).transactionId}</p>
                   )}
                   <p className="text-[10px] font-bold uppercase"><span className="text-gray-400">Status:</span> {showInvoice.status}</p>
                 </div>
@@ -2556,7 +2556,7 @@ const AdminPanel: React.FC = () => {
                     <tr key={idx} className="border-b border-gray-50 dark:border-slate-800/50">
                       <td className="py-4">
                         <p className="text-[11px] font-black uppercase tracking-tighter">{item.name}</p>
-                        {item.selectedSize && <p className="text-[8px] font-bold text-[#e62e04] uppercase">Size: {item.selectedSize}</p>}
+                        {item.selectedSize && <p className="text-[8px] font-bold text-primary uppercase">Size: {item.selectedSize}</p>}
                       </td>
                       <td className="py-4 text-center text-[11px] font-bold">{item.quantity}</td>
                       <td className="py-4 text-right text-[11px] font-bold">৳{item.price.toLocaleString()}</td>
@@ -2577,7 +2577,7 @@ const AdminPanel: React.FC = () => {
                 </div>
                 <div className="flex justify-between w-48 text-sm font-black uppercase pt-2 border-t border-gray-100 dark:border-slate-800">
                   <span>Total</span>
-                  <span className="text-[#e62e04]">৳{showInvoice.total.toLocaleString()}</span>
+                  <span className="text-primary">৳{showInvoice.total.toLocaleString()}</span>
                 </div>
               </div>
 
@@ -2622,7 +2622,7 @@ const AdminPanel: React.FC = () => {
                     }
                   }
                 }}
-                className="flex-1 bg-[#e62e04] text-white py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
+                className="flex-1 bg-primary text-white py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
               >
                 <Printer size={14} /> Print Invoice
               </button>

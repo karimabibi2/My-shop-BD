@@ -118,7 +118,7 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ product, onCl
                     <span className="text-xs font-black uppercase mt-2 tracking-widest">No Image</span>
                   </div>
                 )}
-                <div className="absolute top-4 left-4 bg-[#e62e04] text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">
+                <div className="absolute top-4 left-4 bg-primary text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">
                   20% OFF
                 </div>
               </div>
@@ -127,7 +127,7 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ product, onCl
               <div className="p-6 flex flex-col gap-4">
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-black text-[#e62e04] uppercase tracking-widest bg-red-50 dark:bg-red-950/30 px-2 py-0.5 rounded">
+                    <span className="text-[10px] font-black text-primary uppercase tracking-widest bg-red-50 dark:bg-red-950/30 px-2 py-0.5 rounded">
                       {product.category}
                     </span>
                     <div className="flex items-center gap-0.5 text-amber-400">
@@ -141,7 +141,7 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ product, onCl
                 </div>
 
                 <div className="flex items-baseline gap-3">
-                  <span className="text-2xl font-black text-[#e62e04]">৳{product.price.toLocaleString()}</span>
+                  <span className="text-2xl font-black text-primary">৳{product.price.toLocaleString()}</span>
                   <span className="text-sm text-gray-400 line-through font-bold">৳{oldPrice.toLocaleString()}</span>
                 </div>
 
@@ -156,7 +156,7 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ product, onCl
                           onClick={() => setSelectedSize(size)}
                           className={`min-w-[40px] h-10 px-3 rounded-xl text-xs font-black transition-all border-2 ${
                             selectedSize === size
-                              ? 'border-[#e62e04] bg-[#e62e04] text-white shadow-lg shadow-red-100'
+                              ? 'border-primary bg-primary text-white shadow-lg shadow-red-100'
                               : 'border-gray-100 dark:border-slate-800 bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-gray-400 hover:border-gray-200'
                           }`}
                         >
@@ -171,19 +171,19 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ product, onCl
                 <div className="flex border-b border-gray-100 dark:border-slate-800 mt-2">
                   <button 
                     onClick={() => setActiveTab('description')}
-                    className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'description' ? 'text-[#e62e04] border-b-2 border-[#e62e04]' : 'text-gray-400'}`}
+                    className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'description' ? 'text-primary border-b-2 border-primary' : 'text-gray-400'}`}
                   >
                     {t('description')}
                   </button>
                   <button 
                     onClick={() => setActiveTab('policy')}
-                    className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'policy' ? 'text-[#e62e04] border-b-2 border-[#e62e04]' : 'text-gray-400'}`}
+                    className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'policy' ? 'text-primary border-b-2 border-primary' : 'text-gray-400'}`}
                   >
                     {t('order_policy')}
                   </button>
                   <button 
                     onClick={() => setActiveTab('reviews')}
-                    className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'reviews' ? 'text-[#e62e04] border-b-2 border-[#e62e04]' : 'text-gray-400'}`}
+                    className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'reviews' ? 'text-primary border-b-2 border-primary' : 'text-gray-400'}`}
                   >
                     {t('reviews')}
                   </button>
@@ -221,7 +221,7 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ product, onCl
                       className="flex flex-col gap-4"
                     >
                       <div className="flex flex-col gap-2 bg-gray-50 dark:bg-slate-800/50 p-3 rounded-2xl border border-gray-100 dark:border-slate-800">
-                        <span className="text-[9px] font-black uppercase text-[#e62e04] tracking-widest">{t('write_review')}</span>
+                        <span className="text-[9px] font-black uppercase text-primary tracking-widest">{t('write_review')}</span>
                         <div className="flex gap-2">
                           <input 
                             type="text" 
@@ -233,7 +233,7 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ product, onCl
                           <button 
                             onClick={handleSendReview}
                             disabled={isReviewSent}
-                            className={`${isReviewSent ? 'bg-green-500' : 'bg-[#e62e04]'} text-white p-2 rounded-xl active:scale-95 transition-all flex items-center justify-center min-w-[40px]`}
+                            className={`${isReviewSent ? 'bg-green-500' : 'bg-primary'} text-white p-2 rounded-xl active:scale-95 transition-all flex items-center justify-center min-w-[40px]`}
                           >
                             {isReviewSent ? <ShieldCheck size={16} /> : <MessageSquare size={16} />}
                           </button>
@@ -306,7 +306,7 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ product, onCl
                   }
                   onBuyNow({ ...product, selectedSize: selectedSize || undefined } as any);
                 }}
-                className="flex-[1.5] bg-[#e62e04] text-white py-3.5 rounded-2xl flex flex-col justify-center items-center gap-0.5 font-black text-[11px] uppercase tracking-widest shadow-lg shadow-red-200 dark:shadow-none active:scale-95 transition-all"
+                className="flex-[1.5] bg-primary text-white py-3.5 rounded-2xl flex flex-col justify-center items-center gap-0.5 font-black text-[11px] uppercase tracking-widest shadow-lg shadow-red-200 dark:shadow-none active:scale-95 transition-all"
               >
                 <div className="flex items-center gap-2">
                   <Zap size={16} fill="currentColor" />

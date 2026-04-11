@@ -6,7 +6,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { Lock, User, ShieldAlert, ArrowLeft } from 'lucide-react';
 
 const AdminLogin: React.FC = () => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { adminLogin, user } = useAuth();
@@ -23,7 +23,7 @@ const AdminLogin: React.FC = () => {
     e.preventDefault();
     setError('');
     
-    const success = await adminLogin(email, password);
+    const success = await adminLogin(username, password);
     if (success) {
       navigate('/admin');
     } else {
@@ -35,7 +35,7 @@ const AdminLogin: React.FC = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6">
       <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-2xl border border-gray-100 dark:border-slate-800">
         <div className="flex flex-col items-center mb-8">
-          <div className="w-16 h-16 bg-red-50 dark:bg-red-950/20 text-[#e62e04] rounded-2xl flex items-center justify-center mb-4 border border-red-100 dark:border-red-900/30">
+          <div className="w-16 h-16 bg-red-50 dark:bg-red-950/20 text-primary rounded-2xl flex items-center justify-center mb-4 border border-red-100 dark:border-red-900/30">
             <ShieldAlert size={32} />
           </div>
           <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase italic tracking-tighter">{t('admin_access')}</h2>
@@ -56,9 +56,9 @@ const AdminLogin: React.FC = () => {
               <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
               <input 
                 type="text" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-2xl py-4 pl-12 pr-4 text-sm font-bold focus:ring-2 focus:ring-[#e62e04] outline-none dark:text-white transition-all"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-2xl py-4 pl-12 pr-4 text-sm font-bold focus:ring-2 focus:ring-primary outline-none dark:text-white transition-all"
                 placeholder="Admin Username"
                 required
               />
@@ -73,7 +73,7 @@ const AdminLogin: React.FC = () => {
                 type="password" 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-2xl py-4 pl-12 pr-4 text-sm font-bold focus:ring-2 focus:ring-[#e62e04] outline-none dark:text-white transition-all"
+                className="w-full bg-gray-50 dark:bg-slate-800 border-none rounded-2xl py-4 pl-12 pr-4 text-sm font-bold focus:ring-2 focus:ring-primary outline-none dark:text-white transition-all"
                 placeholder="••••••••"
                 required
               />
@@ -82,7 +82,7 @@ const AdminLogin: React.FC = () => {
 
           <button 
             type="submit"
-            className="w-full bg-[#e62e04] text-white py-4 rounded-2xl font-black uppercase tracking-widest shadow-lg shadow-red-100 dark:shadow-none active:scale-[0.98] transition-all mt-4 text-xs"
+            className="w-full bg-primary text-white py-4 rounded-2xl font-black uppercase tracking-widest shadow-lg shadow-red-100 dark:shadow-none active:scale-[0.98] transition-all mt-4 text-xs"
           >
             {t('authenticate')}
           </button>
